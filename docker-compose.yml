@@ -1,0 +1,13 @@
+
+services:
+  sana_web:
+    build:
+      context: .  
+      dockerfile: Dockerfile
+    image: sana_web:latest
+    container_name: sana-web
+    restart: always
+    ports:
+      - "80:80" 
+    env_file:
+      - .env                              

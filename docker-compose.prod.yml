@@ -1,0 +1,51 @@
+# docker-compose -f docker-compose.prod.yml down -v ###Note: "-v" Deletes all the volume data and the data  will be lost, to avoid loss of data use down only
+# docker volume ls ###List volume
+# docker volume rm <volume_name> ###Remove volume
+
+# docker compose -f docker-compose.prod.yml down
+# docker compose -f docker-compose.prod.yml up -d --build
+# docker compose logs -f
+
+# Automated renewal with crontab
+# https://www.programonaut.com/setup-ssl-with-docker-nginx-and-lets-encrypt/
+# The last step is to automatically renew the certificates before they run out. A certificate has a lifetime of 90 days, and it is recommended to update them after a timespan of 60 days. Therefore, we need to rerun our certbot container every 60 days to renew the certificates. I will accomplish this by using crontab.
+# A crontab can be created on linux systems by running:
+# Copy
+# $ crontab -e
+# And adding a line with the following structure:
+# Copy
+# $ 0 5 1 */2 *  /usr/bin/docker compose -f /var/docker/docker-compose.yml up certbot
+
+services:
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    restart: unless-stopped
+    build: ./nginx/prod
+    volumes:
+      - ./dist:/usr/share/nginx/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    ports:
+      # - 5173:80
+      - 80:80
+      - 443:443
+    networks:
+      - app-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    command: certonly --webroot -w /var/www/certbot --force-renewal --email fredmuju@gmail.com -d app.raizcap.com --agree-tos
+    depends_on:
+      - nginx
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,28 @@
+.input {
+    transition: none;
+
+    &:focus-within {
+        outline: 1px solid #170645;
+        border-color: transparent;
+    }
+    ::placeholder {
+        color: #170645;
+        font-size: 16px;
+        font-weight: 400;
+    }
+}
+
+.input::placeholder {
+    color: #170645;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.wrapper {
+    transition: none;
+
+    &:focus-within {
+        outline: 1px solid #170645;
+        border-color: transparent;
+    }
+}

@@ -1,0 +1,7 @@
+# .dockerignore
+.env
+env
+build
+# dist
+*.egg-info
+*.eggs

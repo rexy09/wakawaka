@@ -1,0 +1,16 @@
+.input {
+    transition: none;
+
+    &:focus-within {
+        outline: 2px solid #170645;
+        border-color: transparent;
+    }
+}
+.wrapper {
+    transition: none;
+
+    &:focus-within {
+        outline: 2px solid #170645;
+        border-color: transparent;
+    }
+}
