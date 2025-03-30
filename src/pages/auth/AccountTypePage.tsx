@@ -10,14 +10,14 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 import { FiArrowRight, FiUser } from "react-icons/fi";
+import { MdArrowBackIos } from "react-icons/md";
+import { RiTruckLine } from "react-icons/ri";
 import polygon_1 from "../../assets/polygon_1.svg";
 import polygon_2 from "../../assets/polygon_2.svg";
 import sana_logo from "../../assets/sana_logo.svg";
-import { Color, FontFamily } from "../../common/theme";
-import { RiTruckLine } from "react-icons/ri";
-import { MdArrowBackIos } from "react-icons/md";
-import TransporterForm from "../../features/auth/ui/TransporterForm";
+import { Color } from "../../common/theme";
 import SenderForm from "../../features/auth/ui/SenderForm";
+import TransporterForm from "../../features/auth/ui/TransporterForm";
 
 export default function AccountTypePage() {
   const [accountType, setAccountType] = useState<
@@ -119,7 +119,6 @@ export default function AccountTypePage() {
                         size="14px"
                         c={"#8692A6"}
                         fw={400}
-                        style={{ fontFamily: FontFamily.Manrope }}
                       >
                         {account.description}
                       </Text>

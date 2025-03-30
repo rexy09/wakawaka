@@ -1,12 +1,10 @@
-import { Avatar, Flex, Group, Menu, Space, Text } from "@mantine/core";
+import { Avatar, Flex, Group, Menu, Text } from "@mantine/core";
 
 import { useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { CiSettings, CiUser } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 import { IUserResponse } from "../../../../../features/auth/types";
-import { Color } from "../../../../theme";
-import { Icons } from "../../../../icons";
-import { CiSettings, CiUser } from "react-icons/ci";
 import SignOutModal from "./SignOutModal";
 type Props = {
   showTitle?: boolean;

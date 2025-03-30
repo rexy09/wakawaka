@@ -2,7 +2,6 @@ import axios from "axios";
 import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 
 import Env from "../../config/env";
-import { useNavigate } from "react-router-dom";
 
 interface RequestOptions {
   method: "get" | "post" | "put" | "patch" | "delete";
@@ -14,7 +13,7 @@ interface RequestOptions {
 
 export default function useApiClient() {
   const authHeader = useAuthHeader();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   // const signOut = useSignOut();
   // const { notifyError } = userTostify();

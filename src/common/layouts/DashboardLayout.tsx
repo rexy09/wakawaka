@@ -8,11 +8,11 @@ import Env from "../../config/env";
 import { messaging } from "../../config/firebase";
 import useAuthServices from "../../features/auth/services";
 import DasboardFooter from "../navs/dashboard/DasboardFooter";
-import HeaderMenu from "../navs/dashboard/header/HeaderMenu";
 import Header from "../navs/dashboard/header/Header";
 
 export default function DashboardLayout() {
-  const [opened, { toggle }] = useDisclosure();
+  // const [opened, { toggle }] = useDisclosure();
+  const [opened] = useDisclosure();
   const { updateUserDevice } = useAuthServices();
   async function requestPermission() {
     //requesting permission using Notification API
@@ -52,7 +52,7 @@ export default function DashboardLayout() {
         <Container size="xl">
           <Box
             style={{
-              minHeight: "90vh",
+              minHeight: "80vh",
               padding: "20px",
             }}
           >

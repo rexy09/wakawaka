@@ -1,13 +1,15 @@
 
 export  const Color = {
+  White: "#FFFFFF",
+  Black: "#000000",
   PrimaryBlue: "#044299",
   DarkBlue: "#151F42",
   BrandBlue: "#170645",
+  Dark: "#151F42",
+  Grey: "#C7C7C7",
   Green: "#10B24B",
+  Text1: "#596258",
   Yellow: "#FAAD1D",
-  Dark: "#1D1C1D",
-  White: "#FFFFFF",
-  Black: "#000000",
   TextSecondary: "#A6A5A6",
   TextSecondary2: "#667279",
   TextSecondary3: "#5B5D7A",

@@ -16,7 +16,7 @@ import setting2 from "../assets/icons/setting2.svg";
 import logout from "../assets/icons/logout.svg";
 import eve from "../assets/icons/eve.svg";
 import close from "../assets/icons/close.svg";
-import arrow_up from "../assets/icons/arrow_up.svg";
+import arrow_up from "../assets/icons/arrow-up.svg";
 import arrow_down from "../assets/icons/arrow_down.svg";
 import search from "../assets/icons/search.svg";
 import notification from "../assets/icons/notification.svg";
@@ -31,6 +31,7 @@ import filter from "../assets/icons/filter.svg";
 import exportIcon from "../assets/icons/export.svg";
 import point from "../assets/icons/point.svg";
 import location from "../assets/icons/location.svg";
+import location2 from "../assets/icons/location2.svg";
 import arrow_right from "../assets/icons/arrow_right.svg";
 import doc from "../assets/icons/doc.svg";
 import empty from "../assets/icons/empty.svg";
@@ -43,6 +44,7 @@ import credit_pay from "../assets/icons/credit_pay.png";
 import mobile_pay from "../assets/icons/mobile_pay.svg";
 import bank_transfer from "../assets/icons/bank_transfer.svg";
 import message from "../assets/icons/message.svg";
+import archive from "../assets/icons/archive.svg";
 
 
 interface CustomIconProps {
@@ -109,6 +111,7 @@ export const Icons = {
   filter: createCustomIcon({ src: filter }),
   point: createCustomIcon({ src: point }),
   location: createCustomIcon({ src: location }),
+  location2: createCustomIcon({ src: location2 }),
   arrow_right: createCustomIcon({ src: arrow_right }),
   box2: createCustomIcon({ src: box2 }),
   doc: createCustomIcon({ src: doc }),
@@ -122,4 +125,5 @@ export const Icons = {
   mobilePay: createCustomIcon({ src: mobile_pay }),
   bankTransfer: createCustomIcon({ src: bank_transfer }),
   message: createCustomIcon({ src: message }),
+  archive: createCustomIcon({ src: archive }),
 };

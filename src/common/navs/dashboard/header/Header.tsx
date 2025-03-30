@@ -82,19 +82,19 @@ export default function HeaderMegaMenu() {
                     />
 
                     <Group h="100%" gap={'xs'} visibleFrom="sm">
-                        <NavLinkButton label={'Dashboard'} to={'/'} setOpened={function (value: SetStateAction<boolean>): void {
+                        <NavLinkButton label={'Dashboard'} to={'/'} setOpened={function (_value: SetStateAction<boolean>): void {
                             throw new Error('Function not implemented.');
                         } }/>
-                        <NavLinkButton label={'Find Jobs'} to={'/jobs'} setOpened={function (value: SetStateAction<boolean>): void {
+                        <NavLinkButton label={'Find Jobs'} to={'/jobs'} setOpened={function (_value: SetStateAction<boolean>): void {
                             throw new Error('Function not implemented.');
                         } }/>
-                        <NavLinkButton label={'Business'} to={'/business'} setOpened={function (value: SetStateAction<boolean>): void {
+                        <NavLinkButton label={'Business'} to={'/business'} setOpened={function (_value: SetStateAction<boolean>): void {
                             throw new Error('Function not implemented.');
                         } }/>
-                        <NavLinkButton label={'Career'} to={'/career'} setOpened={function (value: SetStateAction<boolean>): void {
+                        <NavLinkButton label={'Career'} to={'/career'} setOpened={function (_value: SetStateAction<boolean>): void {
                             throw new Error('Function not implemented.');
                         } }/>
-                        <NavLinkButton label={'About'} to={'/bout'} setOpened={function (value: SetStateAction<boolean>): void {
+                        <NavLinkButton label={'About'} to={'/bout'} setOpened={function (_value: SetStateAction<boolean>): void {
                             throw new Error('Function not implemented.');
                         } }/>
                        
