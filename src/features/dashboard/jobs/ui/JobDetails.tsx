@@ -1,42 +1,36 @@
 import {
   ActionIcon,
-  Badge,
   Button,
   Group,
   Modal,
-  NumberFormatter,
   NumberInput,
-  Paper,
-  SimpleGrid,
   Space,
   Text
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import moment from "moment";
 import { useEffect, useState } from "react";
+import { IoMdArrowRoundBack } from "react-icons/io";
 import { useNavigate, useParams } from "react-router-dom";
 import { Color } from "../../../../common/theme";
-import { getColorForStateMui } from "../../../hooks/utils";
 import OrderDetails from "../../bids/components/OrderDetails";
 import { IBidResult } from "../../bids/types";
 import { IOrder } from "../../home/types";
 import { useJobServices } from "../services";
 import { IBidForm, PaginatedResponse } from "../types";
-import { IoMdArrowRoundBack } from "react-icons/io";
 
 export default function JobDetails() {
   const navigate = useNavigate();
 
   const { postBid, getOrder, getOrderBid } = useJobServices();
   const { id } = useParams();
-  const [opened, { open, close }] = useDisclosure(false);
+  const [opened, {  close }] = useDisclosure(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [loadingOrder, setLoadingOrder] = useState(false);
   const [order, setOrder] = useState<IOrder>();
-  const [bids, setBids] = useState<PaginatedResponse<IBidResult>>();
+  const [_bids, setBids] = useState<PaginatedResponse<IBidResult>>();
 
   const form = useForm<IBidForm>({
     initialValues: { price: 0 },
@@ -169,13 +163,13 @@ export default function JobDetails() {
             </form>
           </Modal>
 
-          <Button variant="" color={Color.PrimaryBlue} onClick={open} disabled={bids?.results.length! > 0 || order?.state != 'bidding'}>
+          {/* <Button variant="" color={Color.PrimaryBlue} onClick={open} disabled={bids?.results.length! > 0 || order?.state != 'bidding'}>
             Place Bid
-          </Button>
+          </Button> */}
         </>
       </Group>
       <Space h="md" />
-      {
+      {/* {
         bids?.results.length! > 0 &&
         <Paper bg={"white"} p={"md"} radius={"md"} withBorder>
           <div>
@@ -222,7 +216,7 @@ export default function JobDetails() {
             </SimpleGrid>
           </div>
         </Paper>
-      }
+      } */}
       <Space h="md" />
       <OrderDetails loadingOrder={loadingOrder} order={order} />
 

@@ -6,6 +6,8 @@ import {
   Divider,
   Grid,
   Group,
+  Loader,
+  NumberFormatter,
   Paper,
   RangeSlider,
   SimpleGrid,
@@ -18,21 +20,21 @@ import { MdOutlineClear } from "react-icons/md";
 import { Icons } from "../../../../common/icons";
 import { Color } from "../../../../common/theme";
 import { useUtilities } from "../../../hooks/utils";
-import { IOrder, IOrdersStatistics } from "../../home/types";
 import { useJobServices } from "../services";
 import { useDashboardParameters } from "../stores";
-import { PaginatedResponse } from "../types";
+import { IJobPost, PaginatedResponse } from "../types";
+import moment from "moment";
+import { notifications } from "@mantine/notifications";
+import { PaginationComponent } from "../../../../common/components/PaginationComponent";
 
 export default function Jobs() {
   const parameters = useDashboardParameters();
   const { getFormattedDate } = useUtilities();
-  const { getOrdersStatistics, getOrders } = useJobServices();
-  const [_isLoading, setIsLoading] = useState(false);
-  const [_loadingOrders, setLoadingOrders] = useState(false);
+  const { getJobs } = useJobServices();
+  const [isLoading, setIsLoading] = useState(false);
+  const [jobs, setJobs] = useState<PaginatedResponse<IJobPost>>();
   // const [openStartDate, setOpenStartDate] = useState(false);
   // const [openEndDate, setOpenEndDate] = useState(false);
-  const [_ordersStatistics, setOrderStatistics] = useState<IOrdersStatistics>();
-  const [_orders, setOrders] = useState<PaginatedResponse<IOrder>>();
 
   const getFirstDayOfCurrentMonth = (): Date => {
     const today = new Date();
@@ -57,39 +59,42 @@ export default function Jobs() {
 
   const fetchData = () => {
     setIsLoading(true);
-    const params = useDashboardParameters.getState();
-    getOrdersStatistics(params)
-      .then((response) => {
-        setIsLoading(false);
-        setOrderStatistics(response.data);
-      })
-      .catch((_error) => {
-        setIsLoading(false);
-        // notifications.show({
-        //   color: "red",
-        //   title: "Error",
-        //   message: "Something went wrong!",
-        // });
-      });
+    // const params = useDashboardParameters.getState();
+    // getOrdersStatistics(params)
+    //   .then((response) => {
+    //     setIsLoading(false);
+    //     setOrderStatistics(response.data);
+    //   })
+    //   .catch((_error) => {
+    //     setIsLoading(false);
+    //     // notifications.show({
+    //     //   color: "red",
+    //     //   title: "Error",
+    //     //   message: "Something went wrong!",
+    //     // });
+    //   });
 
-    fetchOrders(1);
+    fetchJobs();
   };
-  const fetchOrders = (page: number) => {
-    setLoadingOrders(true);
+  const fetchJobs = (next?: string) => {
+    setIsLoading(true);
     const params = useDashboardParameters.getState();
 
-    getOrders(params, page)
+    getJobs(params, next, jobs?.lastDoc, jobs?.firstDoc)
       .then((response) => {
-        setLoadingOrders(false);
-        setOrders(response.data);
+        setIsLoading(false);
+
+        console.log(response);
+
+        setJobs(response);
       })
       .catch((_error) => {
-        setLoadingOrders(false);
-        // notifications.show({
-        //   color: "red",
-        //   title: "Error",
-        //   message: "Something went wrong!",
-        // });
+        setIsLoading(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
       });
   };
   useEffect(() => {
@@ -101,7 +106,7 @@ export default function Jobs() {
   // const skeletons = Array.from({ length: 4 }, (_, index) => (
   //   <OrderStatisticCardSkeleton key={index} />
   // ));
-  const cards = Array.from({ length: 6 }, (_, index) => (
+  const cards = jobs?.data.map((item, index) => (
     <Paper p={"md"} radius={"md"} key={index}>
       <Group wrap="nowrap">
 
@@ -109,22 +114,22 @@ export default function Jobs() {
 
         <div>
           <Text size="20px" fw={500} c="#151F42" lineClamp={1}>
-            Nahitaji mtu wa usafi
+            {item.category}
           </Text>
           <Space h="xs" />
 
           <Group wrap="nowrap">
 
             <Text size="10px" fw={500} c="#044299">
-              Driving Services
+              {item.category}
             </Text>
             <Group wrap="nowrap" gap={3}>
               {Icons.location2}
               <Text size="10px" fw={500} c="#596258">
-                Tegeta nyuki, Tanzania
+                {item.location.address}
               </Text>
               <Text size="10px" fw={500} c="#596258">
-                1 min
+                {moment(item.datePosted).startOf('day').fromNow()}
               </Text>
             </Group>
           </Group>
@@ -133,7 +138,7 @@ export default function Jobs() {
       <Space h="xs" />
 
       <Text size="12px" fw={400} c="#596258" lineClamp={3}>
-        Nitoon is a freemium productivity and note-taking web application developed by Notion Labs Inc. Notion offers organizational tools including freemium productivity and note-taking web application developed by Notion Labs Inc.
+        {item.description}
       </Text>
       <Space h="md" />
       <Group wrap="wrap">
@@ -144,13 +149,15 @@ export default function Jobs() {
       </Group>
       <Space h="md" />
       <Text size="20px" fw={400} c="#151F42" >
-        $1650<span style={{ color: "#C7C7C7" }}>/month</span>
+    
+        <NumberFormatter prefix="TZS " value={item.budget} thousandSeparator />
+        {/* <span style={{ color: "#C7C7C7" }}>/month</span> */}
       </Text>
       <Space h="md" />
       <Group wrap="wrap" justify="space-between">
         <Group wrap="wrap">
 
-        <Button variant="outline" color="#C7C7C7" bg={"#F9F9F9"} c="black" radius={"4px"} fw={500} w={115}>Detail</Button>
+          <Button variant="outline" color="#C7C7C7" bg={"#F9F9F9"} c="black" radius={"4px"} fw={500} w={115}>Detail</Button>
           <Button variant="outline" color="#C7C7C7" bg={"#F9F9F9"} c="black" radius={"4px"} fw={500} >Apply Now</Button>
         </Group>
         <ActionIcon variant="subtle" color="#C7C7C7" size={"md"}>
@@ -282,7 +289,7 @@ export default function Jobs() {
                   value={parameters.search}
                   onChange={(value) => {
                     parameters.updateText("search", value.currentTarget.value);
-                    fetchOrders(1);
+                    // fetchOrders(1);
                   }}
                   rightSection={
                     parameters.search.length != 0 ? (
@@ -291,7 +298,7 @@ export default function Jobs() {
                         color="black"
                         onClick={() => {
                           parameters.updateText("search", "");
-                          fetchOrders(1);
+                          // fetchOrders(1);
                         }}
                       >
                         <MdOutlineClear />
@@ -307,7 +314,7 @@ export default function Jobs() {
                   value={parameters.search}
                   onChange={(value) => {
                     parameters.updateText("search", value.currentTarget.value);
-                    fetchOrders(1);
+                    // fetchOrders(1);
                   }}
                   rightSection={
                     parameters.search.length != 0 ? (
@@ -316,7 +323,7 @@ export default function Jobs() {
                         color="black"
                         onClick={() => {
                           parameters.updateText("search", "");
-                          fetchOrders(1);
+                          // fetchOrders(1);
                         }}
                       >
                         <MdOutlineClear />
@@ -334,8 +341,17 @@ export default function Jobs() {
 
           <SimpleGrid cols={2}>
             {cards}
-          
+
           </SimpleGrid>
+          <Group justify="flex-center" mt="lg">
+
+          {isLoading && (<Loader color="blue" type="bars" />)}
+          </Group>
+          <Group justify="flex-center" mt="lg">
+            {jobs && (
+              <PaginationComponent data={jobs} total={jobs.count} fetchData={fetchJobs} showPageParam={false} />
+            )}
+          </Group>
 
         </Grid.Col>
       </Grid>

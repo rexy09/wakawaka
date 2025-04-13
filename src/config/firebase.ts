@@ -2,14 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getMessaging } from "firebase/messaging";
 import { getFirestore } from "firebase/firestore";
 
-export const firebaseConfig = {
-  apiKey: "AIzaSyCxTYSm_mXBuwOJ7mFxpR5k8HO1i2BrD5w",
-  authDomain: "thinking-digit-368121.firebaseapp.com",
-  projectId: "thinking-digit-368121",
-  storageBucket: "thinking-digit-368121.appspot.com",
-  messagingSenderId: "872224361329",
-  appId: "1:872224361329:web:8fb83a40fc8ae9a689c4d0",
-  measurementId: "G-E6Y0P339GJ",
+const firebaseConfig = {
+  apiKey: "AIzaSyCFXGhjYtPGN0o0aoyvONlsWuoKrS35kOs",
+  authDomain: "daywaka-768aa.firebaseapp.com",
+  projectId: "daywaka-768aa",
+  storageBucket: "daywaka-768aa.firebasestorage.app",
+  messagingSenderId: "476064351728",
+  appId: "1:476064351728:web:cbf66db67d2ee925380935",
+  measurementId: "G-HWQR5JX8KC",
 };
 
 // Initialize Firebase
