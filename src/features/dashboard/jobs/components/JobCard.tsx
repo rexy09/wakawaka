@@ -42,9 +42,13 @@ export default function JobCard({ job }: Props) {
         <Space h="md" />
         <Group wrap="wrap">
 
-            <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">Freelance</span>
-            <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">Remote</span>
-            <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">Intermediate</span>
+            <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">{job.commitment}</span>
+            <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">{job.urgency}</span>
+            <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">
+                {(job.numberOfPositions ?? 1) > 1 
+                    ? `${job.numberOfPositions ?? 1} Positions` 
+                    : `${job.numberOfPositions ?? 1} Position`}
+            </span>
         </Group>
         <Space h="md" />
         <Text size="20px" fw={400} c="#151F42" >
