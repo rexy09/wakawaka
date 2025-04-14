@@ -1,9 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging } from "firebase/messaging";
 import { getFirestore } from "firebase/firestore";
+import Env from "./env";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCFXGhjYtPGN0o0aoyvONlsWuoKrS35kOs",
+  apiKey: Env.FIREBASE_API_KEY,
   authDomain: "daywaka-768aa.firebaseapp.com",
   projectId: "daywaka-768aa",
   storageBucket: "daywaka-768aa.firebasestorage.app",
