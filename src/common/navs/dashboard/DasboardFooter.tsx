@@ -6,7 +6,7 @@ export default function DasboardFooter() {
 
   return (
     <>
-      <Box p={"lg"} mt={"lg"}>
+      <Box p={"md"} mt={"0"}>
         <Group justify="space-between">
           <div>
             <Text

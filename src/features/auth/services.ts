@@ -17,7 +17,7 @@ export default function useAuthServices() {
 
   async function getAuthStatus() {
     return axios.get(
-      Env.authURL + "/auth/status",
+      Env.baseURL + "/auth/status",
 
       {
         withCredentials: true,
@@ -50,7 +50,7 @@ export default function useAuthServices() {
   }
   async function userLoginWithPhone(b: IPhoneLoginForm) {
     return axios.post(
-      Env.authURL + "/request-otp",
+      Env.baseURL + "/request-otp",
 
       {
         phone_number: b.phoneCountry + b.phone,
@@ -60,7 +60,7 @@ export default function useAuthServices() {
 
   async function lginWithPhoneVerifyOTP(b: IPhoneLoginForm) {
     return axios.post(
-      Env.authURL + "/verify-otp",
+      Env.baseURL + "/verify-otp",
       {
         phone_number: b.phoneCountry + b.phone,
         code: b.token,

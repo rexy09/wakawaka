@@ -1,55 +1,38 @@
-import { Flex, Group, Paper, Skeleton, Space } from "@mantine/core";
+import {  Group, Paper, Skeleton, Space } from "@mantine/core";
 
-export  function OrderStatisticCardSkeleton() {
+export default function JobCardSkeleton() {
     return (
-        <Paper
-            p="20px"
-            radius="10px"
-            style={{ border: "2px solid #1A2F570F" }}
-        >
-            <Flex gap="xs" align="flex-start" direction="row">
-                <div
-                    style={{
-                        border: "1px solid #292D3214",
-                        borderRadius: "8px",
-                        padding: 10,
-                        width: "40px",
-                        height: "40px",
-                    }}
-                >
-                    <Skeleton circle height={20} width={20} />
-                </div>
+        <Paper p="md" radius="md">
+            <Group wrap="nowrap">
+                <Skeleton width={50} height={50} radius="sm" />
                 <div style={{ flex: 1 }}>
-                    <Group justify="flex-start" align="flex-start">
-                        <Skeleton height={14} width={80} />
-                        <Skeleton height={14} width={14} circle />
-                    </Group>
-                    <Space h="sm" />
-                    <Skeleton height={26} width={50} />
-                    <Space h="sm" />
-                    <Group>
-                        <Skeleton height={14} width={60} />
-                        <div
-                            className="py-[2px] px-2"
-                            style={{
-                                borderRadius: "38px",
-                                backgroundColor: "#E0E0E0", // Neutral background for skeleton
-                                padding: "4px 8px",
-                            }}
-                        >
-                            <Group gap={2}>
-                                <Skeleton height={12} width={30} />
-                                <Skeleton height={12} width={12} circle />
-                            </Group>
-                        </div>
+                    <Skeleton height={20} width="60%" />
+                    <Space h="xs" />
+                    <Group wrap="nowrap" gap={10}>
+                        <Skeleton height={10} width="20%" />
+                        <Skeleton height={10} width="30%" />
+                        <Skeleton height={10} width="25%" />
                     </Group>
                 </div>
-            </Flex>
+            </Group>
+            <Space h="xs" />
+            <Skeleton height={36} width="100%" />
+            <Space h="md" />
+            <Group wrap="wrap" gap={8}>
+                <Skeleton height={24} width={80} />
+                <Skeleton height={24} width={80} />
+                <Skeleton height={24} width={80} />
+            </Group>
+            <Space h="md" />
+            <Skeleton height={20} width="30%" />
+            <Space h="md" />
+            <Group wrap="wrap" justify="space-between">
+                <Group wrap="wrap" gap={8}>
+                    <Skeleton height={32} width={115} radius={4} />
+                    {/* <Skeleton height={32} width={115} radius={4} /> */}
+                </Group>
+                <Skeleton height={32} width={32} radius={4} />
+            </Group>
         </Paper>
     );
 }
-
-
-
-
-

@@ -8,13 +8,12 @@ import {
 } from "@mantine/core";
 import { isEmail, useForm } from "@mantine/form";
 import { useEffect } from "react";
+import { MdPhoneIphone } from "react-icons/md";
+import { useNavigate } from "react-router-dom";
 import { Color, FontFamily } from "../../../common/theme";
 import useAuthServices from "../services";
 import { UserCredentials } from "../types";
 import classes from "./css/Input.module.css";
-import Env from "../../../config/env";
-import { MdPhoneIphone } from "react-icons/md";
-import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
   const { submitted, setSubmitted } = useAuthServices();
@@ -44,7 +43,6 @@ function LoginForm() {
   const keycloackLogin = async () => {
     setSubmitted(true);
 
-    window.location.href = `${Env.authURL}/login?login_hint=${encodeURIComponent(form.values.username)}`;
 
     setSubmitted(false);
   };

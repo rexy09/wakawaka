@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { Color } from "../theme";
 import { PaginatedResponse } from "../../features/dashboard/jobs/types";
 
-interface TableProps {
+interface Props {
     data: PaginatedResponse<any>;
     total: number;
     showPageParam?: boolean;
@@ -16,7 +16,7 @@ export function PaginationComponent({
     total,
     fetchData,
     showPageParam,
-}: TableProps) {
+}: Props) {
     const [searchParams, setSearchParams] = useSearchParams();
     const [page, setPage] = useState<number>(1);
     const limit = 6;
