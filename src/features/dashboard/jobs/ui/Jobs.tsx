@@ -20,13 +20,13 @@ import { Icons } from "../../../../common/icons";
 import { Color } from "../../../../common/theme";
 import { useUtilities } from "../../../hooks/utils";
 import JobCard from "../components/JobCard";
-import JobCardSkeleton from "../components/Loaders";
 import { useJobServices } from "../services";
-import { useDashboardParameters } from "../stores";
+import { useJobParameters } from "../stores";
 import { IJobPost, PaginatedResponse } from "../types";
+import { JobCardSkeleton } from "../components/Loaders";
 
 export default function Jobs() {
-  const parameters = useDashboardParameters();
+  const parameters = useJobParameters();
   const { getFormattedDate } = useUtilities();
   const { getJobs } = useJobServices();
   const [isLoading, setIsLoading] = useState(false);
@@ -76,7 +76,7 @@ export default function Jobs() {
   };
   const fetchJobs = (next?: string) => {
     setIsLoading(true);
-    const params = useDashboardParameters.getState();
+    const params = useJobParameters.getState();
 
     getJobs(params, next, jobs?.lastDoc, jobs?.firstDoc)
       .then((response) => {

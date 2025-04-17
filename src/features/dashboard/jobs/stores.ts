@@ -8,7 +8,7 @@ const initialState: JobFilterParameters = {
   search: "",
 };
 
-export const useDashboardParameters = create<JobFilterParameters & Actions>((set) => ({
+export const useJobParameters = create<JobFilterParameters & Actions>((set) => ({
   ...initialState,
 
   updateText(type, val) {

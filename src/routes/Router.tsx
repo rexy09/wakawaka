@@ -7,6 +7,7 @@ import DashboardLayout from "../common/layouts/DashboardLayout";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import { NotFound } from "../pages/NotFound";
 import JobPage from "../pages/dashboard/JobPage";
+import JobDetailsPage from "../pages/dashboard/JobDetailsPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -21,12 +22,12 @@ export const router = createBrowserRouter(
       >
         <Route index path="/" element={<DashboardPage />} />
         <Route index path="/jobs" element={<JobPage />} />
+        <Route index path="/jobs/:id" element={<JobDetailsPage />} />
         {/* <Route element={<AuthRights allowedRights={["sender"]} />}>
           <Route index path="/post_cargo" element={<PostCargoPage />} />
         </Route>
         <Route element={<AuthRights allowedRights={["owner"]} />}>
           <Route index path="/company" element={<CompanyPage />} />
-          <Route index path="/jobs/:id" element={<JobDetailsPage />} />
         </Route>
         <Route index path="/order/:id" element={<CargoDetailsPage />} />
         <Route index path="/tracking" element={<TrackingPage />} />
