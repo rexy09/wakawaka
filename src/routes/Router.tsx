@@ -10,6 +10,7 @@ import JobPage from "../pages/dashboard/JobPage";
 import JobDetailsPage from "../pages/dashboard/JobDetailsPage";
 import AuthLayout from "../common/layouts/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
+import SignupPage from "../pages/auth/SignupPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -54,8 +55,9 @@ export const router = createBrowserRouter(
       */}
       <Route element={<AuthLayout />}>
         <Route path="/signin" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} /> 
         {/* <Route path="/login/phone" element={<LoginWithPhonePage />} />
-        <Route path="/signup" element={<SignUpPage />} /> */}
+        */}
       </Route> 
       <Route path="*" element={<NotFound />} />
     </>

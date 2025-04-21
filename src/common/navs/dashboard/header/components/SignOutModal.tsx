@@ -27,7 +27,7 @@ export default function SignOutModal({ menuButton }: Props) {
          We are so sad 😔 to see you go! 
         </Text>
         <Text c="grey" fw={500} ta="center" size="16px">
-         Are you sure you want to log out?
+         Are you sure you want to Sign out?
         </Text>
 
         <Space h={"xl"} />
@@ -54,17 +54,17 @@ export default function SignOutModal({ menuButton }: Props) {
             }}
             variant="subtle"
           >
-            Logout
+            Sign out
           </Button>
-          <Button
+            <Button
             color="gray"
             onClick={() => {
               close();
             }}
             variant="light"
-          >
-            Cancel
-          </Button>
+            >
+            Go back
+            </Button>
         </Flex>
       </Modal>
       {menuButton ? (
@@ -79,7 +79,7 @@ export default function SignOutModal({ menuButton }: Props) {
             open();
           }}
         >
-          <Text >Logout</Text>
+          <Text >Sign out</Text>
         </Button>
       ) : (
         <Button
@@ -91,8 +91,8 @@ export default function SignOutModal({ menuButton }: Props) {
             open();
           }}
         >
-          <Text fw={600} style={{ fontFamily: "Manrope" }}>
-            Logout
+          <Text fw={600} >
+              Sign out
           </Text>
         </Button>
       )}

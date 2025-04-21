@@ -18,8 +18,6 @@ import { Color, FontFamily } from "./common/theme";
 import { router } from "./routes/Router";
 import "@mantine/dates/styles.css";
 import "@mantine/dropzone/styles.css";
-import { Libraries, LoadScript } from "@react-google-maps/api";
-import Env from "./config/env";
 import { register } from "./serviceWorker";
 import { onMessage } from "firebase/messaging";
 import { messaging } from "./config/firebase";
@@ -54,6 +52,7 @@ const theme = createTheme({
     }),
   },
 });
+// const libraries: Libraries = ["places", "maps"];
 
 function App() {
   /* const refresh = createRefresh({
@@ -102,18 +101,17 @@ function App() {
     cookieSecure: window.location.protocol === "https:",
     // refresh: refresh
   });
-  const libraries: Libraries = ["places", "maps"];
 
   return (
     <>
-      <LoadScript googleMapsApiKey={Env.googleMapsApiKey} libraries={libraries}>
+      {/* <LoadScript googleMapsApiKey={Env.googleMapsApiKey} libraries={libraries}> */}
         <MantineProvider theme={theme}>
           <Notifications />
           <AuthProvider store={store}>
             <RouterProvider router={router} />
           </AuthProvider>
         </MantineProvider>
-      </LoadScript>
+      {/* </LoadScript> */}
     </>
   );
 }

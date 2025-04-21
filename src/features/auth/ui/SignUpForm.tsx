@@ -4,69 +4,92 @@ import {
   Group,
   PasswordInput,
   Space,
-  TextInput, Text,
-  Checkbox
+  Text,
+  TextInput,
 } from "@mantine/core";
-import { isNotEmpty, useForm } from "@mantine/form";
+import { isEmail, isNotEmpty, useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ISignupUserForm } from "../types";
-import {Color} from "../../../common/theme";
+import { Color } from "../../../common/theme";
 import useAuthServices from "../services";
-import { notifications } from '@mantine/notifications';
+import { ISignupUserForm } from "../types";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import useSignIn from "react-auth-kit/hooks/useSignIn";
+import GoogleSigninButton from "./GoogleSigninButton";
 
-function SignUpForm() {
+function SignupForm() {
+  const auth = getAuth();
   const navigate = useNavigate();
   const { submitted, setSubmitted } = useAuthServices();
+  const signIn = useSignIn();
 
   const form = useForm<ISignupUserForm>({
     initialValues: {
-      full_name: "",
-      username: "",
+      email: "",
       password: "",
     },
     validate: {
-      full_name: isNotEmpty("Full Name required"),
-      username: isNotEmpty("Phone Number required"),
+      email: isEmail("Email required"),
       password: isNotEmpty("Password required"),
     },
   });
 
   const setValues = () => {
     const values = {
-      full_name: "",
-      username: "",
+      email: "",
       password: "",
     };
     form.setValues(values);
     form.resetDirty(values);
   };
 
-  const login = async () => {
+  const signup = async () => {
     setSubmitted(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (
-        form.values)
-      {
+    createUserWithEmailAndPassword(
+      auth,
+      form.values.email,
+      form.values.password
+    )
+      .then(async (userCredential) => {
+        setSubmitted(false);
+        const user = userCredential.user;
+        if (user) {
+          const accessToken = await user.getIdToken();
+          if (
+            signIn({
+              auth: {
+                token: accessToken,
+                type: "Bearer",
+              },
+              userState: {
+                email: user.email,
+                name: user.displayName,
+                photoUrl: user.photoURL,
+              },
+            })
+          ) {
+            navigate("/");
+          } else {
+            navigate("/login");
+          }
+        }
+      })
+      .catch((error) => {
+        setSubmitted(false);
+        const errorCode = error.code;
+        // const errorMessage = error.message;
         notifications.show({
-          title: 'Sign Up successful',
-          message: 'You have successfully signed up',
-        })
-        navigate("/login");
-      } else {
-        notifications.show({
-          color: 'red',
-          title: 'Unauthorized',
-          message: 'Invalid credentials',
-        })
-      }
+          title: `Error`,
+          color: "red",
+          message: `${errorCode.split("/")[1].replace(/-/g, " ")}`,
+          position: "bottom-left",
+        });
+      });
+
     
-    setSubmitted(false);
-
   };
-
-
 
   useEffect(() => {
     setValues();
@@ -76,82 +99,76 @@ function SignUpForm() {
     <>
       <form
         onSubmit={form.onSubmit(() => {
-          login();
+          signup();
         })}
       >
-        <Text c={Color.TextSecondary2} size="16px" fw={400} style={{ lineHeight: "24px" }}>Full Name </Text>
+        <Text c={"#414651"} size="14px" fw={500} style={{ lineHeight: "20px" }}>
+          Email
+        </Text>
         <Space h="xs" />
         <TextInput
-          placeholder="Enter your Full Name"
+          placeholder="Email address"
           radius={"md"}
           size="md"
-          variant="filled"
-          {...form.getInputProps("username")}
+          {...form.getInputProps("email")}
         />
-        <Space h="md" />
-        <Text c={Color.TextSecondary2} size="16px" fw={400} style={{ lineHeight: "24px" }}>Phone Number </Text>
-        <Space h="xs" />
-        <TextInput
-          placeholder="Enter your Phone Number"
-          radius={"md"}
-          size="md"
-          variant="filled"
-          {...form.getInputProps("username")}
-        />
-        <Space h="md" />
-        <Text c={Color.TextSecondary2} size="16px" fw={400} style={{ lineHeight: "24px" }}>Password</Text>
-        <Space h="xs" />
 
+        <Space h="md" />
+        <Text c={"#414651"} size="14px" fw={500} style={{ lineHeight: "20px" }}>
+          Password
+        </Text>
+        <Space h="xs" />
         <PasswordInput
-          placeholder="Enter your password"
+          placeholder="Password"
           radius={"md"}
           size="md"
-          variant="filled"
-
           {...form.getInputProps("password")}
         />
-        <Space h="xl" />
 
-        <Group justify="space-between" gap={2}>
-          <Checkbox
-            defaultChecked
-            label="Remember Password"
-          />
-          <Text size="12px" fw={500}>Already have an Account?
-          <Anchor
-            component="button"
-            type="button"
-            c="dimmed"
-            onClick={() => {
-              navigate("/login");
-            }}
-            size="xs"
-          >
-            <Text ps={'2px'}  size="12px" fw={500} c={Color.PrimaryBlue}> Login</Text>
-          </Anchor>
-          </Text>
-        </Group>
-        <Space h="xl" />
-
+        <Space h="lg" />
 
         <Group>
           <Button
             radius="md"
             size="lg"
             fullWidth
-            style={{ backgroundColor: Color.PrimaryBlue }}
+            style={{ backgroundColor: Color.DarkBlue }}
             disabled={submitted}
             loading={submitted}
             type="submit"
           >
-            Login
+            Sign up
           </Button>
         </Group>
-
-        <Space h="md" />
       </form>
+      <Space h="lg" />
+
+      <GoogleSigninButton />
+
+      <Space h="lg" />
+
+      <Group justify="center" gap={2}>
+        <Text size="14px" fw={400} c={Color.Text1}>
+          Already have an Account?
+        </Text>
+        <Anchor
+          component="button"
+          type="button"
+          c="dimmed"
+          onClick={() => {
+            navigate("/signin");
+          }}
+          size="xs"
+        >
+          <Text size="14px" fw={600} c={Color.DarkBlue}>
+            Sign in
+          </Text>
+        </Anchor>
+      </Group>
+
+      <Space h="md" />
     </>
   );
 }
 
-export default SignUpForm;
+export default SignupForm;

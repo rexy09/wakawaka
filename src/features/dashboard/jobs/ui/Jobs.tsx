@@ -81,9 +81,6 @@ export default function Jobs() {
     getJobs(params, next, jobs?.lastDoc, jobs?.firstDoc)
       .then((response) => {
         setIsLoading(false);
-
-        console.log(response);
-
         setJobs(response);
       })
       .catch((_error) => {

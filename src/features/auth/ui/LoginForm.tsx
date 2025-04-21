@@ -8,24 +8,21 @@ import {
   TextInput,
 } from "@mantine/core";
 import { isEmail, isNotEmpty, useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
+import {
+  getAuth,
+  signInWithEmailAndPassword
+} from "firebase/auth";
 import { useEffect } from "react";
+import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
-import { Icons } from "../../../common/icons";
 import { Color } from "../../../common/theme";
 import useAuthServices from "../services";
 import { UserCredentials } from "../types";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-} from "firebase/auth";
-import { notifications } from "@mantine/notifications";
-import { GoogleAuthProvider } from "firebase/auth";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
+import GoogleSigninButton from "./GoogleSigninButton";
 
 function LoginForm() {
   const { submitted, setSubmitted } = useAuthServices();
-  const provider = new GoogleAuthProvider();
   const auth = getAuth();
   const signIn = useSignIn();
 
@@ -54,14 +51,35 @@ function LoginForm() {
   const loginWithEmail = async () => {
     setSubmitted(true);
     signInWithEmailAndPassword(auth, form.values.username, form.values.password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
+        setSubmitted(false);
         // Signed in
         console.log("userCredential", userCredential);
         const user = userCredential.user;
-        console.log(user);
-        // ...
+        console.log("user", user);
+        if (user) {
+          const accessToken = await user.getIdToken();
+          if (
+            signIn({
+              auth: {
+                token: accessToken,
+                type: "Bearer",
+              },
+              userState: {
+                email: user.email,
+                name: user.displayName,
+                photoUrl: user.photoURL,
+              },
+            })
+          ) {
+            navigate("/");
+          } else {
+            navigate("/login");
+          }
+        }
       })
       .catch((error) => {
+        setSubmitted(false);
         console.log(error.code);
 
         const errorCode = error.code;
@@ -83,7 +101,7 @@ function LoginForm() {
         }
       });
 
-    setSubmitted(false);
+    
   };
 
   useEffect(() => {
@@ -152,85 +170,9 @@ function LoginForm() {
         </Group>
 
         <Space h="lg" />
-        {/* <Group justify="center" gap={5}>
-          <Text
-            size="16px"
-            fw={400}
-            c={Color.BrandBlue}
-            style={{ fontFamily: FontFamily.Inter }}
-          >
-            or
-          </Text>
-        </Group>
-        <Space h="lg" /> */}
-        <Group>
-          <Button
-            radius="md"
-            size="lg"
-            fullWidth
-            variant="default"
-            leftSection={Icons.google}
-            style={{ color: "#414651", fontWeight: 600, fontSize: "16px" }}
-            onClick={() => {
-              signInWithPopup(auth, provider)
-                .then(async (result) => {
-                  // This gives you a Google Access Token. You can use it to access the Google API.
-                  const credential =
-                    GoogleAuthProvider.credentialFromResult(result);
-                  const token = credential ? credential.accessToken : null;
-                  console.log("token", token);
-                  // The signed-in user info.
-                  const user = result.user;
-                  // IdP data available using getAdditionalUserInfo(result)
-                  console.log("user", user);
-                  if (token && user) {
-                    const accessToken = await user.getIdToken();
-                    if (
-                      signIn({
-                        auth: {
-                          token: accessToken,
-                          type: "Bearer",
-                        },
-                        userState: {
-                          email: user.email,
-                          name: user.displayName,
-                          photoUrl: user.photoURL,
-                        },
-                      })
-                    ) {
-                      navigate("/");
-                    } else {
-                      navigate("/login");
-                    }
-                  }
 
-                  navigate("/");
-                })
-                .catch((error) => {
-                  // Handle Errors here.
-                  const errorCode = error.code;
-                  const errorMessage = error.message;
-                  // The email of the user's account used.
-                  const email = error.customData.email;
-                  // The AuthCredential type that was used.
-                  const credential =
-                    GoogleAuthProvider.credentialFromError(error);
-                  console.log(errorCode);
-                  console.log(errorMessage);
-                  console.log(email);
-                  console.log(credential);
-                  notifications.show({
-                    title: `Error`,
-                    color: "red",
-                    message: `${errorMessage}`,
-                    position: "bottom-left",
-                  });
-                });
-            }}
-          >
-            Sign in with Google
-          </Button>
-        </Group>
+        <GoogleSigninButton />
+
         <Space h="lg" />
         <Group justify="center" gap={5}>
           <Text size="14px" fw={400} c={Color.Text1}>

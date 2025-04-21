@@ -4,7 +4,6 @@ import Env from "../../config/env";
 import {
   IPhoneLoginForm,
   ISenderForm,
-  ISignupUserForm,
   ITransporterForm,
 } from "./types";
 import useApiClient from "../services/ApiClient";
@@ -70,19 +69,7 @@ export default function useAuthServices() {
       }
     );
   }
-  async function userSignup(b: ISignupUserForm) {
-    return axios.post(
-      Env.baseURL + "/auth/self-signup",
-      {
-        full_name: b.full_name,
-        phone: b.username,
-        password: b.password,
-      },
-      {
-        headers: {},
-      }
-    );
-  }
+ 
 
   const postOwnerDetails = async (d: ITransporterForm) => {
     const url = "/owner/details";
@@ -155,7 +142,6 @@ export default function useAuthServices() {
 
   return {
     userLogin,
-    userSignup,
     submitted,
     setSubmitted,
     getCargoUserDetails,

@@ -9,8 +9,7 @@ export interface IPhoneLoginForm {
 }
 
 export interface ISignupUserForm {
-  full_name: string;
-  username: string;
+  email: string;
   password: string;
 }
 

@@ -169,10 +169,12 @@ export default function HeaderMegaMenu() {
                             </>
                         ) : (
                             <>
-                                <Button variant="default" onClick={()=>{
+                                <Button variant="default" onClick={() => {
                                     navigate("/signin");
                                 }}>Sign in</Button>
-                                <Button>Sign up</Button>
+                                <Button onClick={() => {
+                                    navigate("/signup");
+                                }}>Sign up</Button>
                             </>
                         )}
                     </Group>
