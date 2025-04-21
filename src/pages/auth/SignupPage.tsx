@@ -2,7 +2,7 @@ import { Center, Image, Space, Text } from "@mantine/core";
 import logo from "../../assets/w.png";
 import SignupForm from "../../features/auth/ui/SignupForm";
 
-export default function ç() {
+export default function SignupPage() {
   return (
     <div>
       <Center maw={"100%"} h={"100vh"} >
