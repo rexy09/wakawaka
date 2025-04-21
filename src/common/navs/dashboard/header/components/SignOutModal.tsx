@@ -44,9 +44,7 @@ export default function SignOutModal({ menuButton }: Props) {
               close();
               signOut();
               firebaseSignOut(auth).then(() => {
-                // Sign-out successful.
               }).catch((_error) => {
-                // An error happened.
               });
               localStorage.clear();
               notificationStore.reset();
