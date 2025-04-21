@@ -1,17 +1,18 @@
-import { Avatar, Flex, Group, Menu, Text } from "@mantine/core";
+import { Avatar, Flex, Group, Menu, Space, Text } from "@mantine/core";
 
 import { useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { CiSettings, CiUser } from "react-icons/ci";
+import { CiUser } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import { IUserResponse } from "../../../../../features/auth/types";
+import { IUser } from "../../../../../features/auth/types";
+import { Color } from "../../../../theme";
 import SignOutModal from "./SignOutModal";
 type Props = {
   showTitle?: boolean;
 };
 function AccountMenu({}: Props) {
   const navigate = useNavigate();
-  const authUser = useAuthUser<IUserResponse>();
+  const authUser = useAuthUser<IUser>();
 
   const [userMenuOpened, setUserMenuOpened] = useState(false);
 
@@ -28,10 +29,10 @@ function AccountMenu({}: Props) {
         opened={userMenuOpened}
         onClose={() => setUserMenuOpened(false)}
         onOpen={() => setUserMenuOpened(true)}
-        withinPortal
         width={200}
         transitionProps={{ transition: "rotate-right", duration: 150 }}
         shadow="md"
+        withinPortal={false}
       >
         <Menu.Target>
           <Flex
@@ -43,59 +44,44 @@ function AccountMenu({}: Props) {
             maw={200}
           >
             <Group>
-              <Avatar
-                src={
-                  authUser?.user_type === "sender"
-                    ? authUser?.user?.profile_img
-                    : authUser?.owner?.user.profile_img
-                }
-                radius="xl"
-              />
+              <Avatar src={authUser?.photoUrl} radius="xl" />
+            </Group>
+          </Flex>
+        </Menu.Target>
+        <Menu.Dropdown>
+          <Group gap={5} p={"5px"}>
+            <Avatar
+              src={
+                authUser?.photoUrl
+              }
+              radius="xl"
+            />
 
-             {/*  <div style={{ flex: 1 }}>
-                <Text size="16px" fw={600} c={Color.Dark} lineClamp={1}>
-                  {authUser?.user
-                    ? authUser?.user?.full_name
-                    : authUser?.owner?.user.full_name}
+             <div >
+              <Text size="14px" fw={500} c={Color.Dark} lineClamp={1} style={{ lineHeight: 1.2 }}>
+                {authUser?.name}
                 </Text>
-                <Space h="5px" />
+                <Space h="3px" />
 
                 <Text
                   size="12px"
                   c={Color.PrimaryBlue}
                   fw={400}
-                  tt="capitalize"
+                lineClamp={1} style={{ lineHeight: 1.2 }}
                 >
-                  {authUser?.role === "clearing_agent" && "Clearing Agent"}
-                  {authUser?.role === "user" && "Cargo Owner"}
-                  {authUser?.role === "dalali" && "Broker"}
-                  {authUser?.user_type === "owner" && "Transpoter"}
+                {authUser?.email}
                 </Text>
-              </div> */}
-            </Group>
-            {/* {Icons.chevron_down} */}
-          </Flex>
-        </Menu.Target>
-        <Menu.Dropdown p={"sm"}>
+              </div>
+          </Group>
+          <Space h="xs" />
           <Menu.Item
             leftSection={<CiUser size="25" />}
             onClick={() => {
-              navigate("/settings");
+              navigate("/profile");
             }}
           >
             <Text>Profile</Text>
           </Menu.Item>
-          {authUser?.user_type === "owner" && (
-            <Menu.Item
-              leftSection={<CiSettings size="25" />}
-              onClick={() => {
-                navigate("/settings?tab=second");
-              }}
-            >
-              <Text>Company</Text>
-            </Menu.Item>
-          )}
-
           <SignOutModal menuButton={true} />
         </Menu.Dropdown>
       </Menu>

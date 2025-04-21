@@ -45,6 +45,7 @@ import mobile_pay from "../assets/icons/mobile_pay.svg";
 import bank_transfer from "../assets/icons/bank_transfer.svg";
 import message from "../assets/icons/message.svg";
 import archive from "../assets/icons/archive.svg";
+import google from "../assets/icons/google.svg";
 
 
 interface CustomIconProps {
@@ -126,4 +127,5 @@ export const Icons = {
   bankTransfer: createCustomIcon({ src: bank_transfer }),
   message: createCustomIcon({ src: message }),
   archive: createCustomIcon({ src: archive }),
+  google: createCustomIcon({ src: google }),
 };

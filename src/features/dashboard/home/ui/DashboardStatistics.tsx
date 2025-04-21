@@ -12,8 +12,7 @@ import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { FaRegCalendarAlt } from "react-icons/fa";
-import { IoMdAdd } from "react-icons/io";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import {  useSearchParams } from "react-router-dom";
 import { useUtilities } from "../../../hooks/utils";
 import { OrderStatisticCardSkeleton } from "../components/Loaders";
 import OrderStatisticCard from "../components/OrderStatisticsCard";
@@ -21,25 +20,19 @@ import { useDashboardServices } from "../services";
 import { useDashboardParameters } from "../stores";
 import { IOrder, IOrdersStatistics, PaginatedResponse } from "../types";
 import OngoingDeliver from "./OngoingDeliver";
-import RecentActivity from "./RecentActivity";
-import { IUserResponse } from "../../../auth/types";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 export function DashboardStatistics() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const authUser = useAuthUser<IUserResponse>();
+  // const navigate = useNavigate();
 
 
   const parameters = useDashboardParameters();
   const { getFormattedDate } = useUtilities();
-  const { getOrdersStatistics, getOrders, getOngoingOrders } =
+  const { getOrdersStatistics,  getOngoingOrders } =
     useDashboardServices();
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingOrders, setLoadingOrders] = useState(false);
   const [openStartDate, setOpenStartDate] = useState(false);
   const [openEndDate, setOpenEndDate] = useState(false);
   const [ordersStatistics, setOrdersStatistics] = useState<IOrdersStatistics>();
-  const [orders, setOrders] = useState<PaginatedResponse<IOrder>>();
   const [ongoingOrders, setOngoingOrders] =
     useState<PaginatedResponse<IOrder>>();
   const getFirstDayOfCurrentMonth = (): Date => {
@@ -94,27 +87,8 @@ export function DashboardStatistics() {
         });
       });
 
-    const page = searchParams.get("page") || "1";
-    fetchOrders(Number(page));
   };
-  const fetchOrders = (page: number) => {
-    setLoadingOrders(true);
-    const params = useDashboardParameters.getState();
-
-    getOrders(params, page)
-      .then((response) => {
-        setLoadingOrders(false);
-        setOrders(response.data);
-      })
-      .catch((_error) => {
-        setLoadingOrders(false);
-        notifications.show({
-          color: "red",
-          title: "Error",
-          message: "Something went wrong!",
-        });
-      });
-  };
+ 
   useEffect(() => {
     const searchStartDate = searchParams.get("startDate");
     const searchEndDate = searchParams.get("endDate");
@@ -233,12 +207,7 @@ export function DashboardStatistics() {
               </Menu.Dropdown>
             </Menu>
           </Button.Group>
-          {
-            authUser?.user_type === 'sender'  ?
-              <Button leftSection={<IoMdAdd size={20} />} variant="filled" radius="md" onClick={() => {
-                navigate('/post_cargo')
-              }}>New Cargo</Button> : null
-          }
+         
         </Group>
       </Group>
       <Space h="md" />
@@ -278,13 +247,7 @@ export function DashboardStatistics() {
         isLoading={isLoading}
       />
       <Space h="md" />
-      <RecentActivity
-        orders={orders}
-        loadingOrders={loadingOrders}
-        fetchOrders={fetchOrders}
-        fetchData={fetchData}
-        parameters={parameters}
-      />
+      
     </div>
   );
 }

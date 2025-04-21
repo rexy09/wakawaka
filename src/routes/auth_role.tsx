@@ -1,17 +1,17 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUserResponse } from "../features/auth/types";
+import { IUser } from "../features/auth/types";
 interface Props {
   allowedRights: string[];
 }
 const AuthRights = ({ allowedRights }: Props) => {
-  const authUser = useAuthUser<IUserResponse>();
+  const authUser = useAuthUser<IUser>();
 
 
   const location = useLocation();
   
-  const itemsExist = [authUser?.user_type].some((right: any) =>
+  const itemsExist = [authUser?.email].some((right: any) =>
     allowedRights.includes(right)
   );
 

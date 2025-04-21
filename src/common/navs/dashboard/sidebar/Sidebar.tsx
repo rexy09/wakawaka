@@ -12,8 +12,6 @@ import divider from "../../../../assets/divider.svg";
 import mainLogo from "../../../../assets/sana_logo.svg";
 
 import { useMediaQuery } from "@mantine/hooks";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUserResponse } from "../../../../features/auth/types";
 import { Icons } from "../../../icons";
 import { Color } from "../../../theme";
 import AccountMenu from "../header/components/AccountMenu";
@@ -29,7 +27,6 @@ type SidebarProps = {
 
 function Sidebar({ setOpened }: SidebarProps) {
   const matches = useMediaQuery("(min-width: 62em)");
-  const authUser = useAuthUser<IUserResponse>();
 
 
   return (
@@ -72,28 +69,15 @@ function Sidebar({ setOpened }: SidebarProps) {
               iconKey={"dashboard"}
             />
             <Space h="3px" />
-            {authUser?.user ? (
-              <>
-                <NavLinkButton
-                  setOpened={setOpened}
-                  to={"/post_cargo"}
-                  label={"Post Cargo"}
-                  iconKey={"post_cargo"}
-                />
-                <Space h="3px" />
-              </>
-            ) : null}
-            {authUser?.owner ? (
-              <>
-                <NavLinkButton
-                  setOpened={setOpened}
-                  to={"/jobs"}
-                  label={"Jobs"}
-                  iconKey={"post_cargo"}
-                />
-                <Space h="3px" />
-              </>
-            ) : null}
+
+            <NavLinkButton
+              setOpened={setOpened}
+              to={"/jobs"}
+              label={"Jobs"}
+              iconKey={"post_cargo"}
+            />
+            <Space h="3px" />
+
             <NavLinkButton
               setOpened={setOpened}
               to={"/tracking"}
@@ -108,30 +92,6 @@ function Sidebar({ setOpened }: SidebarProps) {
               iconKey={"bids"}
             />
             <Space h="3px" />
-            {authUser?.user ? (
-              <>
-                <NavLinkButton
-                  setOpened={setOpened}
-                  to={"/documents"}
-                  label={"Documents"}
-                  iconKey={"document"}
-                />
-                <Space h="3px" />
-              </>
-            ) : null}
-            {authUser?.owner ? (
-              <>
-                <NavLinkButton
-                  setOpened={setOpened}
-                  to={"/company"}
-                  label={"Company"}
-                  iconKey={"document"}
-                />
-                <Space h="3px" />
-              </>
-            ) : null}
-
-            <Space h="3px" />
             <NavLinkButton
               setOpened={setOpened}
               to={"/billing"}
@@ -139,13 +99,7 @@ function Sidebar({ setOpened }: SidebarProps) {
               iconKey={"billing"}
             />
             <Space h="3px" />
-            <NavLinkButton
-              setOpened={setOpened}
-              to={"/reports"}
-              label={"Reports"}
-              iconKey={"report"}
-            />
-            <Space h="3px" />
+
 
             <NavLinkButton
               setOpened={setOpened}
@@ -164,8 +118,8 @@ function Sidebar({ setOpened }: SidebarProps) {
             />
             <Image my="md" w={"100%"} src={divider} alt="divider" />
             <Space h="md" />
-            
-            <SignOutModal  />
+
+            <SignOutModal />
             <Space h="lg" />
           </div>
         </ScrollArea>

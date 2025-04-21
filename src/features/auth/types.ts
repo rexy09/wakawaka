@@ -15,21 +15,12 @@ export interface ISignupUserForm {
 }
 
 export interface IUser {
-  id: string;
   email: string;
-  username: string;
-  phone_number: string;
-  full_name: string;
-  profile_img: string | null;
-  role: string;
+  name: string;
+  photoUrl: string;
 }
 
-export interface IUserResponse {
-  user_type: string | "owner" | "sender" ;
-  role: string | "owner" | "dalali" | "clearing_agent" | "user";
-  user?: IUser;
-  owner?: IOwner;
-}
+
 
 // Interface for the owner object
 export interface IOwner {

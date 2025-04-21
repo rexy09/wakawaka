@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { FaRegUser } from "react-icons/fa";
-import { FiBriefcase } from "react-icons/fi";
-import { IUserResponse } from "../../../auth/types";
-import CompanyForm from "../components/CompanyForm";
+import { IUser } from "../../../auth/types";
 import ProfileForm from "../components/ProfileForm";
 import { useSettingsServices } from "../services";
 import { Color } from "../../../../common/theme";
@@ -15,13 +13,13 @@ import { useSearchParams } from "react-router-dom";
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<string | null>("first");
   const { getUser } = useSettingsServices();
-  const [user, setUser] = useState<IUserResponse>();
+  const [user, setUser] = useState<IUser>();
   const [isLoading, setIsLoading] = useState(false);
   const signIn = useSignIn();
   const authHeader = useAuthHeader();
-    const [searchParams, setSearchParams] = useSearchParams();
-  
-  const updateSystemUser = (userState: IUserResponse) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const updateSystemUser = (userState: IUser) => {
     if (
       authHeader &&
       signIn({
@@ -56,7 +54,7 @@ export default function Settings() {
   useEffect(() => {
     if (searchParams.get("tab") == "second") {
       setActiveTab("second");
-    }else{
+    } else {
       setActiveTab("first");
     }
     fetchData();
@@ -71,31 +69,22 @@ export default function Settings() {
         // variant="pills" 
         orientation="vertical"
       >
-        
+
         <Tabs.List w={200} >
           <Tabs.Tab value="first" leftSection={<FaRegUser color={activeTab == "first" ? Color.PrimaryBlue : ""} size={18} />} mb={'md'} onClick={() => {
             searchParams.delete("tab");
             setSearchParams(searchParams);
           }}>
             <Text c={activeTab == "first" ? Color.PrimaryBlue : ""} size="16px">
-            Profile
-          </Text>
+              Profile
+            </Text>
           </Tabs.Tab>
-            {user?.user_type === "owner" && (
-            <Tabs.Tab value="second" leftSection={<FiBriefcase color={activeTab == "second" ? Color.PrimaryBlue : ""} size={18} />} onClick={() => {
-              searchParams.set("tab", "second");
-              setSearchParams(searchParams);
-            }}>
-              <Text c={activeTab == "second" ? Color.PrimaryBlue : ""} size="16px">
-                Company
-          </Text>
-
-            </Tabs.Tab>
-            )}
-          </Tabs.List>
+          
+          
+        </Tabs.List>
 
         <Space h="md" />
-          
+
         <Tabs.Panel value="first" >
           <ProfileForm
             isLoading={isLoading}
@@ -104,12 +93,9 @@ export default function Settings() {
           />
         </Tabs.Panel>
         <Tabs.Panel value="second">
-          <CompanyForm
-            isLoading={isLoading}
-            fetchData={fetchData}
-            user={user}
-          />
+          <Text>Second tab</Text>
         </Tabs.Panel>
+        
       </Tabs>
     </div>
   );

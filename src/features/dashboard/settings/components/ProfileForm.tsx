@@ -15,19 +15,19 @@ import { notifications } from "@mantine/notifications";
 import { useEffect, useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { Color } from "../../../../common/theme";
-import { IUserResponse } from "../../../auth/types";
+import { IUser } from "../../../auth/types";
 import { useSettingsServices } from "../services";
 import { IUserForm } from "../types";
 
 interface Props {
   isLoading: boolean;
   fetchData: () => void;
-  user?: IUserResponse;
+  user?: IUser;
 }
 
 export default function ProfileForm({ isLoading, fetchData, user }: Props) {
   const [submitted, setSubmitted] = useState(false);
-  const authUser = useAuthUser<IUserResponse>();
+  const authUser = useAuthUser<IUser>();
 
 
 
@@ -104,19 +104,12 @@ export default function ProfileForm({ isLoading, fetchData, user }: Props) {
       phone_number: "",
       email: "",
     };
-    if (authUser?.owner) {
       values = {
-        full_name: user?.owner?.user?.full_name ?? "",
-        phone_number: user?.owner?.user?.phone_number ?? "",
-        email: user?.owner?.user?.email ?? "",
+        full_name: user?.name ?? "",
+        phone_number: user?.name ?? "",
+        email: user?.email ?? "",
       };
-    } else {
-      values = {
-        full_name: user?.user?.full_name ?? "",
-        phone_number: user?.user?.phone_number ?? "",
-        email: user?.user?.email ?? "",
-      };
-    }
+  
     form.setValues(values);
   };
 
@@ -141,9 +134,8 @@ export default function ProfileForm({ isLoading, fetchData, user }: Props) {
 
               <Avatar
                 src={
-                  !form.values.profile_img ? authUser?.user_type == "owner"
-                    ? user?.owner?.user.profile_img
-                    : user?.user?.profile_img : URL.createObjectURL(form.values.profile_img)
+                  !form.values.profile_img ? authUser?.photoUrl
+                    : URL.createObjectURL(form.values.profile_img)
                 }
                 alt="profile"
                 size={"xl"}

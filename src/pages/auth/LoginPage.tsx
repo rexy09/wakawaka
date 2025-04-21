@@ -1,7 +1,6 @@
 import { Center, Image, Space, Text } from "@mantine/core";
 import LoginForm from "../../features/auth/ui/LoginForm";
-import sana_logo from "../../assets/sana_logo.svg";
-import { Color } from "../../common/theme";
+import logo from "../../assets/w.png";
 
 export default function LoginPage() {
   return (
@@ -10,11 +9,14 @@ export default function LoginPage() {
       <Center maw={"100%"} h={"100vh"} >
         <div className="w-[480px]">
           <Image
-            w={155}
-            src={sana_logo}
+            w={100}
+            src={logo}
+            mx={"auto"}
+            alt="logo"
           />
           <Space h="md" />
-          <Text size="40px" fw={700} c={Color.BrandBlue} style={{ lineHeight: "48px", letterSpacing: "-0.8px" }}>Welcome back </Text>
+          <Text size="30px" fw={600} c={"#181D27"} style={{ lineHeight: "38px" }}>Welcome back </Text>
+          <Text size="16px" fw={400} c={"#535862"} style={{ lineHeight: "24px" }}>Please enter your details.</Text>
           <Space h="md" />
           <LoginForm />
         </div>

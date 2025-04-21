@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useNotificationStore } from "../../../../../features/dashboard/notifications/stores";
 import { Icons } from "../../../../icons";
 import { Color } from "../../../../theme";
+import { getAuth, signOut as firebaseSignOut } from "firebase/auth";
 
 type Props = {
   menuButton?: boolean;
@@ -14,18 +15,22 @@ export default function SignOutModal({ menuButton }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
 
   const signOut = useSignOut();
+  const auth = getAuth();
   const navigate = useNavigate();
-    const notificationStore = useNotificationStore();
-  
+  const notificationStore = useNotificationStore();
+
 
   return (
     <>
-      <Modal opened={opened} onClose={close} centered>
-        <Text c="grey" fw={500} ta="center">
-          Are you sure you want to logout?
+      <Modal opened={opened} onClose={close} centered size="lg">
+        <Text c={Color.BrandBlue} fw={600} ta="center" size="30px" mb={"md"}>
+         We are so sad 😔 to see you go! 
+        </Text>
+        <Text c="grey" fw={500} ta="center" size="16px">
+         Are you sure you want to log out?
         </Text>
 
-        <Space h={"md"} />
+        <Space h={"xl"} />
         <Flex
           gap="xl"
           justify="center"
@@ -38,10 +43,14 @@ export default function SignOutModal({ menuButton }: Props) {
             onClick={() => {
               close();
               signOut();
+              firebaseSignOut(auth).then(() => {
+                // Sign-out successful.
+              }).catch((_error) => {
+                // An error happened.
+              });
               localStorage.clear();
-              navigate("/login");
-             
               notificationStore.reset();
+              navigate("/");
             }}
             variant="subtle"
           >
@@ -60,13 +69,17 @@ export default function SignOutModal({ menuButton }: Props) {
       </Modal>
       {menuButton ? (
         <Button
-          variant="transparent"
+          radius={'sm'}
+          justify="flex-start"
+          fullWidth
+          color={Color.Danger}
+          variant="subtle"
           leftSection={Icons.logout}
           onClick={() => {
             open();
           }}
         >
-          <Text c={Color.Danger}>Logout</Text>
+          <Text >Logout</Text>
         </Button>
       ) : (
         <Button

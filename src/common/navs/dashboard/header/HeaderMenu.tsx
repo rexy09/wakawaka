@@ -1,8 +1,6 @@
 import { Burger, Group, Image, Select } from "@mantine/core";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { useNavigate } from "react-router-dom";
 import mainLogo from "../../../../assets/sana_logo.svg";
-import { IUserResponse } from "../../../../features/auth/types";
 import { Icons } from "../../../icons";
 import { Color } from "../../../theme";
 import AccountMenu from "./components/AccountMenu";
@@ -14,7 +12,6 @@ type Props = {
 };
 export default function HeaderMenu({ opened, setOpened }: Props) {
   const navigate = useNavigate();
-  const authUser = useAuthUser<IUserResponse>();
   const routesByRights = {
     sender: [{ value: '/post_cargo', label: 'Post Cargo' }],
     owner: [
@@ -54,8 +51,6 @@ export default function HeaderMenu({ opened, setOpened }: Props) {
           searchable
           clearable
           data={[
-            ...(authUser?.user_type === 'owner' ? routesByRights.owner : []),
-            ...(authUser?.user_type === 'sender' ? routesByRights.sender : []),
             ...routesByRights.general
           ]}
           onChange={(value) => {

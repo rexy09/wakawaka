@@ -1,12 +1,12 @@
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUserResponse } from "./types";
+import { IUser } from "./types";
 
 export default function useUserAuth(){
 
-  const authUser = useAuthUser<IUserResponse>();
+  const authUser = useAuthUser<IUser>();
 
   function hasRight(right: string) {
-    const rightExist = [authUser?.user_type].some(
+    const rightExist = [authUser?.email].some(
       (item:any) => item === right
     );
     return rightExist;

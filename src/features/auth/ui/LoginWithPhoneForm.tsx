@@ -14,12 +14,17 @@ import { useEffect, useState } from "react";
 import { CountrySelector, usePhoneInput } from "react-international-phone";
 import { Color, FontFamily } from "../../../common/theme";
 import useAuthServices from "../services";
-import { IPhoneLoginForm, IUserResponse } from "../types";
+import { IPhoneLoginForm, IUser } from "../types";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
 import OtpTimerButton from "./OtpTimerButton";
 export default function LoginWithPhoneForm() {
-  const { submitted, setSubmitted, userLoginWithPhone, lginWithPhoneVerifyOTP } = useAuthServices();
+  const {
+    submitted,
+    setSubmitted,
+    userLoginWithPhone,
+    lginWithPhoneVerifyOTP,
+  } = useAuthServices();
   const [otp, setOTP] = useState<boolean>(false);
   const [otpTimer, setOTPTimer] = useState<number>(0);
   const signIn = useSignIn();
@@ -34,16 +39,14 @@ export default function LoginWithPhoneForm() {
         value.trim().length == 0
           ? "Phone number required"
           : value.trim().length < 9
-            ? "Phone number must be atleast 9 digits"
-            : null,
+          ? "Phone number must be atleast 9 digits"
+          : null,
 
-      ...otp && {
-        token: isNotEmpty("OTP requred")
-      }
-
+      ...(otp && {
+        token: isNotEmpty("OTP requred"),
+      }),
     },
   });
-
 
   const phoneInput = usePhoneInput({
     defaultCountry: "tz",
@@ -59,9 +62,9 @@ export default function LoginWithPhoneForm() {
     userLoginWithPhone(form.values)
       .then((response) => {
         setSubmitted(false);
-        const expires_in = response.data.expires_in
+        const expires_in = response.data.expires_in;
         setOTPTimer(expires_in);
-        setOTP(true)
+        setOTP(true);
       })
       .catch((error) => {
         setSubmitted(false);
@@ -81,7 +84,6 @@ export default function LoginWithPhoneForm() {
             message: "Something went wrong!",
           });
         }
-
       });
   };
   const verifyOTP = () => {
@@ -93,7 +95,7 @@ export default function LoginWithPhoneForm() {
         getCargoUserDetails(access_token)
           .then(function (response) {
             setSubmitted(false);
-            const responseData = response.data as IUserResponse;
+            const responseData = response.data as IUser;
             if (
               signIn({
                 auth: {
@@ -103,13 +105,7 @@ export default function LoginWithPhoneForm() {
                 userState: responseData,
               })
             ) {
-
-              if (responseData.user_type === 'none') {
-                navigate("/account_type");
-
-              } else {
-                navigate("/");
-              }
+              navigate("/");
             } else {
               navigate("/login");
             }
@@ -144,11 +140,9 @@ export default function LoginWithPhoneForm() {
             message: "Something went wrong!",
           });
         }
-
       });
   };
-  useEffect(() => {
-  }, []);
+  useEffect(() => {}, []);
 
   const handleRegistration = () => {
     const registrationUrl =
@@ -226,42 +220,40 @@ export default function LoginWithPhoneForm() {
           </Grid.Col>
         </Grid>
         <Space h="lg" />
-       
-        {otp && <>
-          <Group justify="start">
-            <div>
-              <Text
-                c={Color.BrandBlue}
-                size="14px"
-                fw={600}
-                style={{ lineHeight: "22px" }}
-              >
-                Enter OTP
-              </Text>
-              <Space h="xs" />
-              <Group justify="start">
-              <PinInput length={6} type="number" oneTimeCode size="md" error={form.errors.token ? true : undefined} onChange={(token) =>
-                form.setFieldValue(
-                  "token",
-                  token
-                )
-              } />
-                <OtpTimerButton
-                  seconds={otpTimer}
-                  resend={loginWithPhone}
-                />
-              </Group>
 
-              <Text fz="sm" c="red">
-                {form.errors.token}
-              </Text>
+        {otp && (
+          <>
+            <Group justify="start">
+              <div>
+                <Text
+                  c={Color.BrandBlue}
+                  size="14px"
+                  fw={600}
+                  style={{ lineHeight: "22px" }}
+                >
+                  Enter OTP
+                </Text>
+                <Space h="xs" />
+                <Group justify="start">
+                  <PinInput
+                    length={6}
+                    type="number"
+                    oneTimeCode
+                    size="md"
+                    error={form.errors.token ? true : undefined}
+                    onChange={(token) => form.setFieldValue("token", token)}
+                  />
+                  <OtpTimerButton seconds={otpTimer} resend={loginWithPhone} />
+                </Group>
 
-            </div>
-            
-          </Group>
-          <Space h="lg" />
-        </>}
-
+                <Text fz="sm" c="red">
+                  {form.errors.token}
+                </Text>
+              </div>
+            </Group>
+            <Space h="lg" />
+          </>
+        )}
 
         <Group>
           <Button
@@ -274,7 +266,6 @@ export default function LoginWithPhoneForm() {
             type="submit"
           >
             {otp ? "Verify" : "Sign In"}
-
           </Button>
         </Group>
 

@@ -11,15 +11,12 @@ import {
   startAfter,
   where,
 } from "firebase/firestore";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { db } from "../../../config/firebase";
-import { IUserResponse } from "../../auth/types";
 import useApiClient from "../../services/ApiClient";
 import { IBidForm, IJobPost, JobFilterParameters } from "./types";
 
 export const useJobServices = () => {
   const { sendRequest } = useApiClient();
-  const authUser = useAuthUser<IUserResponse>();
 
   const getJobs = async (
     _p: JobFilterParameters,
@@ -151,15 +148,7 @@ export const useJobServices = () => {
     return undefined;
   };
 
-  const getOrder = async (id: string) => {
-    const url =
-      authUser?.user_type == "owner" ? "/owner/order/" + id : "/order/" + id;
-    return sendRequest({
-      method: "get",
-      url: url,
-      params: {},
-    });
-  };
+  
 
   const postBid = async (d: IBidForm, order: string) => {
     const url = "/operation/bidding";
@@ -184,7 +173,6 @@ export const useJobServices = () => {
     getJobs,
     getJob,
     getRelatedJobs,
-    getOrder,
     postBid,
     getOrderBid,
   };

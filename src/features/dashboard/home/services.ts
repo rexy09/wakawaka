@@ -1,11 +1,8 @@
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUserResponse } from "../../auth/types";
 import useApiClient from "../../services/ApiClient";
 import { DashboardFilterParameters } from "./stores";
 
 export const useDashboardServices = () => {
   const { sendRequest } = useApiClient();
-  const authUser = useAuthUser<IUserResponse>();
 
 
   const getOrdersStatistics = async (p: DashboardFilterParameters) => {
@@ -21,7 +18,7 @@ export const useDashboardServices = () => {
 
   const getOngoingOrders = async (p: DashboardFilterParameters) => {
     const url =
-      authUser?.user_type == "owner" ? "/owner/order" : "/order";
+      "/order";
     return sendRequest({
       method: "get",
       url: url,
@@ -33,7 +30,7 @@ export const useDashboardServices = () => {
     });
   };
   const getOrders = async (p: DashboardFilterParameters, page:number) => {
-    const url = authUser?.user_type == "owner" ? "/owner/order" : "/order";
+    const url =  "/order";
     return sendRequest({
       method: "get",
       url: url,
@@ -69,9 +66,7 @@ export const useDashboardServices = () => {
     reason?: string;
   }) => {
     const url =
-      authUser?.user_type == "owner"
-        ? `/owner/order/${orderId}`
-        : `/order/${orderId}`;
+      `/order/${orderId}`;
     return sendRequest({
       method: "patch",
       url: url,

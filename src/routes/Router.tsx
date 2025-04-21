@@ -8,6 +8,8 @@ import DashboardPage from "../pages/dashboard/DashboardPage";
 import { NotFound } from "../pages/NotFound";
 import JobPage from "../pages/dashboard/JobPage";
 import JobDetailsPage from "../pages/dashboard/JobDetailsPage";
+import AuthLayout from "../common/layouts/AuthLayout";
+import LoginPage from "../pages/auth/LoginPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,7 +32,6 @@ export const router = createBrowserRouter(
           <Route index path="/company" element={<CompanyPage />} />
         </Route>
         <Route index path="/order/:id" element={<CargoDetailsPage />} />
-        <Route index path="/tracking" element={<TrackingPage />} />
         <Route index path="/bids" element={<BidPage />} />
         <Route index path="/bids/:id" element={<BidDetailsPage />} />
         <Route index path="/documents" element={<DocumentPage />} />
@@ -50,11 +51,12 @@ export const router = createBrowserRouter(
         <Route path="/account_type" element={<AccountTypePage />} />
       </Route>
       <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/login/phone" element={<LoginWithPhonePage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-      </Route> */}
+        <Route path="/signin" element={<LoginPage />} />
+        {/* <Route path="/login/phone" element={<LoginWithPhonePage />} />
+        <Route path="/signup" element={<SignUpPage />} /> */}
+      </Route> 
       <Route path="*" element={<NotFound />} />
     </>
   )
