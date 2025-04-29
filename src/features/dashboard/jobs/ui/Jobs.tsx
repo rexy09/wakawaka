@@ -101,6 +101,7 @@ export default function Jobs() {
   const skeletons = Array.from({ length: 6 }, (_, index) => (
     <JobCardSkeleton key={index} />
   ));
+  
   const cards = jobs?.data.map((item, index) => (
     <JobCard job={item} key={index} />
   ));
@@ -108,7 +109,7 @@ export default function Jobs() {
   return (
     <div>
       <Grid>
-        <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
+        <Grid.Col span={{ base: 12, md: 6, lg: 4 }} visibleFrom="lg">
           <Paper p={"md"} radius={"md"}>
             <Group justify="space-between">
               <Text size="18px" fw={700} c="#040404">
@@ -299,7 +300,7 @@ export default function Jobs() {
               />
             )}
           </Group>
-          <SimpleGrid cols={2}>{isLoading ? skeletons : cards}</SimpleGrid>
+          <SimpleGrid cols={{ sm: 2 ,xs:2}}>{isLoading ? skeletons : cards}</SimpleGrid>
         </Grid.Col>
       </Grid>
     </div>

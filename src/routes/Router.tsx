@@ -11,6 +11,7 @@ import JobDetailsPage from "../pages/dashboard/JobDetailsPage";
 import AuthLayout from "../common/layouts/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
 import SignupPage from "../pages/auth/SignupPage";
+import PostJobPage from "../pages/dashboard/PostJobPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -26,8 +27,8 @@ export const router = createBrowserRouter(
         <Route index path="/" element={<DashboardPage />} />
         <Route index path="/jobs" element={<JobPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
+        <Route index path="/post_job" element={<PostJobPage />} />
         {/* <Route element={<AuthRights allowedRights={["sender"]} />}>
-          <Route index path="/post_cargo" element={<PostCargoPage />} />
         </Route>
         <Route element={<AuthRights allowedRights={["owner"]} />}>
           <Route index path="/company" element={<CompanyPage />} />

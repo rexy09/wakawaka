@@ -8,21 +8,23 @@ import {
   TextInput,
 } from "@mantine/core";
 import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+import "@mantine/dropzone/styles.css";
 import { notifications, Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
+import '@mantine/tiptap/styles.css';
+import { onMessage } from "firebase/messaging";
 import AuthProvider from "react-auth-kit/AuthProvider";
 import createStore from "react-auth-kit/createStore";
 import { RouterProvider } from "react-router-dom";
 import "./App.css";
+import { Icons } from "./common/icons";
 import { Color, FontFamily } from "./common/theme";
-import { router } from "./routes/Router";
-import "@mantine/dates/styles.css";
-import "@mantine/dropzone/styles.css";
-import { register } from "./serviceWorker";
-import { onMessage } from "firebase/messaging";
 import { messaging } from "./config/firebase";
 import { useNotificationStore } from "./features/dashboard/notifications/stores";
-import { Icons } from "./common/icons";
+import { router } from "./routes/Router";
+import { register } from "./serviceWorker";
+import '@mantine/carousel/styles.css';
 
 register();
 
@@ -52,7 +54,6 @@ const theme = createTheme({
     }),
   },
 });
-// const libraries: Libraries = ["places", "maps"];
 
 function App() {
   /* const refresh = createRefresh({
@@ -79,7 +80,7 @@ function App() {
       }
     }
   }) */
- 
+
   const notificationStore = useNotificationStore();
 
   onMessage(messaging, (payload) => {
@@ -104,14 +105,12 @@ function App() {
 
   return (
     <>
-      {/* <LoadScript googleMapsApiKey={Env.googleMapsApiKey} libraries={libraries}> */}
-        <MantineProvider theme={theme}>
-          <Notifications />
-          <AuthProvider store={store}>
-            <RouterProvider router={router} />
-          </AuthProvider>
-        </MantineProvider>
-      {/* </LoadScript> */}
+      <MantineProvider theme={theme}>
+        <Notifications />
+        <AuthProvider store={store}>
+          <RouterProvider router={router} />
+        </AuthProvider>
+      </MantineProvider>
     </>
   );
 }

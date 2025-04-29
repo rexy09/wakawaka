@@ -16,12 +16,9 @@ export interface PaginatedResponse<T> {
   data: T[];
 }
 
-
 export interface IBidForm {
   price: number;
 }
-
-
 
 export interface IJobPost {
   biddingType: string | null;
@@ -46,3 +43,33 @@ export interface IJobPost {
   videoUrl: string | null;
   voiceUrl: string | null;
 }
+export interface IJobCategory {
+  name: string;
+}
+export interface ICommitmentType {
+  type: string;
+}
+export interface IUrgencyLevels {
+  level: string;
+}
+
+export interface IJobForm {
+  biddingType: string;
+  budgetType: string;
+  budget: number;
+  maxBudget: number;
+  category: string;
+  commitment: string;
+  description: string;
+  hasBidding: boolean;
+  imageUrls: string[];
+  location: {
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  numberOfPositions: number;
+  title: string;
+  urgency: string;
+}
+

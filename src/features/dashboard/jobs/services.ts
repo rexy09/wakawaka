@@ -12,11 +12,9 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../../config/firebase";
-import useApiClient from "../../services/ApiClient";
-import { IBidForm, IJobPost, JobFilterParameters } from "./types";
+import { ICommitmentType, IJobCategory, IJobPost, IUrgencyLevels, JobFilterParameters } from "./types";
 
 export const useJobServices = () => {
-  const { sendRequest } = useApiClient();
 
   const getJobs = async (
     _p: JobFilterParameters,
@@ -69,6 +67,7 @@ export const useJobServices = () => {
       firstDoc: documentSnapshots.docs[0],
     };
   };
+  
   const getRelatedJobs = async (
     category: string,
     excludeId: string,
@@ -124,7 +123,6 @@ export const useJobServices = () => {
   };
 
   const getJob = async (id: string) => {
-    console.log("getJob", id);
 
     const dataCollection = collection(db, "jobPosts");
 
@@ -147,34 +145,63 @@ export const useJobServices = () => {
     }
     return undefined;
   };
+  const getCatgories = async () => {
+
+    const dataCollection = collection(db, "categories");
+
+    let dataQuery = query(
+      dataCollection,
+    );
+
+     const documentSnapshots = await getDocs(dataQuery);
+     const dataList = documentSnapshots.docs
+       .map((doc) => {
+         const data = doc.data();
+         return {
+           ...(data as IJobCategory),
+         };
+       });
+    return dataList;
+  };
+  const getCommitmentTypes = async () => {
+    const dataCollection = collection(db, "commitmentTypes");
+
+    let dataQuery = query(dataCollection);
+
+    const documentSnapshots = await getDocs(dataQuery);
+    const dataList = documentSnapshots.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        ...(data as ICommitmentType),
+      };
+    });
+    return dataList;
+  };
+  const getUrgencyLevels = async () => {
+    const dataCollection = collection(db, "urgencyLevels");
+
+    let dataQuery = query(dataCollection);
+
+    const documentSnapshots = await getDocs(dataQuery);
+    const dataList = documentSnapshots.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        ...(data as IUrgencyLevels),
+      };
+    });
+    return dataList;
+  };
 
   
 
-  const postBid = async (d: IBidForm, order: string) => {
-    const url = "/operation/bidding";
-    return sendRequest({
-      method: "post",
-      url: url,
-      data: {
-        price: d.price,
-        order: order,
-      },
-    });
-  };
-  const getOrderBid = async (order: string) => {
-    const url = `/operation/bidding?order=${order}`;
-    return sendRequest({
-      method: "get",
-      url: url,
-    });
-  };
-
+  
   return {
     getJobs,
     getJob,
     getRelatedJobs,
-    postBid,
-    getOrderBid,
+    getCatgories,
+    getCommitmentTypes,
+    getUrgencyLevels,
   };
 };
 

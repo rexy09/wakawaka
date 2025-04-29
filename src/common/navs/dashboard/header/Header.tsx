@@ -3,77 +3,34 @@ import {
     Burger,
     Button,
     Center,
-    Collapse,
     Divider,
     Drawer,
     Group,
     Image,
     ScrollArea,
-    Text,
-    ThemeIcon,
-    UnstyledButton,
+    UnstyledButton
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { SetStateAction } from "react";
+import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
+import { useNavigate } from "react-router-dom";
 import { Icons } from "../../../icons";
 import classes from "./Header.module.css";
 import AccountMenu from "./components/AccountMenu";
 import NavLinkButton from "./components/NavLinkButton";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
-import { useNavigate } from "react-router-dom";
-const mockdata = [
-    {
-        title: "Open source",
-        description: "This Pokémon’s cry is very loud and distracting",
-    },
-    {
-        title: "Free for everyone",
-        description: "The fluid of Smeargle’s tail secretions changes",
-    },
-    {
-        title: "Documentation",
-        description: "Yanma is capable of seeing 360 degrees without",
-    },
-    {
-        title: "Security",
-        description: "The shell’s rounded shape and the grooves on its.",
-    },
-    {
-        title: "Analytics",
-        description: "This Pokémon uses its flying ability to quickly chase",
-    },
-    {
-        title: "Notifications",
-        description: "Combusken battles with the intensely hot flames it spews",
-    },
-];
+
 
 export default function HeaderMegaMenu() {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
         useDisclosure(false);
-    const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
+    const [_linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
     const isAuthenticated = useIsAuthenticated();
     const navigate = useNavigate();
 
     // const theme = useMantineTheme();
 
-    const links = mockdata.map((item) => (
-        <UnstyledButton className={classes.subLink} key={item.title}>
-            <Group wrap="nowrap" align="flex-start">
-                <ThemeIcon size={34} variant="default" radius="md">
-                    {/* <item.icon size={22} color={theme.colors.blue[6]} /> */}
-                </ThemeIcon>
-                <div>
-                    <Text size="sm" fw={500}>
-                        {item.title}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                        {item.description}
-                    </Text>
-                </div>
-            </Group>
-        </UnstyledButton>
-    ));
+
+
 
     return (
         <Box bg={"#151F42"}>
@@ -81,9 +38,9 @@ export default function HeaderMegaMenu() {
                 <Group justify="space-between" h="100%">
                     <Image h={30} w={30} radius="md" />
 
-                    <Group h="100%" gap={"xs"} visibleFrom="sm">
+                    <Group h="100%" gap={"xs"} visibleFrom="md">
                         <NavLinkButton
-                            label={"Dashboard"}
+                            label={"Home"}
                             to={"/"}
                             setOpened={function (_value: SetStateAction<boolean>): void {
                                 throw new Error("Function not implemented.");
@@ -92,6 +49,13 @@ export default function HeaderMegaMenu() {
                         <NavLinkButton
                             label={"Find Jobs"}
                             to={"/jobs"}
+                            setOpened={function (_value: SetStateAction<boolean>): void {
+                                throw new Error("Function not implemented.");
+                            }}
+                        />
+                        <NavLinkButton
+                            label={"Post Job"}
+                            to={"/post_job"}
                             setOpened={function (_value: SetStateAction<boolean>): void {
                                 throw new Error("Function not implemented.");
                             }}
@@ -199,8 +163,11 @@ export default function HeaderMegaMenu() {
                 <ScrollArea h="calc(100vh - 80px" mx="-md">
                     <Divider my="sm" />
 
-                    <a href="#" className={classes.link}>
+                    <a href="/" className={classes.link}>
                         Home
+                    </a>
+                    <a href="/jobs" className={classes.link}>
+                        Jobs
                     </a>
                     <UnstyledButton className={classes.link} onClick={toggleLinks}>
                         <Center inline>
@@ -210,7 +177,6 @@ export default function HeaderMegaMenu() {
                             {/* <IconChevronDown size={16} color={theme.colors.blue[6]} /> */}
                         </Center>
                     </UnstyledButton>
-                    <Collapse in={linksOpened}>{links}</Collapse>
                     <a href="#" className={classes.link}>
                         Learn
                     </a>
