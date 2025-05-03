@@ -27,10 +27,6 @@ export default function HeaderMegaMenu() {
     const isAuthenticated = useIsAuthenticated();
     const navigate = useNavigate();
 
-    // const theme = useMantineTheme();
-
-
-
 
     return (
         <Box bg={"#151F42"}>

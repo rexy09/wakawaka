@@ -1,4 +1,5 @@
 import {
+  addDoc,
   collection,
   DocumentSnapshot,
   endBefore,
@@ -9,12 +10,25 @@ import {
   orderBy,
   query,
   startAfter,
+  Timestamp,
   where,
 } from "firebase/firestore";
 import { db } from "../../../config/firebase";
-import { ICommitmentType, IJobCategory, IJobPost, IUrgencyLevels, JobFilterParameters } from "./types";
+import {
+  ICommitmentType,
+  IJobCategory,
+  IJobForm,
+  IJobPost,
+  IUrgencyLevels,
+  JobFilterParameters,
+} from "./types";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { IUser } from "../../auth/types";
+import { v4 as uuidv4 } from "uuid";
+
 
 export const useJobServices = () => {
+  const authUser = useAuthUser<IUser>();
 
   const getJobs = async (
     _p: JobFilterParameters,
@@ -56,6 +70,7 @@ export const useJobServices = () => {
       const data = doc.data();
       return {
         ...(data as IJobPost),
+        // id: doc.id,
         datePosted: data.datePosted.toDate().toString(),
       };
     });
@@ -67,7 +82,7 @@ export const useJobServices = () => {
       firstDoc: documentSnapshots.docs[0],
     };
   };
-  
+
   const getRelatedJobs = async (
     category: string,
     excludeId: string,
@@ -76,7 +91,6 @@ export const useJobServices = () => {
     endBeforeDoc?: DocumentSnapshot
   ) => {
     const pageLimit: number = 6;
-    
 
     const dataCollection = collection(db, "jobPosts");
 
@@ -107,15 +121,15 @@ export const useJobServices = () => {
     const dataList = documentSnapshots.docs
       .filter((doc) => doc.id !== excludeId) // Exclude the document with the specified ID
       .map((doc) => {
-      const data = doc.data();
-      return {
-        ...(data as IJobPost),
-        datePosted: data.datePosted.toDate().toString(),
-      };
+        const data = doc.data();
+        return {
+          ...(data as IJobPost),
+          datePosted: data.datePosted.toDate().toString(),
+        };
       });
 
     return {
-      count:dataList.length,
+      count: dataList.length,
       data: dataList,
       lastDoc: documentSnapshots.docs[documentSnapshots.docs.length - 1],
       firstDoc: documentSnapshots.docs[0],
@@ -123,7 +137,6 @@ export const useJobServices = () => {
   };
 
   const getJob = async (id: string) => {
-
     const dataCollection = collection(db, "jobPosts");
 
     let dataQuery = query(
@@ -146,21 +159,17 @@ export const useJobServices = () => {
     return undefined;
   };
   const getCatgories = async () => {
-
     const dataCollection = collection(db, "categories");
 
-    let dataQuery = query(
-      dataCollection,
-    );
+    let dataQuery = query(dataCollection);
 
-     const documentSnapshots = await getDocs(dataQuery);
-     const dataList = documentSnapshots.docs
-       .map((doc) => {
-         const data = doc.data();
-         return {
-           ...(data as IJobCategory),
-         };
-       });
+    const documentSnapshots = await getDocs(dataQuery);
+    const dataList = documentSnapshots.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        ...(data as IJobCategory),
+      };
+    });
     return dataList;
   };
   const getCommitmentTypes = async () => {
@@ -192,9 +201,22 @@ export const useJobServices = () => {
     return dataList;
   };
 
-  
+  const postJob = async (d: IJobForm, published:boolean) => {
+    const dataCollection = collection(db, "jobPosts");
+    const uuid = uuidv4();
+    const jobData = {
+      ...d,
+      id:uuid,
+      postedByUserId: authUser?.uid,
+      published: published,
+      isActive: true,
+      datePosted: Timestamp.fromDate(new Date()),
+    };
+    const jobpostRef = await addDoc(dataCollection, jobData);
 
-  
+    return jobpostRef.id;
+  };
+
   return {
     getJobs,
     getJob,
@@ -202,7 +224,6 @@ export const useJobServices = () => {
     getCatgories,
     getCommitmentTypes,
     getUrgencyLevels,
+    postJob,
   };
 };
-
-

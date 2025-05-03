@@ -43,7 +43,7 @@ export default function JobCard({ job }: Props) {
 
               <div>
                 <Text size="20px" fw={500} c="#151F42" lineClamp={1} style={{ lineHeight: 1.2 }}>
-                  {job.category}
+                  {job.title ? job.title : job.category}
                 </Text>
                 <Space h="xs" />
 
@@ -96,6 +96,7 @@ export default function JobCard({ job }: Props) {
             <Space h="md" />
             <Text size="20px" fw={400} c="#151F42">
               <NumberFormatter prefix="TZS " value={job.budget} thousandSeparator />
+              {job.maxBudget >0 &&<NumberFormatter prefix=" - TZS " value={job.maxBudget} thousandSeparator />}
               {/* <span style={{ color: "#C7C7C7" }}>/month</span> */}
             </Text>
             <Space h="md" />

@@ -49,8 +49,8 @@ export default function RichTextInput({
                 {label}<span>*</span>
             </Text>
         ) : null}
-        <RichTextEditor editor={editor}>
-            <RichTextEditor.Toolbar sticky stickyOffset={60}>
+        <RichTextEditor editor={editor} style={{borderColor:errors?"red":""}} >
+            <RichTextEditor.Toolbar sticky stickyOffset={100}>
                 <RichTextEditor.ControlsGroup>
                     <RichTextEditor.Bold />
                     <RichTextEditor.Italic />
@@ -115,7 +115,7 @@ export default function RichTextInput({
 
             <RichTextEditor.Content />
         </RichTextEditor>
-        <Text fz="xs" c="red">
+        <Text fz="sm" c="red">
             {errors}
         </Text>
     </>

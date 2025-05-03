@@ -23,6 +23,7 @@ export interface IBidForm {
 export interface IJobPost {
   biddingType: string | null;
   budget: number;
+  maxBudget: number;
   category: string;
   commitment: string;
   datePosted: string; // or Date if parsed

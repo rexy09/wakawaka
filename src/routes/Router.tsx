@@ -12,24 +12,23 @@ import AuthLayout from "../common/layouts/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
 import SignupPage from "../pages/auth/SignupPage";
 import PostJobPage from "../pages/dashboard/PostJobPage";
-
+import RequireAuth from "@auth-kit/react-router/RequireAuth";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route
         element={
           // <RequireAuth fallbackPath={"/login"}>
-            <DashboardLayout />
+          <DashboardLayout />
           // </RequireAuth>
         }
-      // errorElement={<ServerError />}
+        // errorElement={<ServerError />}
       >
         <Route index path="/" element={<DashboardPage />} />
         <Route index path="/jobs" element={<JobPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
-        <Route index path="/post_job" element={<PostJobPage />} />
-        {/* <Route element={<AuthRights allowedRights={["sender"]} />}>
-        </Route>
+
+        {/* 
         <Route element={<AuthRights allowedRights={["owner"]} />}>
           <Route index path="/company" element={<CompanyPage />} />
         </Route>
@@ -44,7 +43,15 @@ export const router = createBrowserRouter(
         <Route index path="/billing" element={<BillingPage />} />
         <Route index path="/billing/:id" element={<BillingDetailsPage />} /> */}
       </Route>
-
+      <Route
+        element={
+          <RequireAuth fallbackPath={"/signin"}>
+            <DashboardLayout />
+          </RequireAuth>
+        }
+      >
+        <Route index path="/post_job" element={<PostJobPage />} />
+      </Route>
 
       {/* <Route element={<RequireAuth fallbackPath={"/login"}>
         <AuthLayout />
@@ -56,10 +63,10 @@ export const router = createBrowserRouter(
       */}
       <Route element={<AuthLayout />}>
         <Route path="/signin" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} /> 
+        <Route path="/signup" element={<SignupPage />} />
         {/* <Route path="/login/phone" element={<LoginWithPhonePage />} />
-        */}
-      </Route> 
+         */}
+      </Route>
       <Route path="*" element={<NotFound />} />
     </>
   )

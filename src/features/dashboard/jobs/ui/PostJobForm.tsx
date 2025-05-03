@@ -2,6 +2,7 @@ import { Carousel } from "@mantine/carousel";
 import {
   Button,
   Center,
+  Flex,
   Grid,
   Group,
   Image,
@@ -11,7 +12,9 @@ import {
   Space,
   Switch,
   Text,
-  TextInput
+  Textarea,
+  TextInput,
+  UnstyledButton
 } from "@mantine/core";
 import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import { useForm } from "@mantine/form";
@@ -19,11 +22,12 @@ import { notifications } from "@mantine/notifications";
 import { Libraries, LoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
+import { IoArrowBack } from "react-icons/io5";
 import { LuImageUp } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 import { Color } from "../../../../common/theme";
 import Env from "../../../../config/env";
 import GooglePlacesAutocomplete from "../components/GooglePlacesAutocomplete";
-import RichTextInput from "../components/RichTextInput";
 import { useJobServices } from "../services";
 import {
   ICommitmentType,
@@ -34,10 +38,11 @@ import {
 const libraries: Libraries = ["places", "maps"];
 
 export default function PostJobForm() {
-  // const navigate = useNavigate();
-  const { getCatgories, getCommitmentTypes, getUrgencyLevels } =
+  const navigate = useNavigate();
+  const { getCatgories, getCommitmentTypes, getUrgencyLevels ,postJob} =
     useJobServices();
 
+  const [submitted, setSubmitted] = useState(false);
   const [_isLoading, setIsLoading] = useState(false);
   const [jobCategories, setJobCategories] = useState<IJobCategory[]>([]);
   const [commitmentTypes, setCommitmentTypes] = useState<ICommitmentType[]>([]);
@@ -60,53 +65,66 @@ export default function PostJobForm() {
       budget: 0,
       maxBudget: 0,
       numberOfPositions: 1,
-      biddingType: "Fixed Price",
+      biddingType: "",
       hasBidding: false,
       imageUrls: [],
     },
 
     validate: (values) => {
-      // if (active === 1) {
-      //   return {
-      //     category:
-      //       values.category.trim().length == 0 ? "Category required" : null,
-      //     urgency:
-      //       values.urgency.trim().length == 0 ? "Urgency required" : null,
-
-      //     location:
-      //       values.location.address.trim().length == 0
-      //         ? "Location required"
-      //         : null,
-
-      //     numberOfPositions:
-      //       values.numberOfPositions<=0
-      //         ? "Number of position required"
-      //         : null,
-
-      //   };
-      // }
-      if (active === 2) {
+      if (active === 1) {
         return {
           category:
             values.category.trim().length == 0 ? "Category required" : null,
           urgency:
             values.urgency.trim().length == 0 ? "Urgency required" : null,
-
           location:
             values.location.address.trim().length == 0
               ? "Location required"
               : null,
-
           numberOfPositions:
             values.numberOfPositions <= 0
               ? "Number of position required"
               : null,
         };
       }
+      if (active === 2) {
+        return {
+          budget: values.budget <= 0 ? "Budget required" : null,
+          maxBudget:
+            values.maxBudget <= 0 && values.budgetType == "Range"
+              ? "Max budget required"
+              : null,
+          urgency:
+            values.urgency.trim().length == 0 ? "Urgency required" : null,
+
+          biddingType:
+            values.biddingType.trim().length == 0 && values.hasBidding
+              ? "Bidding type required"
+              : null,
+          description:
+            values.description.trim().length <= 0
+              ? "Job description required"
+              : null,
+        };
+      }
       return {};
     },
   });
-
+const submit = (published:boolean)=>{
+  setSubmitted(false);
+  postJob(form.values, published).then(() => {
+    setSubmitted(false);
+    navigate('/jobs')
+  })
+    .catch((_error) => {
+      setSubmitted(false);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: "Something went wrong!",
+      });
+    });
+}
   const fetchData = () => {
     setIsLoading(true);
 
@@ -170,11 +188,26 @@ export default function PostJobForm() {
     setActive((current) => (current > 1 ? current - 1 : current));
   return (
     <LoadScript googleMapsApiKey={Env.googleMapsApiKey} libraries={libraries}>
-      <div>
-        <Space h="md" />
+      <form
+        onSubmit={form.onSubmit(() => {
+          submit(true);
+        })}
+      >
+        <Space h="xl" />
 
         <Grid justify="center">
           <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
+            <Group justify="space-between">
+              <UnstyledButton onClick={() => navigate(-1)}>
+                <IoArrowBack size={20} />
+              </UnstyledButton>
+              <UnstyledButton onClick={() => { submit(false); }}>
+                <Text fw={600} fz={"16px"}>
+                  Save And Exit
+                </Text>
+              </UnstyledButton>
+            </Group>
+            <Space h="md" />
             <Progress
               color={Color.PrimaryBlue}
               value={50 * active}
@@ -187,7 +220,7 @@ export default function PostJobForm() {
                   Basic Information
                 </Text>
                 <Space h="md" />
-                <TextInput label={"Job title"} placeholder="UI UX Designer" />
+                <TextInput label={"Job title"} placeholder="UI UX Designer" {...form.getInputProps("title")} />
                 <Space h="md" />
                 <GooglePlacesAutocomplete
                   label="Location*"
@@ -211,19 +244,26 @@ export default function PostJobForm() {
                   {...form.getInputProps("category")}
                 />
                 <Space h="md" />
-                <Select
-                  label="Urgency*"
-                  placeholder="Select your urgency"
-                  data={urgencyLevels.map((item) => item.level)}
-                  {...form.getInputProps("urgency")}
-                />
-                <Space h="md" />
-                <NumberInput
-                  label="Number of positions*"
-                  placeholder="Number of positions"
-                  min={1}
-                  {...form.getInputProps("numberOfPositions")}
-                />
+                <Grid justify="center">
+                  <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                    <Select
+                      label="Urgency*"
+                      placeholder="Select your urgency"
+                      data={urgencyLevels.map((item) => item.level)}
+                      {...form.getInputProps("urgency")}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                    <NumberInput
+                      label="Number of positions*"
+                      placeholder="Number of positions"
+                      min={1}
+                      size="md"
+                      radius={"md"}
+                      {...form.getInputProps("numberOfPositions")}
+                    />
+                  </Grid.Col>
+                </Grid>
 
                 <Space h="md" />
                 <Button
@@ -246,7 +286,7 @@ export default function PostJobForm() {
                   Job Information
                 </Text>
                 <Space h="md" />
-                <Group justify="space-between">
+                <Flex justify="space-between" align="flex-start">
                   <Select
                     label="Budget Type*"
                     placeholder="Budget Type"
@@ -263,6 +303,7 @@ export default function PostJobForm() {
                         : "Budget*"
                     }
                     thousandSeparator=","
+                    {...form.getInputProps("budget")}
                     w={form.values.budgetType === "Range" ? "38%" : "78%"}
                   />
                   {form.values.budgetType === "Range" && (
@@ -271,10 +312,11 @@ export default function PostJobForm() {
                       radius={"md"}
                       label="Max Budget*"
                       thousandSeparator=","
+                      {...form.getInputProps("maxBudget")}
                       w={"38%"}
                     />
                   )}
-                </Group>
+                </Flex>
                 <Space h="md" />
                 <Switch
                   {...form.getInputProps("hasBidding")}
@@ -302,12 +344,20 @@ export default function PostJobForm() {
                 />
 
                 <Space h="md" />
-                <RichTextInput
+                {/* <RichTextInput
                   label="Job Description"
                   setContent={form.setFieldValue}
                   path={"description"}
                   content={form.values.description}
                   errors={form.errors.description}
+                /> */}
+                <Textarea
+                  label="Job Description"
+                  placeholder="Whats your job?"
+                  {...form.getInputProps("description")}
+                  autosize
+                  minRows={2}
+                  maxRows={4}
                 />
 
                 <Space h="md" />
@@ -407,7 +457,7 @@ export default function PostJobForm() {
                       }}
                     >
                       {files.map((file, index) => (
-                        <Carousel.Slide key={index} >
+                        <Carousel.Slide key={index}>
                           <Image
                             radius="md"
                             h={150}
@@ -416,8 +466,6 @@ export default function PostJobForm() {
                             src={URL.createObjectURL(file)}
                             style={{ objectFit: "cover" }}
                           />
-                         
-                          
                         </Carousel.Slide>
                       ))}
                     </Carousel>
@@ -517,18 +565,18 @@ export default function PostJobForm() {
                     radius={"md"}
                     color={Color.DarkBlue}
                     fw={600}
-                    onClick={() => {
-                      nextStep();
-                    }}
+                    type="submit"
+                    disabled={submitted}
+                    loading={submitted}
                   >
-                    Continue
+                    Submit
                   </Button>
                 </Group>
               </div>
             )}
           </Grid.Col>
         </Grid>
-      </div>
+      </form>
     </LoadScript>
   );
 }

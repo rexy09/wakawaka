@@ -11,8 +11,10 @@ import {
   Paper,
   SimpleGrid,
   Space,
+  Spoiler,
   Text,
   TextInput,
+  TypographyStylesProvider,
   UnstyledButton,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
@@ -236,6 +238,9 @@ export default function JobDetails() {
                       </Group>
                     </div>
                   </Group>
+                  <div>
+
+                  </div>
                   <Group>
                     <Button
                       variant="filled"
@@ -291,10 +296,18 @@ export default function JobDetails() {
               </Group>
               <Space h="xs" />
 
-              <Text size="14px" fw={500} c="#596258">
+              {/* <Text size="14px" fw={500} c="#596258">
                 {job.description}
-              </Text>
-
+              </Text> */}
+              <Spoiler maxHeight={170} showLabel="Show more" hideLabel="Hide">
+                
+              
+              <TypographyStylesProvider>
+                <div
+                  dangerouslySetInnerHTML={{ __html: job.description }}
+                />
+              </TypographyStylesProvider>
+              </Spoiler>
               <Space h="md" />
               <Text size="20px" fw={400} c="#151F42">
                 <NumberFormatter
@@ -302,7 +315,6 @@ export default function JobDetails() {
                   value={job.budget}
                   thousandSeparator
                 />
-                {/* <span style={{ color: "#C7C7C7" }}>/month</span> */}
               </Text>
               <Space h="lg" />
 

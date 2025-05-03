@@ -42,6 +42,7 @@ export default function GoogleSigninButton() {
                       type: "Bearer",
                     },
                     userState: {
+                      uid: user.uid,
                       email: user.email,
                       name: user.displayName,
                       photoUrl: user.photoURL,
