@@ -143,6 +143,7 @@ export default function HeaderMegaMenu() {
                         opened={drawerOpened}
                         onClick={toggleDrawer}
                         hiddenFrom="sm"
+                        color="white"
                     />
                 </Group>
             </header>
