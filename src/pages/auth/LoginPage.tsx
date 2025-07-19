@@ -1,6 +1,6 @@
 import { Center, Image, Space, Text } from "@mantine/core";
 import LoginForm from "../../features/auth/ui/LoginForm";
-import logo from "../../assets/w.png";
+import logo from "../../assets/logo.png";
 
 export default function LoginPage() {
   return (
@@ -13,6 +13,7 @@ export default function LoginPage() {
             src={logo}
             mx={"auto"}
             alt="logo"
+            radius={"lg"}
           />
           <Space h="md" />
           <Text size="30px" fw={600} c={"#181D27"} style={{ lineHeight: "38px" }}>Welcome back </Text>

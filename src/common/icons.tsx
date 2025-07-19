@@ -46,6 +46,8 @@ import bank_transfer from "../assets/icons/bank_transfer.svg";
 import message from "../assets/icons/message.svg";
 import archive from "../assets/icons/archive.svg";
 import google from "../assets/icons/google.svg";
+import facebook from "../assets/icons/facebook.png";
+
 
 
 interface CustomIconProps {
@@ -128,4 +130,5 @@ export const Icons = {
   message: createCustomIcon({ src: message }),
   archive: createCustomIcon({ src: archive }),
   google: createCustomIcon({ src: google }),
+  facebook: createCustomIcon({ src: facebook }),
 };

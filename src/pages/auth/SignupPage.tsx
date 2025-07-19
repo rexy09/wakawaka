@@ -1,5 +1,5 @@
 import { Center, Image, Space, Text } from "@mantine/core";
-import logo from "../../assets/w.png";
+import logo from "../../assets/logo.png";
 import SignupForm from "../../features/auth/ui/SignupForm";
 
 export default function SignupPage() {
@@ -12,6 +12,7 @@ export default function SignupPage() {
             src={logo}
             mx={"auto"}
             alt="logo"
+            radius={"lg"}
           />
           <Space h="md" />
           <Text size="30px" fw={600} c={"#181D27"} style={{ lineHeight: "38px" }}>Signup for Free</Text>

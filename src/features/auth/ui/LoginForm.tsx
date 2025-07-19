@@ -1,30 +1,22 @@
 import {
   Anchor,
-  Button,
   Group,
-  PasswordInput,
   Space,
   Text,
-  TextInput,
 } from "@mantine/core";
 import { isEmail, isNotEmpty, useForm } from "@mantine/form";
-import { notifications } from "@mantine/notifications";
-import {
-  getAuth,
-  signInWithEmailAndPassword
-} from "firebase/auth";
 import { useEffect } from "react";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
 import { Color } from "../../../common/theme";
-import useAuthServices from "../services";
 import { UserCredentials } from "../types";
+import AppleSigninButton from "./AppleSigninButton";
 import GoogleSigninButton from "./GoogleSigninButton";
+import XSigninButton from "./XSigninButton";
 
 function LoginForm() {
-  const { submitted, setSubmitted } = useAuthServices();
-  const auth = getAuth();
-  const signIn = useSignIn();
+  // const { submitted, setSubmitted } = useAuthServices();
+  // const auth = getAuth();
+  // const signIn = useSignIn();
 
   const navigate = useNavigate();
 
@@ -48,61 +40,59 @@ function LoginForm() {
     form.resetDirty(values);
   };
 
-  const loginWithEmail = async () => {
-    setSubmitted(true);
-    signInWithEmailAndPassword(auth, form.values.username, form.values.password)
-      .then(async (userCredential) => {
-        setSubmitted(false);
-        // Signed in
-        console.log("userCredential", userCredential);
-        const user = userCredential.user;
-        console.log("user", user);
-        if (user) {
-          const accessToken = await user.getIdToken();
-          if (
-            signIn({
-              auth: {
-                token: accessToken,
-                type: "Bearer",
-              },
-              userState: {
-                email: user.email,
-                name: user.displayName,
-                photoUrl: user.photoURL,
-              },
-            })
-          ) {
-            navigate("/");
-          } else {
-            navigate("/login");
-          }
-        }
-      })
-      .catch((error) => {
-        setSubmitted(false);
-        console.log(error.code);
+  // const loginWithEmail = async () => {
+  //   setSubmitted(true);
+  //   signInWithEmailAndPassword(auth, form.values.username, form.values.password)
+  //     .then(async (userCredential) => {
+  //       setSubmitted(false);
+  //       // Signed in
+  //       console.log("userCredential", userCredential);
+  //       const user = userCredential.user;
+  //       console.log("user", user);
+  //       if (user) {
+  //         const accessToken = await user.getIdToken();
+  //         if (
+  //           signIn({
+  //             auth: {
+  //               token: accessToken,
+  //               type: "Bearer",
+  //             },
+  //             userState: {
+  //               email: user.email,
+  //               name: user.displayName,
+  //               photoUrl: user.photoURL,
+  //             },
+  //           })
+  //         ) {
+  //           navigate("/");
+  //         } else {
+  //           navigate("/login");
+  //         }
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       setSubmitted(false);
+  //       console.log(error.code);
 
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        if (errorCode === "auth/invalid-credential") {
-          notifications.show({
-            title: `Error`,
-            color: "red",
-            message: `Invalid email or password`,
-            position: "bottom-left",
-          });
-        } else {
-          notifications.show({
-            title: `Error`,
-            color: "red",
-            message: `${errorMessage}`,
-            position: "bottom-left",
-          });
-        }
-      });
-
-    
-  };
+  //       const errorCode = error.code;
+  //       const errorMessage = error.message;
+  //       if (errorCode === "auth/invalid-credential") {
+  //         notifications.show({
+  //           title: `Error`,
+  //           color: "red",
+  //           message: `Invalid email or password`,
+  //           position: "bottom-left",
+  //         });
+  //       } else {
+  //         notifications.show({
+  //           title: `Error`,
+  //           color: "red",
+  //           message: `${errorMessage}`,
+  //           position: "bottom-left",
+  //         });
+  //       }
+  //     });
+  // };
 
   useEffect(() => {
     setValues();
@@ -110,7 +100,7 @@ function LoginForm() {
 
   return (
     <>
-      <form
+      {/* <form
         onSubmit={form.onSubmit(() => {
           loginWithEmail();
         })}
@@ -145,7 +135,7 @@ function LoginForm() {
             component="button"
             type="button"
             c="dimmed"
-            onClick={() => { }}
+            onClick={() => {}}
             size="xs"
           >
             <Text size="16px" fw={600} c={"#151F42"}>
@@ -170,10 +160,6 @@ function LoginForm() {
         </Group>
 
         <Space h="lg" />
-
-        <GoogleSigninButton />
-
-        <Space h="lg" />
         <Group justify="center" gap={5}>
           <Text size="14px" fw={400} c={Color.Text1}>
             Don’t have an account?
@@ -192,7 +178,34 @@ function LoginForm() {
             </Text>
           </Anchor>
         </Group>
-      </form>
+      </form> */}
+      <GoogleSigninButton />
+      <Space h="md" />
+      <AppleSigninButton />
+      <Space h="md" />
+      {/* <FacebookSigninButton />
+        <Space h="md" /> */}
+      <XSigninButton />
+      <Space h="lg" />
+      <Group justify="center" gap={5}>
+        <Text size="14px" fw={400} c={Color.Text1}>
+          Don’t have an account?
+        </Text>
+        <Anchor
+          component="button"
+          type="button"
+          c="dimmed"
+          onClick={() => {
+            navigate("/signup");
+          }}
+          size="xs"
+        >
+          <Text size="14px" fw={600} c={Color.DarkBlue}>
+            Sign up
+          </Text>
+        </Anchor>
+      </Group>
+      <Space h="md" />
     </>
   );
 }

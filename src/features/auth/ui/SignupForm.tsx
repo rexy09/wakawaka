@@ -1,28 +1,23 @@
 import {
   Anchor,
-  Button,
   Group,
-  PasswordInput,
   Space,
-  Text,
-  TextInput,
+  Text
 } from "@mantine/core";
 import { isEmail, isNotEmpty, useForm } from "@mantine/form";
-import { notifications } from "@mantine/notifications";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Color } from "../../../common/theme";
-import useAuthServices from "../services";
 import { ISignupUserForm } from "../types";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
+import AppleSigninButton from "./AppleSigninButton";
 import GoogleSigninButton from "./GoogleSigninButton";
+import XSigninButton from "./XSigninButton";
 
 function SignupForm() {
-  const auth = getAuth();
+  // const auth = getAuth();
   const navigate = useNavigate();
-  const { submitted, setSubmitted } = useAuthServices();
-  const signIn = useSignIn();
+  // const { submitted, setSubmitted } = useAuthServices();
+  // const signIn = useSignIn();
 
   const form = useForm<ISignupUserForm>({
     initialValues: {
@@ -44,52 +39,52 @@ function SignupForm() {
     form.resetDirty(values);
   };
 
-  const signup = async () => {
-    setSubmitted(true);
+  // const signup = async () => {
+  //   setSubmitted(true);
 
-    createUserWithEmailAndPassword(
-      auth,
-      form.values.email,
-      form.values.password
-    )
-      .then(async (userCredential) => {
-        setSubmitted(false);
-        const user = userCredential.user;
-        if (user) {
-          const accessToken = await user.getIdToken();
-          if (
-            signIn({
-              auth: {
-                token: accessToken,
-                type: "Bearer",
-              },
-              userState: {
-                email: user.email,
-                name: user.displayName,
-                photoUrl: user.photoURL,
-              },
-            })
-          ) {
-            navigate("/");
-          } else {
-            navigate("/login");
-          }
-        }
-      })
-      .catch((error) => {
-        setSubmitted(false);
-        const errorCode = error.code;
-        // const errorMessage = error.message;
-        notifications.show({
-          title: `Error`,
-          color: "red",
-          message: `${errorCode.split("/")[1].replace(/-/g, " ")}`,
-          position: "bottom-left",
-        });
-      });
+  //   createUserWithEmailAndPassword(
+  //     auth,
+  //     form.values.email,
+  //     form.values.password
+  //   )
+  //     .then(async (userCredential) => {
+  //       setSubmitted(false);
+  //       const user = userCredential.user;
+  //       if (user) {
+  //         const accessToken = await user.getIdToken();
+  //         if (
+  //           signIn({
+  //             auth: {
+  //               token: accessToken,
+  //               type: "Bearer",
+  //             },
+  //             userState: {
+  //               email: user.email,
+  //               name: user.displayName,
+  //               photoUrl: user.photoURL,
+  //             },
+  //           })
+  //         ) {
+  //           navigate("/");
+  //         } else {
+  //           navigate("/login");
+  //         }
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       setSubmitted(false);
+  //       const errorCode = error.code;
+  //       // const errorMessage = error.message;
+  //       notifications.show({
+  //         title: `Error`,
+  //         color: "red",
+  //         message: `${errorCode.split("/")[1].replace(/-/g, " ")}`,
+  //         position: "bottom-left",
+  //       });
+  //     });
 
-    
-  };
+
+  // };
 
   useEffect(() => {
     setValues();
@@ -97,7 +92,7 @@ function SignupForm() {
 
   return (
     <>
-      <form
+      {/* <form
         onSubmit={form.onSubmit(() => {
           signup();
         })}
@@ -140,10 +135,14 @@ function SignupForm() {
             Sign up
           </Button>
         </Group>
-      </form>
-      <Space h="lg" />
-
+      </form> */}
       <GoogleSigninButton />
+      <Space h="md" />
+      <AppleSigninButton />
+      <Space h="md" />
+      {/* <FacebookSigninButton />
+        <Space h="md" /> */}
+      <XSigninButton />
 
       <Space h="lg" />
 

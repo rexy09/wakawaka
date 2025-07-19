@@ -1,12 +1,13 @@
-import { Button } from "@mantine/core";
+import { Button, Image } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {  getAuth, signInWithPopup, TwitterAuthProvider } from "firebase/auth";
 import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
-import { Icons } from "../../../common/icons";
+import x from "../../../assets/icons/x.png";
 
-export default function GoogleSigninButton() {
-  const provider = new GoogleAuthProvider();
+
+export default function XSigninButton() {
+  const provider = new TwitterAuthProvider();
   const auth = getAuth();
   const signIn = useSignIn();
 
@@ -19,14 +20,14 @@ export default function GoogleSigninButton() {
         size="lg"
         fullWidth
         variant="default"
-        leftSection={Icons.google}
+        leftSection={<Image src={x}  alt={"facebook"}  h={"26"} radius={'sm'}/>}
         style={{ color: "#414651", fontWeight: 600, fontSize: "16px" }}
         onClick={() => {
           signInWithPopup(auth, provider)
             .then(async (result) => {
               // This gives you a Google Access Token. You can use it to access the Google API.
               const credential =
-                GoogleAuthProvider.credentialFromResult(result);
+                TwitterAuthProvider.credentialFromResult(result);
               const token = credential ? credential.accessToken : null;
               // console.log("token", token);
               // The signed-in user info.
@@ -77,7 +78,7 @@ export default function GoogleSigninButton() {
             });
         }}
       >
-        Continue with Google
+        Continue with X
       </Button>
     </>
   );
