@@ -183,8 +183,12 @@ export default function HeaderMegaMenu() {
                     <Divider my="sm" />
 
                     <Group justify="center" grow pb="xl" px="md">
-                        <Button variant="default">Log in</Button>
-                        <Button>Sign up</Button>
+                        <Button variant="default" onClick={() => {
+                            navigate("/signin");
+                        }}>Sign in</Button>
+                        <Button onClick={() => {
+                            navigate("/signup");
+                        }}>Sign up</Button>
                     </Group>
                 </ScrollArea>
             </Drawer>
