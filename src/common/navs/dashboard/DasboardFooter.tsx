@@ -18,7 +18,7 @@ export default function DasboardFooter() {
                 wordWrap: "break-word",
               }}
             >
-              © 2025 - {currentYear} Waka Inc.
+              © 2025 - {currentYear} AppZiro Inc.
             </Text>
           </div>
         </Group>
