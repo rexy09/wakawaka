@@ -18,6 +18,7 @@ import { Icons } from "../../../icons";
 import classes from "./Header.module.css";
 import AccountMenu from "./components/AccountMenu";
 import NavLinkButton from "./components/NavLinkButton";
+import logo_white from "../../../../assets/logo_white.svg";
 
 
 export default function HeaderMegaMenu() {
@@ -32,7 +33,7 @@ export default function HeaderMegaMenu() {
         <Box bg={"#151F42"}>
             <header className={classes.header}>
                 <Group justify="space-between" h="100%">
-                    <Image h={30} w={30} radius="md" />
+                    <Image h={36} src={logo_white} />
 
                     <Group h="100%" gap={"xs"} visibleFrom="md">
                         <NavLinkButton
@@ -120,7 +121,7 @@ export default function HeaderMegaMenu() {
                         </HoverCard> */}
                     </Group>
 
-                    <Group visibleFrom="sm">
+                    <Group visibleFrom="md">
                         {isAuthenticated ? (
                             <>
                                 {Icons.message}
@@ -138,13 +139,20 @@ export default function HeaderMegaMenu() {
                             </>
                         )}
                     </Group>
+                    <Group hiddenFrom="md">
+                        {isAuthenticated && (
+                            <>
+                                {Icons.notification}
+                                <AccountMenu />
+                            </>)}
+                        <Burger
+                            opened={drawerOpened}
+                            onClick={toggleDrawer}
+                            hiddenFrom="md"
+                            color="white"
+                        />
+                    </Group>
 
-                    <Burger
-                        opened={drawerOpened}
-                        onClick={toggleDrawer}
-                        hiddenFrom="sm"
-                        color="white"
-                    />
                 </Group>
             </header>
 
@@ -153,12 +161,21 @@ export default function HeaderMegaMenu() {
                 onClose={closeDrawer}
                 size="100%"
                 padding="md"
-                title="Navigation"
-                hiddenFrom="sm"
+
+                title={<Group justify="space-between"> <Image h={30} src={logo_white} /> {isAuthenticated && (<>
+                    {Icons.message}
+                </>)}</Group>}
+                hiddenFrom="md"
                 zIndex={1000000}
+                styles={{
+                    header: {
+                        backgroundColor: "#151F42",
+                        height: "100px"
+                    },
+                }}
             >
                 <ScrollArea h="calc(100vh - 80px" mx="-md">
-                    <Divider my="sm" />
+                    {/* <Divider my="sm" /> */}
 
                     <a href="/" className={classes.link}>
                         Home
@@ -171,7 +188,6 @@ export default function HeaderMegaMenu() {
                             <Box component="span" mr={5}>
                                 Features
                             </Box>
-                            {/* <IconChevronDown size={16} color={theme.colors.blue[6]} /> */}
                         </Center>
                     </UnstyledButton>
                     <a href="#" className={classes.link}>
@@ -184,12 +200,20 @@ export default function HeaderMegaMenu() {
                     <Divider my="sm" />
 
                     <Group justify="center" grow pb="xl" px="md">
-                        <Button variant="default" onClick={() => {
-                            navigate("/signin");
-                        }}>Sign in</Button>
-                        <Button onClick={() => {
-                            navigate("/signup");
-                        }}>Sign up</Button>
+                        {isAuthenticated ? (
+                            <>
+
+                            </>
+                        ) : (
+                            <>
+                                <Button variant="default" onClick={() => {
+                                    navigate("/signin");
+                                }}>Sign in</Button>
+                                <Button onClick={() => {
+                                    navigate("/signup");
+                                }}>Sign up</Button>
+                            </>
+                        )}
                     </Group>
                 </ScrollArea>
             </Drawer>
