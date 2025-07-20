@@ -162,7 +162,7 @@ export default function HeaderMegaMenu() {
                 size="100%"
                 padding="md"
 
-                title={<Group justify="space-between"> <Image h={30} src={logo_white} /> {isAuthenticated && (<>
+                title={<Group> <Image h={30} src={logo_white} /> {isAuthenticated && (<>
                     {Icons.message}
                 </>)}</Group>}
                 hiddenFrom="md"
