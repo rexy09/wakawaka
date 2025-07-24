@@ -13,9 +13,19 @@ import LoginPage from "../pages/auth/LoginPage";
 import SignupPage from "../pages/auth/SignupPage";
 import PostJobPage from "../pages/dashboard/PostJobPage";
 import RequireAuth from "@auth-kit/react-router/RequireAuth";
+import PublicLayout from "../common/layouts/PublicLayout";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
+      <Route
+        element={
+          <PublicLayout />
+        }
+        // errorElement={<ServerError />}
+
+      >
+        <Route index path="/" element={<DashboardPage />} />
+        </Route>
       <Route
         element={
           // <RequireAuth fallbackPath={"/login"}>
@@ -24,7 +34,6 @@ export const router = createBrowserRouter(
         }
         // errorElement={<ServerError />}
       >
-        <Route index path="/" element={<DashboardPage />} />
         <Route index path="/jobs" element={<JobPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
 

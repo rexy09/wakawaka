@@ -3,7 +3,7 @@ import { AppShell, Box, Container } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import DasboardFooter from "../navs/dashboard/DasboardFooter";
+import DasboardFooter from "../navs/dashboard/footer/DasboardFooter";
 import Header from "../navs/dashboard/header/Header";
 
 export default function DashboardLayout() {

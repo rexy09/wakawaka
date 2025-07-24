@@ -101,7 +101,7 @@ export default function Jobs() {
   const skeletons = Array.from({ length: 6 }, (_, index) => (
     <JobCardSkeleton key={index} />
   ));
-  
+
   const cards = jobs?.data.map((item, index) => (
     <JobCard job={item} key={index} />
   ));
@@ -300,7 +300,13 @@ export default function Jobs() {
               />
             )}
           </Group>
-          <SimpleGrid cols={{ sm: 2 ,xs:2}}>{isLoading ? skeletons : cards}</SimpleGrid>
+          <SimpleGrid cols={{ sm: 2, xs: 2 }}>{isLoading ? skeletons : cards}
+            <div className="flex justify-center items-center">
+              <Text c="white" size="26px" fw={700} >
+                Explore more
+              </Text>
+            </div>
+          </SimpleGrid>
         </Grid.Col>
       </Grid>
     </div>
