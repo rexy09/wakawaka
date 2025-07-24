@@ -301,11 +301,7 @@ export default function Jobs() {
             )}
           </Group>
           <SimpleGrid cols={{ sm: 2, xs: 2 }}>{isLoading ? skeletons : cards}
-            <div className="flex justify-center items-center">
-              <Text c="white" size="26px" fw={700} >
-                Explore more
-              </Text>
-            </div>
+
           </SimpleGrid>
         </Grid.Col>
       </Grid>

@@ -187,7 +187,6 @@ export default function NotificationSection({
             )}
             {data.length == 0 && isLoading == false && (
               <Stack justify="center" align="center" h={300}>
-                <div className="w-40">{Icons.empty}</div>
                 <Text>No notification available</Text>
               </Stack>
             )}

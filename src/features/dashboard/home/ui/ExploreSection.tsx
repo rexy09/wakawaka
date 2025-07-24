@@ -41,10 +41,10 @@ export default function ExploreSection() {
     fetchJobs();
   }, []);
 
-  const skeletons = Array.from({ length: 6 }, (_, index) => (
+  const skeletons = Array.from({ length: 3 }, (_, index) => (
     <JobCardSkeleton key={index} />
   ));
-  
+
   const cards = jobs?.data.map((item, index) => (
     <JobCard job={item} key={index} />
   ));
@@ -52,19 +52,19 @@ export default function ExploreSection() {
   return (
     <div>
       <SimpleGrid cols={{ sm: 4, xs: 2 }}>{isLoading ? skeletons : cards}
-<Paper
-  radius="0"
-  style={{
-    background: "linear-gradient(180deg, #26366F 0%, #4968D5 100%)",
-  }}
->
-  <Center h={"100%"} >
+        <Paper
+          radius="0"
+          style={{
+            background: "linear-gradient(180deg, #26366F 0%, #4968D5 100%)",
+          }}
+        >
+          <Center h={"100%"} >
 
-   <Text c="white" size="23px" fw={700} >
-            Explore more
-          </Text>
-  </Center>
-</Paper>
+            <Text c="white" size="23px" fw={700} >
+              Explore more
+            </Text>
+          </Center>
+        </Paper>
 
       </SimpleGrid>
 

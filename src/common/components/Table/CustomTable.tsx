@@ -9,11 +9,10 @@ import {
   Table,
   Text,
 } from "@mantine/core";
-import { Color } from "../../theme";
-import { Icons } from "../../icons";
-import "./table.css";
-import { useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Color } from "../../theme";
+import "./table.css";
 
 interface TableProps {
   columns: React.ReactNode;
@@ -69,7 +68,7 @@ export function CustomTable({
         <Box p={"lg"}>
           <Group justify="space-between">
             <Group>
-              <div
+              {/* <div
                 style={{
                   border: "1px solid #292D3214",
                   borderRadius: "8px",
@@ -79,7 +78,7 @@ export function CustomTable({
                 }}
               >
                 {Icons.box2}
-              </div>
+              </div> */}
               <div>
                 <Text fz="18px" fw={500} c={Color.TextTitle}>
                   {title}
