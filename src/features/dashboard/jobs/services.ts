@@ -71,7 +71,7 @@ export const useJobServices = () => {
       return {
         ...(data as IJobPost),
         // id: doc.id,
-        datePosted: data.datePosted.toDate().toString(),
+        // datePosted: data.datePosted.toDate().toString(),
       };
     });
 
@@ -124,7 +124,7 @@ export const useJobServices = () => {
         const data = doc.data();
         return {
           ...(data as IJobPost),
-          datePosted: data.datePosted.toDate().toString(),
+          // datePosted: data.datePosted.toDate().toString(),
         };
       });
 
@@ -171,7 +171,7 @@ export const useJobServices = () => {
         const data = doc.data();
         return {
           ...(data as IJobPost),
-          datePosted: data.datePosted.toDate().toString(),
+          // datePosted: data.datePosted.toDate().toString(),
         };
       });
 
@@ -200,7 +200,7 @@ export const useJobServices = () => {
 
       return {
         ...data,
-        datePosted: data.datePosted.toDate().toString(),
+        // datePosted: data.datePosted.toDate().toString(),
       } as IJobPost;
     }
     return undefined;

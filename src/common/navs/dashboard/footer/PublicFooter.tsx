@@ -26,9 +26,10 @@ export function PublicFooter() {
     return (
         <div className={classes.footer}>
             <div className={classes.inner}>
+                <Group >
                 <Image h={36} src={logo_black} />
+                </Group>
                 <Group className={classes.links}>{items}</Group>
-
                 <Group gap="xs" justify="flex-end" wrap="nowrap">
                     <ActionIcon size="lg" variant="default" radius="xl" onClick={() => window.open('https://www.instagram.com/getdaywaka/', '_blank')}>
                         <FaInstagram size={18}  />

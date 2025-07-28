@@ -10,10 +10,13 @@ import waka from "../../assets/img/waka.gif";
 import { useNavigate } from "react-router-dom";
 import ExploreSection from "../../features/dashboard/home/ui/ExploreSection";
 import { TypeAnimation } from 'react-type-animation';
+import { useMediaQuery } from "@mantine/hooks";
 
 
 export default function DashboardPage() {
   const navigate = useNavigate();
+  const matches2 = useMediaQuery("(min-width: 1024px)");
+
 
   return (
     <>
@@ -21,11 +24,11 @@ export default function DashboardPage() {
       <Space h={50} />
 
       <Group justify="center" align="center">
-        <Text c="#1B3227" size="64px" fw={700}>
+        <Text c="#1B3227" size={matches2?"64px":"44px"} fw={700}>
           Daywaka for
         </Text>
-        <Text c="#9066D9" size="64px" fw={700}>
-           <TypeAnimation
+        <Text c="#9066D9" size="64px" fw={700} visibleFrom="md" >
+          <TypeAnimation
             cursor={false}
             sequence={[
               'Everyone',
@@ -56,6 +59,37 @@ export default function DashboardPage() {
           />
         </Text>
       </Group>
+      <Text c="#9066D9" size={matches2 ? "64px" : "44px"} fw={700} hiddenFrom="md" ta={"center"} mt="md" h={64}>
+        <TypeAnimation
+          cursor={false}
+          sequence={[
+            'Everyone',
+            1000,
+            'You',
+            1000,
+            'The hustlers',
+            1000,
+            'Dreamers',
+            1000,
+            'Gig workers',
+            1000,
+            'Tanzania',
+            1000,
+            'Wasaka kazi',
+            1000,
+            'Mabingwa',
+            1000,
+            'Go-getters',
+            1000,
+            'Kesho',
+            1000,
+            'All',
+            1000,
+          ]}
+          speed={30}
+          repeat={Infinity}
+        />
+      </Text>
       <Text c="#1B3227" size="24px" fw={400} ta={"center"} mt="md">
         Browse millions of Jobs for you.
       </Text>
@@ -73,10 +107,10 @@ export default function DashboardPage() {
           <Box h={480} p={"xl"}>
             <Space h="100" />
             <Box pl={"xl"}>
-              <Text c="white" fw={700} size="38px" >
+              <Text c="white" fw={700} size={matches2 ? "38px" : "20px"} >
                 10 ways to increase your
               </Text>
-              <Text c="white" fw={700} size="38px" mt={"sm"} >
+              <Text c="white" fw={700} size={matches2 ? "38px" : "20px"} mt={"sm"} >
                 chances of getting hired
               </Text>
               <Button mt={"md"} color="#525FE1" onClick={() => {
@@ -97,48 +131,48 @@ export default function DashboardPage() {
         <Space h={70} />
 
         <Grid gutter={0}>
-          <Grid.Col span={4} bg={"#151F42"} p={"xl"} m={0} h={260}>
+          <Grid.Col span={{ base: 12, sm: 4,}} bg={"#151F42"} p={"xl"} m={0} mih={260}>
             <div className="p-5">
 
-            <Text c="white" size="20px" fw={600} >
-              Get The App
-            </Text>
-            <Space h={"md"} />
-            <Text c="white" size="12px" fw={600} >
-              Experience the power of Jobior anywhere with our quick   apply feature.
-            </Text>
-            <Space h={"md"} />
-            <Group  align="center" mt="lg" gap="md">
-              <Image src={apple_button2} />
-              <Image src={google_button2} />
-            </Group>
+              <Text c="white" size="20px" fw={600} >
+                Get The App
+              </Text>
+              <Space h={"md"} />
+              <Text c="white" size="12px" fw={600} >
+                Experience the power of Jobior anywhere with our quick   apply feature.
+              </Text>
+              <Space h={"md"} />
+              <Group align="center" mt="lg" gap="md">
+                <Image src={apple_button2} />
+                <Image src={google_button2} />
+              </Group>
             </div>
           </Grid.Col>
-            <Grid.Col span={8} p={0} m={0}>
-            <BackgroundImage src={image_1}  h="100%">
+          <Grid.Col span={{ base: 12, sm: 8, }} p={0} m={0} mih={260}>
+            <BackgroundImage src={image_1} h="100%">
             </BackgroundImage>
-            </Grid.Col>
+          </Grid.Col>
         </Grid>
         <Space h={50} />
 
         <Paper bg={"#F9F9F9"} p={"xl"} withBorder radius="20px" shadow="md">
           <Group justify="space-between" align="center">
-          <div>
+            <div>
 
-          <Text c="#111212" size="24px" fw={700} >
-            Endless Jobs. Epic prices.
-          </Text>
-          <Space h={"md"} />
-          <Text c="#111212" size="12px" fw={400} >
-            Browse millions of Jobs for you.
-          </Text>
-          </div>
+              <Text c="#111212" size="24px" fw={700} >
+                Endless Jobs. Epic prices.
+              </Text>
+              <Space h={"md"} />
+              <Text c="#111212" size="14  px" fw={400} >
+                Browse millions of Jobs for you.
+              </Text>
+            </div>
             <Button color="#151F42" size="lg" onClick={() => {
-            navigate("/jobs")
-          }} >
+              navigate("/jobs")
+            }} >
               Find Jobs
-          </Button>
-            </Group>
+            </Button>
+          </Group>
 
         </Paper>
 
