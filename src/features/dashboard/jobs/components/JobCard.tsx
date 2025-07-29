@@ -1,20 +1,18 @@
 import {
-  ActionIcon,
   Avatar,
-  Button,
   Card,
   Group,
   NumberFormatter,
   Space,
-  Text
+  Text,
+  UnstyledButton
 } from "@mantine/core";
 import moment from "moment";
-import { FaImage, FaImages } from "react-icons/fa";
+import { FiBookmark } from "react-icons/fi";
 import {
-  IoPeople,
-  IoPerson,
   IoTimeOutline
 } from "react-icons/io5";
+import { TbUser, TbUsers } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { Icons } from "../../../../common/icons";
 import { IJobPost } from "../types";
@@ -31,109 +29,115 @@ export default function JobCard({ job }: Props) {
 
         <div className="relative rounded-[12px] bg-white h-[100%] w-[100%]">
           <Card p={"md"} radius={"12px"} onClick={() => { navigate("/jobs/" + job.id) }} >
-            <Group wrap="nowrap">
+            <Group wrap="nowrap" align="start">
               <Avatar
-                w="50px"
-                h="50px"
-                radius={"sm"}
+                w="40px"
+                h="40px"
+                radius={"xl"}
                 src={
-                  "https://s3-alpha-sig.figma.com/img/5bd9/002a/9ba0307b78bc4047049119169f90d89f?Expires=1743984000&Key-Pair-Id=APKAQ4GOSFWCW27IBOMQ&Signature=m4jAhON27OSFoNogUXpDsm8Q02TVBe1Ow~ZM2ZVClSACtHVOaBpYBgSWgrepZD8ljtHjH8hbX~bQvkMaIFmKeG8G5lBrp49XI8uABfgfOSsTzhCF2EuKOhj5DfqWjTJ28x-6MZW1KyQDORk05oH3WKQtT9J4IcTDhZt5Op8whWXJ9sJsWYMLr0GFy9q4CDUYeZ~RrvLic8MVKgVJ2vlLuv4QNokOVLulhcjcCuXnow2GhwS6KBFS60V3m5MvZdEQqhi-q8jKyLC4jpSbZvwkAL3uZqi0YIX2jMta~dTRq4DGpeifDL2NPXihEAGoSL8xufuRxNFswjBPeTi0ePU0RA__"
+                  job.avatarUrl
                 }
               />
 
-              <div>
-                <Text size="20px" fw={500} c="#151F42" lineClamp={1} style={{ lineHeight: 1.2 }}>
+              <div className="w-[100%]">
+                <Group justify="space-between" wrap="nowrap" gap={5} align="start">
+
+                <Text size="14px" fw={400} c="#000000" lineClamp={1} >
+                  {job.fullName}
+                </Text>
+                  <UnstyledButton variant="subtle" color="#C7C7C7" size={"md"}>
+                    <FiBookmark size={16} />
+                  </UnstyledButton>
+                </Group>
+                <Text size="16px" fw={500} c="#151F42" lineClamp={1} style={{ lineHeight: 1.2 }}>
                   {job.title ? job.title : job.category}
                 </Text>
+                <Group wrap="nowrap" gap={2} mt={2}>
+                  <IoTimeOutline size={10} />
+                  <Text size="10px" fw={500} c="#596258">
+                    {moment(job.datePosted).startOf("day").fromNow()}
+                  </Text>
+                </Group>
                 <Space h="xs" />
 
-                <Group wrap="nowrap">
-                  <Text size="10px" fw={500} c="#044299">
-                    {job.category}
-                  </Text>
-                  <Group wrap="nowrap" gap={3}>
-                    {Icons.location2}
-                    <Text size="10px" fw={500} c="#596258">
-                      {job.location.address}
-                    </Text>
-
-                  </Group>
-                  <Group wrap="nowrap" gap={2}>
-                    <IoTimeOutline size={10} />
-                    <Text size="10px" fw={500} c="#596258">
-                      {moment(job.datePosted).startOf("day").fromNow()}
-                    </Text>
-                  </Group>
-                </Group>
               </div>
+            </Group>
+            <Group wrap="nowrap" gap={5}>
+              <Text size="10px" fw={500} c="#044299" lineClamp={1} style={{ lineHeight: 1.2 }}>
+                {job.category}
+              </Text>
+              <Group wrap="nowrap" gap={3}>
+                {Icons.location2}
+                <Text size="10px" fw={500} c="#596258" lineClamp={1} style={{ lineHeight: 1.2 }}>
+                  {job.location.address}
+                </Text>
+
+              </Group>
+
             </Group>
             <Space h="xs" />
 
-            <Text size="12px" fw={400} c="#596258" lineClamp={3}>
-              {job.description}
-            </Text>
-            <Space h="md" />
-            <Group wrap="wrap">
-              <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">
+            
+            <Group wrap="wrap" gap={5}>
+              <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
                 {job.commitment}
               </span>
-              <span className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">
+              <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
                 {job.urgency}
               </span>
-              <div className="inline-flex items-center rounded-0 bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">
+              <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                {job.workLocation}
+              </span>
+              
+              <div className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42] ">
                 <span className="mr-1">
                   {(job.numberOfPositions ?? 1) > 1
                     ? `${job.numberOfPositions ?? 1}`
                     : `${job.numberOfPositions ?? 1}`}
                 </span>
                 {(job.numberOfPositions ?? 1) > 1 ? (
-                  <IoPeople />
+                  <TbUsers />
                 ) : (
-                  <IoPerson size={10} />
+                    <TbUser  />
                 )}
               </div>
             </Group>
-            <Space h="md" />
-            <Text size="20px" fw={400} c="#151F42">
-              <NumberFormatter prefix="TZS " value={job.budget} thousandSeparator />
-              {job.maxBudget >0 &&<NumberFormatter prefix=" - TZS " value={job.maxBudget} thousandSeparator />}
-              {/* <span style={{ color: "#C7C7C7" }}>/month</span> */}
+            <Space h="xs" />
+            <Text size="12px" fw={400} c="#596258" lineClamp={3} style={{ lineHeight: 1.2 }}>
+              {job.description}
             </Text>
-            <Space h="md" />
-            <Group wrap="nowrap" justify="space-between">
-              <Group wrap="wrap">
-                <Button
-                  variant="outline"
-                  color="#C7C7C7"
-                  bg={"#F9F9F9"}
-                  c="black"
-                  radius={"4px"}
-                  fw={500}
-                  w={115}
-                  onClick={() => { navigate("/jobs/" + job.id) }}
-                >
-                  Detail
-                </Button>
+            <Space h="xs" />
+            {job.imageUrls.length > 0 && (
+              <Group gap={4}>
+                <Avatar.Group>
+                  {job.imageUrls.slice(0, 3).map((image, i) => (
+                    <Avatar
+                      radius={"md"}
+                      key={i}
+                      src={typeof image === 'string' ? image : URL.createObjectURL(image)}
+                      size="md"
+                    />
+                  ))}
+                  {job.imageUrls.length > 3 && (
+                    <Avatar size="md" radius={"md"}>+{job.imageUrls.length - 3}</Avatar>
+                  )}
+                </Avatar.Group>
               </Group>
-              <Group wrap="wrap">
-                {job.imageUrls.length > 0 && (
-                  <div className="inline-flex items-center rounded-sm bg-gray-50 px-3 py-2 text-xs font-medium text-[#151F42] ring-0 ring-gray-500/10 ring-inset">
-                    <span className="mr-1 text-sm">{job.imageUrls.length}</span>
-                    {job.imageUrls.length > 1 ? <FaImages /> : <FaImage />}
-                  </div>
-                )}
-                <ActionIcon variant="subtle" color="#C7C7C7" size={"md"}>
-                  {Icons.archive}
-                </ActionIcon>
-              </Group>
-            </Group>
+            )}
+            <Space h="xs" />
+            <Text size="20px" fw={400} c="#151F42">
+              <NumberFormatter prefix={`${job.currency?job.currency.code:"TZS"} `} value={job.budget} thousandSeparator />
+              {job.maxBudget > 0 && <NumberFormatter prefix={` - ${job.currency ? job.currency.code : "TZS"} `} value={job.maxBudget} thousandSeparator />}
+            </Text>
+
+          
           </Card>
 
         </div>
 
       </div>
 
-     
+
 
     </>
   );

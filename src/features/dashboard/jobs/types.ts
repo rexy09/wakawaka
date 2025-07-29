@@ -21,28 +21,44 @@ export interface IBidForm {
 }
 
 export interface IJobPost {
+  avatarUrl: string;
   biddingType: string | null;
   budget: number;
-  maxBudget: number;
   category: string;
   commitment: string;
+  country: {
+    code: string;
+    name: string;
+  };
+  currency: {
+    code: string;
+    name: string;
+    symbol: string;
+  };
   datePosted: string; // or Date if parsed
   description: string;
+  fullName: string;
   hasBidding: boolean;
   id: string;
   imageUrls: string[];
   isActive: boolean;
+  isProduction: boolean;
+  isUserVerified: boolean;
   location: {
     address: string;
     latitude: number;
     longitude: number;
   };
-  numberOfPositions: number | null;
+  maxBudget: number;
+  numberOfPositions: number;
+  numberOfPostedJobsByUser: number;
   postedByUserId: string;
-  title: string;
+  title: string | null;
   urgency: string;
+  userDateJoined: string; // or Date if parsed
   videoUrl: string | null;
   voiceUrl: string | null;
+  workLocation: string;
 }
 export interface IJobCategory {
   name: string;
