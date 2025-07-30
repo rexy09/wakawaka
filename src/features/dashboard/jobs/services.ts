@@ -47,7 +47,7 @@ export const useJobServices = () => {
 
     let dataQuery = query(
       dataCollection,
-      // orderBy("datePosted", "desc"),
+      orderBy("datePosted", "desc"),
       where("isActive", "==", true),
       limit(pageLimit)
     );

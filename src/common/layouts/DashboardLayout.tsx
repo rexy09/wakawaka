@@ -77,7 +77,7 @@ export default function DashboardLayout() {
           <Box
             style={{
               minHeight: "80vh",
-              padding: "20px",
+              // padding: "20px",
             }}
           >
             <Outlet />
