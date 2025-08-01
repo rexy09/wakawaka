@@ -14,6 +14,7 @@ import SignupPage from "../pages/auth/SignupPage";
 import PostJobPage from "../pages/dashboard/PostJobPage";
 import RequireAuth from "@auth-kit/react-router/RequireAuth";
 import PublicLayout from "../common/layouts/PublicLayout";
+import AccountDeletionRequestPage from "../pages/auth/AccountDeletionRequestPage";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -60,6 +61,7 @@ export const router = createBrowserRouter(
         }
       >
         <Route index path="/post_job" element={<PostJobPage />} />
+        <Route index path="/delete/account/request" element={<AccountDeletionRequestPage />} />
       </Route>
 
       {/* <Route element={<RequireAuth fallbackPath={"/login"}>

@@ -173,14 +173,14 @@ export default function JobDetails() {
         </Group>
       </Paper>
       <Space h="md" />
-      <Group justify="space-between">
+      <Group justify="space-between" visibleFrom="md">
         <Text size="28px" fw={700}>
           Related Jobs
         </Text>
       </Group>
       <Space h="md" />
       <Grid>
-        <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
+        <Grid.Col span={{ base: 12, md: 6, lg: 4 }} order={{ base: 2, md: 1 }}>
           {/* <Group justify="space-between">
             <Group>
               <ActionIcon
@@ -202,189 +202,217 @@ export default function JobDetails() {
               </Text>
             </UnstyledButton>
           </Group> */}
+          <Group justify="space-between" hiddenFrom="md">
+            <Text size="28px" fw={700}>
+              Related Jobs
+            </Text>
+          </Group>
           <SimpleGrid cols={1}>{isLoading ? skeletons : cards}</SimpleGrid>
         </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
-     
+        <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 1, md: 2 }}>
+
           {job ? (
-            <Card p={"md"} radius={"md"}>
-              <Group wrap="wrap" justify="space-between">
-                <Text size="24px" fw={700} c="#141514">
-                  Job Details
-                </Text>
-                <Group>
-                  <Button
-                    variant="filled"
-                    color="#E5E5E5"
-                    c={"black"}
-                    size="md"
-                    radius={"md"}
-                    fw={500}
-                    leftSection={<FiBookmark size={16} />}
-                  >
-                    Save job
-                  </Button>
-                  <Button
-                    variant="filled"
-                    color="#151F42"
-                    size="md"
-                    radius={"md"}
-                    fw={500}
-                  >
-                    Apply Now
-                  </Button>
-                </Group>
-              </Group>
-              <Space h="md" />
-              <div>
-                <Text size="18px" fw={600} c="#141514">
-                  {job.title ? job.title : job.category}
-                </Text>
-                <Group wrap="nowrap" gap={2} mt={"xs"}>
-                  <IoTimeOutline size={12} />
-                  <Text size="12px" fw={500} c="#596258">
-                    {moment(job.datePosted).startOf("day").fromNow()}
+            <>
+
+              <Card p={"md"} radius={"md"}>
+                <Group wrap="wrap" justify="space-between">
+                  <Text size="24px" fw={700} c="#141514">
+                    Job Details
                   </Text>
+                  <Group>
+                    <Button
+                      variant="filled"
+                      color="#E5E5E5"
+                      c={"black"}
+                      size="md"
+                      radius={"md"}
+                      fw={500}
+                      leftSection={<FiBookmark size={16} />}
+                    >
+                      Save job
+                    </Button>
+                    <Button
+                      variant="filled"
+                      color="#151F42"
+                      size="md"
+                      radius={"md"}
+                      fw={500}
+                    >
+                      Apply Now
+                    </Button>
+                  </Group>
                 </Group>
-              </div>
-              <Space h="xs" />
-              <Group wrap="wrap" gap={5}>
-                <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
-                  {job.commitment}
-                </span>
-                <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
-                  {job.urgency}
-                </span>
-                <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
-                  {job.workLocation}
-                </span>
-
-                <div className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42] ">
-                  <span className="mr-1">
-                    {(job.numberOfPositions ?? 1) > 1
-                      ? `${job.numberOfPositions ?? 1}`
-                      : `${job.numberOfPositions ?? 1}`}
-                  </span>
-                  {(job.numberOfPositions ?? 1) > 1 ? <TbUsers /> : <TbUser />}
+                <Space h="md" />
+                <div>
+                  <Text size="18px" fw={600} c="#141514">
+                    {job.title ? job.title : job.category}
+                  </Text>
+                  <Group wrap="nowrap" gap={2} mt={"xs"}>
+                    <IoTimeOutline size={12} />
+                    <Text size="12px" fw={500} c="#596258">
+                      {moment(job.datePosted).startOf("day").fromNow()}
+                    </Text>
+                  </Group>
                 </div>
-              </Group>
-              <Space h="xs" />
+                <Space h="xs" />
+                <Group wrap="wrap" gap={5}>
+                  <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                    {job.commitment}
+                  </span>
+                  <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                    {job.urgency}
+                  </span>
+                  <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                    {job.workLocation}
+                  </span>
 
-              <Spoiler maxHeight={146} showLabel="Show more" hideLabel="Hide">
-                <Text size="16px" fw={400} c="#7F7D7D">
-                  {job.description}
-                </Text>
+                  <div className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42] ">
+                    <span className="mr-1">
+                      {(job.numberOfPositions ?? 1) > 1
+                        ? `${job.numberOfPositions ?? 1}`
+                        : `${job.numberOfPositions ?? 1}`}
+                    </span>
+                    {(job.numberOfPositions ?? 1) > 1 ? <TbUsers /> : <TbUser />}
+                  </div>
+                </Group>
+                <Space h="xs" />
 
-                {/* <TypographyStylesProvider>
+                <Spoiler maxHeight={146} showLabel="Show more" hideLabel="Hide">
+                  <Text size="16px" fw={400} c="#7F7D7D">
+                    {job.description}
+                  </Text>
+
+                  {/* <TypographyStylesProvider>
                   <div
                     dangerouslySetInnerHTML={{ __html: job.description }}
                   />
                 </TypographyStylesProvider> */}
-              </Spoiler>
-              <Space h="lg" />
-              <div>
-                <Text size="20px" fw={500} c="#141514">
-                  Location
-                </Text>
-                <Group wrap="nowrap" gap={3} mt={"xs"}>
-                  <IoLocationOutline />
-                  <Text size="14px" fw={400} c="#596258">
-                    {job.location.address}
+                </Spoiler>
+                <Space h="lg" />
+                <div>
+                  <Text size="20px" fw={500} c="#141514">
+                    Location
                   </Text>
-                </Group>
-              </div>
-              <Space h="lg" />
-
-              <div>
-                <Text size="20px" fw={500} c="#141514">
-                  Budget
-                </Text>
-                <Group wrap="nowrap" mt={"xs"}>
-                  <Avatar color="#EBEBEB" radius="xl" variant="filled">
-                    <FaMoneyBills color="#141514" />
-                  </Avatar>
-                  <div>
-                    <Text size="12px" fw={700} c="#7F7D7D" mb={"5px"}>
-                      Budget
+                  <Group wrap="nowrap" gap={3} mt={"xs"}>
+                    <IoLocationOutline />
+                    <Text size="14px" fw={400} c="#596258">
+                      {job.location.address}
                     </Text>
-                    <Text size="16px" fw={700} c="#151F42">
-                      <NumberFormatter
-                        prefix={`${job.currency ? job.currency.code : "TZS"} `}
-                        value={job.budget}
-                        thousandSeparator
-                      />
-                      {job.maxBudget > 0 && (
+                  </Group>
+                </div>
+
+
+
+
+                {job.imageUrls.length > 0 && (
+                  <div>
+                    <Space h="lg" />
+                    <Text size="20px" fw={500} c="#141514">
+                      Photos
+                    </Text>
+                    <Space h="xs" />
+                    <SimpleGrid cols={4}>
+                      {job.imageUrls.map((item, index) => (
+                        <div key={index}>
+                          <Image
+                            radius="md"
+                            h={150}
+                            w="100%"
+                            fit="cover"
+                            src={item}
+                          />
+                        </div>
+                      ))}
+                    </SimpleGrid>
+                  </div>
+                )}
+
+
+
+              </Card>
+              <Space h="md" />
+
+              <Card p={"md"} radius={"md"}>
+                <div>
+                  <Text size="20px" fw={500} c="#141514">
+                    Budget
+                  </Text>
+                  <Group wrap="nowrap" mt={"xs"}>
+                    <Avatar color="#EBEBEB" radius="xl" variant="filled">
+                      <FaMoneyBills color="#141514" />
+                    </Avatar>
+                    <div>
+                      <Text size="12px" fw={700} c="#7F7D7D" mb={"5px"}>
+                        Budget
+                      </Text>
+                      <Text size="16px" fw={700} c="#151F42">
                         <NumberFormatter
-                          prefix={` - ${job.currency ? job.currency.code : "TZS"
-                            } `}
-                          value={job.maxBudget}
+                          prefix={`${job.currency ? job.currency.code : "TZS"} `}
+                          value={job.budget}
                           thousandSeparator
                         />
-                      )}
-                    </Text>
-                  </div>
-                </Group>
-                <Group wrap="nowrap" mt={"xs"}>
-                  <Avatar color="#EBEBEB" radius="xl" variant="filled">
-                    <MdBusinessCenter color="#141514" />
-                  </Avatar>
-                  <div>
-                    <Text size="12px" fw={700} c="#7F7D7D" mb={"5px"}>
-                      Job Type
-                    </Text>
-                    <Text size="16px" fw={700} c="#151F42">
-                      {job.commitment}
-                    </Text>
-                  </div>
-                </Group>
-              </div>
+                        {job.maxBudget > 0 && (
+                          <NumberFormatter
+                            prefix={` - ${job.currency ? job.currency.code : "TZS"
+                              } `}
+                            value={job.maxBudget}
+                            thousandSeparator
+                          />
+                        )}
+                      </Text>
+                    </div>
+                  </Group>
+                  <Group wrap="nowrap" mt={"xs"}>
+                    <Avatar color="#EBEBEB" radius="xl" variant="filled">
+                      <MdBusinessCenter color="#141514" />
+                    </Avatar>
+                    <div>
+                      <Text size="12px" fw={700} c="#7F7D7D" mb={"5px"}>
+                        Job Type
+                      </Text>
+                      <Text size="16px" fw={700} c="#151F42">
+                        {job.commitment}
+                      </Text>
+                    </div>
+                  </Group>
+                </div>
 
 
-              {job.imageUrls.length > 0 && (
+                
+
+                
+
+              </Card>
+              <Space h="md" />
+              <Card p={"md"} radius={"md"}>
+                
+
+                
+
+              
+
                 <div>
-                  <Space h="lg" />
                   <Text size="20px" fw={500} c="#141514">
-                    Photos
+                    About Employer
                   </Text>
                   <Space h="xs" />
-                  <SimpleGrid cols={4}>
-                    {job.imageUrls.map((item, index) => (
-                      <div key={index}>
-                        <Image
-                          radius="md"
-                          h={150}
-                          w="100%"
-                          fit="cover"
-                          src={item}
-                        />
-                      </div>
-                    ))}
-                  </SimpleGrid>
+                  <Group wrap="nowrap">
+                    <Avatar
+                      w="50px"
+                      h="50px"
+                      radius={"xl"}
+                      src={
+                        job.avatarUrl
+                      }
+                    />
+                    <Text size="16px" fw={500} c="#000000"  >
+                      {job.fullName}
+                    </Text>
+                  </Group>
                 </div>
-              )}
-              <Space h="lg" />
 
-              <div>
-                <Text size="20px" fw={500} c="#141514">
-                  About Employer
-                </Text>
-                <Space h="xs" />
-                <Group wrap="nowrap">
-                  <Avatar
-                    w="50px"
-                    h="50px"
-                    radius={"xl"}
-                    src={
-                      job.avatarUrl
-                    }
-                  />
-                  <Text size="16px" fw={500} c="#000000"  >
-                    {job.fullName}
-                  </Text>
-                </Group>
-              </div>
-
-            </Card>
+              </Card>
+            </>
           ) : (
             <JobDetailsCardSkeleton />
           )}
