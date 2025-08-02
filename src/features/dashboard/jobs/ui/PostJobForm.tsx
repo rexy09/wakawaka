@@ -305,6 +305,7 @@ const submit = (published:boolean)=>{
                     thousandSeparator=","
                     {...form.getInputProps("budget")}
                     w={form.values.budgetType === "Range" ? "38%" : "78%"}
+                    min={0}
                   />
                   {form.values.budgetType === "Range" && (
                     <NumberInput
@@ -314,6 +315,7 @@ const submit = (published:boolean)=>{
                       thousandSeparator=","
                       {...form.getInputProps("maxBudget")}
                       w={"38%"}
+                      min={0}
                     />
                   )}
                 </Flex>
@@ -356,8 +358,8 @@ const submit = (published:boolean)=>{
                   placeholder="Whats your job?"
                   {...form.getInputProps("description")}
                   autosize
-                  minRows={2}
-                  maxRows={4}
+                  minRows={4}
+                  maxRows={8}
                 />
 
                 <Space h="md" />

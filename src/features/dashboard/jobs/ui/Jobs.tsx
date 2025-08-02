@@ -108,6 +108,8 @@ export default function Jobs() {
 
   return (
     <div>
+      <Space h="md" />
+
       <Grid>
         <Grid.Col span={{ base: 12, md: 6, lg: 4 }} visibleFrom="lg">
           <Paper p={"md"} radius={"md"}>
