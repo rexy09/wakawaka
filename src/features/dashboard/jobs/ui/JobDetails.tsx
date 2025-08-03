@@ -13,17 +13,14 @@ import {
   Space,
   Spoiler,
   Text,
-  TextInput
+  TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { FaMoneyBills } from "react-icons/fa6";
 import { FiBookmark } from "react-icons/fi";
-import {
-  IoLocationOutline,
-  IoTimeOutline
-} from "react-icons/io5";
+import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
 import { MdBusinessCenter, MdOutlineClear } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
@@ -162,12 +159,7 @@ export default function JobDetails() {
               }
             />
           </Group>
-          <Button
-            size="md"
-            variant="filled"
-            color={Color.PrimaryBlue}
-            fw={400}
-          >
+          <Button size="md" variant="filled" color={Color.PrimaryBlue} fw={400}>
             Find Job
           </Button>
         </Group>
@@ -210,10 +202,8 @@ export default function JobDetails() {
           <SimpleGrid cols={1}>{isLoading ? skeletons : cards}</SimpleGrid>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 1, md: 2 }}>
-
           {job ? (
             <>
-
               <Card p={"md"} radius={"md"}>
                 <Group wrap="wrap" justify="space-between">
                   <Text size="24px" fw={700} c="#141514">
@@ -272,13 +262,17 @@ export default function JobDetails() {
                         ? `${job.numberOfPositions ?? 1}`
                         : `${job.numberOfPositions ?? 1}`}
                     </span>
-                    {(job.numberOfPositions ?? 1) > 1 ? <TbUsers /> : <TbUser />}
+                    {(job.numberOfPositions ?? 1) > 1 ? (
+                      <TbUsers />
+                    ) : (
+                      <TbUser />
+                    )}
                   </div>
                 </Group>
                 <Space h="xs" />
 
                 <Spoiler maxHeight={146} showLabel="Show more" hideLabel="Hide">
-                  <Text size="16px" fw={400} c="#7F7D7D">
+                  <Text size="md" fw={400} c="#7F7D7D">
                     {job.description}
                   </Text>
 
@@ -288,21 +282,6 @@ export default function JobDetails() {
                   />
                 </TypographyStylesProvider> */}
                 </Spoiler>
-                <Space h="lg" />
-                <div>
-                  <Text size="20px" fw={500} c="#141514">
-                    Location
-                  </Text>
-                  <Group wrap="nowrap" gap={3} mt={"xs"}>
-                    <IoLocationOutline />
-                    <Text size="14px" fw={400} c="#596258">
-                      {job.location.address}
-                    </Text>
-                  </Group>
-                </div>
-
-
-
 
                 {job.imageUrls.length > 0 && (
                   <div>
@@ -326,12 +305,23 @@ export default function JobDetails() {
                     </SimpleGrid>
                   </div>
                 )}
-
-
-
               </Card>
               <Space h="md" />
 
+              <Card p={"md"} radius={"md"}>
+                <div>
+                  <Text size="20px" fw={500} c="#141514">
+                    Location
+                  </Text>
+                  <Group wrap="nowrap" gap={3} mt={"xs"}>
+                    <IoLocationOutline />
+                    <Text size="14px" fw={400} c="#596258">
+                      {job.location.address}
+                    </Text>
+                  </Group>
+                </div>
+              </Card>
+              <Space h="md" />
               <Card p={"md"} radius={"md"}>
                 <div>
                   <Text size="20px" fw={500} c="#141514">
@@ -347,14 +337,17 @@ export default function JobDetails() {
                       </Text>
                       <Text size="16px" fw={700} c="#151F42">
                         <NumberFormatter
-                          prefix={`${job.currency ? job.currency.code : "TZS"} `}
+                          prefix={`${
+                            job.currency ? job.currency.code : "TZS"
+                          } `}
                           value={job.budget}
                           thousandSeparator
                         />
                         {job.maxBudget > 0 && (
                           <NumberFormatter
-                            prefix={` - ${job.currency ? job.currency.code : "TZS"
-                              } `}
+                            prefix={` - ${
+                              job.currency ? job.currency.code : "TZS"
+                            } `}
                             value={job.maxBudget}
                             thousandSeparator
                           />
@@ -376,21 +369,9 @@ export default function JobDetails() {
                     </div>
                   </Group>
                 </div>
-
-
-                
-
-                
-
               </Card>
               <Space h="md" />
               <Card p={"md"} radius={"md"}>
-                
-
-                
-
-              
-
                 <div>
                   <Text size="20px" fw={500} c="#141514">
                     About Employer
@@ -401,16 +382,13 @@ export default function JobDetails() {
                       w="50px"
                       h="50px"
                       radius={"xl"}
-                      src={
-                        job.avatarUrl
-                      }
+                      src={job.avatarUrl}
                     />
-                    <Text size="16px" fw={500} c="#000000"  >
+                    <Text size="16px" fw={500} c="#000000">
                       {job.fullName}
                     </Text>
                   </Group>
                 </div>
-
               </Card>
             </>
           ) : (

@@ -42,7 +42,7 @@ export default function JobCard({ job }: Props) {
               <div className="w-[100%]">
                 <Group justify="space-between" wrap="nowrap" gap={5} align="start">
 
-                <Text size="14px" fw={400} c="#000000" lineClamp={1} >
+                <Text size="md" fw={400} c="#000000" lineClamp={1} >
                   {job.fullName}
                 </Text>
                   <UnstyledButton variant="subtle" color="#C7C7C7" size={"md"}>
@@ -103,7 +103,7 @@ export default function JobCard({ job }: Props) {
               </div>
             </Group>
             <Space h="xs" />
-            <Text size="12px" fw={400} c="#596258" lineClamp={3} style={{ lineHeight: 1.2 }}>
+            <Text size="sm" fw={400} c="#596258" lineClamp={3} >
               {job.description}
             </Text>
             <Space h="xs" />
