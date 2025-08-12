@@ -13,7 +13,10 @@ import {
   Timestamp,
   where,
 } from "firebase/firestore";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { v4 as uuidv4 } from "uuid";
 import { db } from "../../../config/firebase";
+import { IUser } from "../../auth/types";
 import {
   ICommitmentType,
   IJobCategory,
@@ -22,9 +25,6 @@ import {
   IUrgencyLevels,
   JobFilterParameters,
 } from "./types";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUser } from "../../auth/types";
-import { v4 as uuidv4 } from "uuid";
 
 
 export const useJobServices = () => {
@@ -80,6 +80,7 @@ export const useJobServices = () => {
       data: dataList,
       lastDoc: documentSnapshots.docs[documentSnapshots.docs.length - 1],
       firstDoc: documentSnapshots.docs[0],
+      
     };
   };
 

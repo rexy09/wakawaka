@@ -7,32 +7,60 @@ import {
   Group,
   Paper,
   RangeSlider,
+  ScrollArea,
   SimpleGrid,
   Space,
   Text,
   TextInput
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { MdOutlineClear } from "react-icons/md";
-import { PaginationComponent } from "../../../../common/components/PaginationComponent";
 import { Icons } from "../../../../common/icons";
 import { Color } from "../../../../common/theme";
 import { useUtilities } from "../../../hooks/utils";
 import JobCard from "../components/JobCard";
+import { JobCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
 import { useJobParameters } from "../stores";
-import { IJobPost, PaginatedResponse } from "../types";
-import { JobCardSkeleton } from "../components/Loaders";
+import { IJobPost } from "../types";
 
 export default function Jobs() {
   const parameters = useJobParameters();
   const { getFormattedDate } = useUtilities();
   const { getJobs } = useJobServices();
   const [isLoading, setIsLoading] = useState(false);
-  const [jobs, setJobs] = useState<PaginatedResponse<IJobPost>>();
+  const [jobs, setJobs] = useState<IJobPost[]>([]);
+  const [lastDoc, setLastDoc] = useState<any | null>(null);
+  const [hasMore, setHasMore] = useState(true);
   // const [openStartDate, setOpenStartDate] = useState(false);
   // const [openEndDate, setOpenEndDate] = useState(false);
+  // Intersection Observer refs (like NotificationSection)
+  const observer = useRef<IntersectionObserver | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Set up Intersection Observer (following NotificationSection pattern)
+  const lastJobRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isLoading || !hasMore) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore && !isLoading) {
+            fetchJobs();
+          }
+        },
+        {
+          root: null,
+          rootMargin: "100px",
+          threshold: 0.1,
+        }
+      );
+      if (node) observer.current.observe(node);
+    },
+  [isLoading, hasMore, lastDoc]
+  );
+
 
   const getFirstDayOfCurrentMonth = (): Date => {
     const today = new Date();
@@ -55,36 +83,45 @@ export default function Jobs() {
     getLastDayOfCurrentMonth()
   );
 
-  const fetchData = () => {
-    setIsLoading(true);
-    // const params = useDashboardParameters.getState();
-    // getOrdersStatistics(params)
-    //   .then((response) => {
-    //     setIsLoading(false);
-    //     setOrderStatistics(response.data);
-    //   })
-    //   .catch((_error) => {
-    //     setIsLoading(false);
-    //     // notifications.show({
-    //     //   color: "red",
-    //     //   title: "Error",
-    //     //   message: "Something went wrong!",
-    //     // });
-    //   });
+  // const fetchData = () => {
+  //   setIsLoading(true);
+  //   // const params = useDashboardParameters.getState();
+  //   // getOrdersStatistics(params)
+  //   //   .then((response) => {
+  //   //     setIsLoading(false);
+  //   //     setOrderStatistics(response.data);
+  //   //   })
+  //   //   .catch((_error) => {
+  //   //     setIsLoading(false);
+  //   //     // notifications.show({
+  //   //     //   color: "red",
+  //   //     //   title: "Error",
+  //   //     //   message: "Something went wrong!",
+  //   //     // });
+  //   //   });
 
-    fetchJobs();
-  };
-  const fetchJobs = (next?: string) => {
+  //   fetchJobs();
+  // };
+  const fetchJobs = () => {
+    if (!hasMore || isLoading) return;
     setIsLoading(true);
     const params = useJobParameters.getState();
-
-    getJobs(params, next, jobs?.lastDoc, jobs?.firstDoc)
+    // On initial load, lastDoc is null, so fetch first page
+    // On next page, pass direction 'next' and lastDoc
+    getJobs(params, lastDoc ? "next" : undefined, lastDoc ?? undefined)
       .then((response) => {
         setIsLoading(false);
-        setJobs(response);
+        setJobs((prev) => {
+          const existingIds = new Set(prev.map((job) => job.id));
+          const newJobs = response.data.filter((job) => !existingIds.has(job.id));
+          return [...prev, ...newJobs];
+        });
+        setLastDoc(response.lastDoc ?? null);
+        setHasMore(response.data.length > 0 && !!response.lastDoc);
       })
       .catch((_error) => {
         setIsLoading(false);
+        setHasMore(false);
         notifications.show({
           color: "red",
           title: "Error",
@@ -95,15 +132,23 @@ export default function Jobs() {
   useEffect(() => {
     parameters.updateText("startDate", getFormattedDate(startDate));
     parameters.updateText("endDate", getFormattedDate(endDate));
-    fetchData();
+  setJobs([]);
+  setLastDoc(null);
+  setHasMore(true);
+  fetchJobs();
   }, []);
 
   const skeletons = Array.from({ length: 6 }, (_, index) => (
     <JobCardSkeleton key={index} />
   ));
 
-  const cards = jobs?.data.map((item, index) => (
-    <JobCard job={item} key={index} />
+  const cards = jobs.map((item, index) => (
+    <div
+      key={index}
+      ref={index === jobs.length - 1 ? lastJobRef : undefined}
+    >
+      <JobCard job={item} />
+    </div>
   ));
 
   return (
@@ -292,7 +337,7 @@ export default function Jobs() {
               </Button>
             </Group>
           </Paper>
-          <Group justify="flex-end" my="md">
+          {/* <Group justify="flex-end" my="md">
             {jobs && (
               <PaginationComponent
                 data={jobs}
@@ -301,12 +346,27 @@ export default function Jobs() {
                 showPageParam={false}
               />
             )}
-          </Group>
-          <SimpleGrid cols={{ sm: 2, xs: 2 }}>{isLoading ? skeletons : cards}
-
+          </Group> */}
+          <ScrollArea
+          mt={"md"}
+            ref={containerRef}
+            style={{ height: "calc(100vh - 120px)" }}
+          >
+          <SimpleGrid cols={{ sm: 2, xs: 2 }}>
+            {cards}
+            {isLoading && skeletons}
           </SimpleGrid>
+          {!hasMore && !isLoading && (
+            <Group justify="center" mt="md">
+              <Text c="dimmed" size="md">No more jobs to show</Text>
+            </Group>
+          )}
+          </ScrollArea>
         </Grid.Col>
       </Grid>
     </div>
   );
 }
+
+
+
