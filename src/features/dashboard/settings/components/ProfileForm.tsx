@@ -104,11 +104,7 @@ export default function ProfileForm({ isLoading, fetchData, user }: Props) {
       phone_number: "",
       email: "",
     };
-      values = {
-        full_name: user?.name ?? "",
-        phone_number: user?.name ?? "",
-        email: user?.email ?? "",
-      };
+     
   
     form.setValues(values);
   };
@@ -134,7 +130,7 @@ export default function ProfileForm({ isLoading, fetchData, user }: Props) {
 
               <Avatar
                 src={
-                  !form.values.profile_img ? authUser?.photoUrl
+                  !form.values.profile_img ? authUser?.avatarURL
                     : URL.createObjectURL(form.values.profile_img)
                 }
                 alt="profile"
