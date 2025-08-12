@@ -5,29 +5,13 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import DasboardFooter from "../navs/dashboard/footer/DasboardFooter";
 import Header from "../navs/dashboard/header/Header";
+import { useNotificationService } from "../../features/notifications";
 
 export default function DashboardLayout() {
   // const [opened, { toggle }] = useDisclosure();
   const [opened] = useDisclosure();
-  // const { updateUserDevice } = useAuthServices();
   const [_userLocation, setUserLocation] = useState<{ latitude: number; longitude: number }>();
-  async function requestPermission() {
-    //requesting permission using Notification API
-    const permission = await Notification.requestPermission();
-
-    if (permission === "granted") {
-      // const token = await getToken(messaging, {
-      //   vapidKey: Env.APP_VAPID_KEY,
-      // });
-      // await updateUserDevice(token);
-
-      //We can send token to server
-      // console.log("Token generated : ", token);
-    } else if (permission === "denied") {
-      //notifications are blocked
-      alert("You denied for the notification");
-    }
-  }
+  const { requestAndUpdateNotificationToken } = useNotificationService();
 
   // const variable array to save the users location
 
@@ -56,7 +40,8 @@ export default function DashboardLayout() {
   };
 
   useEffect(() => {
-    requestPermission();
+    // Request notification permission and update token
+    requestAndUpdateNotificationToken();
     getUserLocation();
   }, []);
 

@@ -124,7 +124,7 @@ export default function HeaderMegaMenu() {
                     <Group visibleFrom="md">
                         {isAuthenticated ? (
                             <>
-                                {Icons.message}
+                                {/* {Icons.message} */}
                                 {Icons.notification}
                                 <AccountMenu />
                             </>
@@ -163,7 +163,7 @@ export default function HeaderMegaMenu() {
                 padding="md"
 
                 title={<Group> <Image h={30} src={logo_white} /> {isAuthenticated && (<>
-                    {Icons.message}
+                    {/* {Icons.message} */}
                 </>)}</Group>}
                 hiddenFrom="md"
                 zIndex={1000000}

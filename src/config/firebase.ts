@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getMessaging } from "firebase/messaging";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 import Env from "./env";
 
 const firebaseConfig = {
@@ -24,3 +25,5 @@ export const messaging = getMessaging(app);
 
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);
+
+export const storage = getStorage(app);

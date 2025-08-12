@@ -4,15 +4,15 @@ import { useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { CiUser } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import { IUser } from "../../../../../features/auth/types";
+import { IAuthUser } from "../../../../../features/auth/types";
 import { Color } from "../../../../theme";
 import SignOutModal from "./SignOutModal";
 type Props = {
   showTitle?: boolean;
 };
-function AccountMenu({}: Props) {
+function AccountMenu({ }: Props) {
   const navigate = useNavigate();
-  const authUser = useAuthUser<IUser>();
+  const authUser = useAuthUser<IAuthUser>();
 
   const [userMenuOpened, setUserMenuOpened] = useState(false);
 
@@ -29,7 +29,7 @@ function AccountMenu({}: Props) {
         opened={userMenuOpened}
         onClose={() => setUserMenuOpened(false)}
         onOpen={() => setUserMenuOpened(true)}
-        width={200}
+        width={250}
         transitionProps={{ transition: "rotate-right", duration: 150 }}
         shadow="md"
         withinPortal={false}
@@ -44,34 +44,33 @@ function AccountMenu({}: Props) {
             maw={200}
           >
             <Group>
-              <Avatar src={authUser?.photoUrl} radius="xl" />
+              <Avatar src={authUser?.avatarURL} radius="xl" />
             </Group>
           </Flex>
         </Menu.Target>
         <Menu.Dropdown>
-          <Group gap={5} p={"5px"}>
+          <Group gap={5} p={"5px"} wrap="nowrap" >
             <Avatar
               src={
-                authUser?.photoUrl
+                authUser?.avatarURL
               }
               radius="xl"
             />
+            <div >
+              <Text size="sm" fw={500} c={Color.Dark} lineClamp={1} >
+                {authUser?.fullName}
+              </Text>
+              <Space h="3px" />
 
-             <div >
-              <Text size="14px" fw={500} c={Color.Dark} lineClamp={1} style={{ lineHeight: 1.2 }}>
-                {authUser?.name}
-                </Text>
-                <Space h="3px" />
-
-                <Text
-                  size="12px"
-                  c={Color.PrimaryBlue}
-                  fw={400}
-                lineClamp={1} style={{ lineHeight: 1.2 }}
-                >
+              <Text
+                size="xs"
+                c={Color.PrimaryBlue}
+                fw={400}
+                lineClamp={1}
+              >
                 {authUser?.email}
-                </Text>
-              </div>
+              </Text>
+            </div>
           </Group>
           <Space h="xs" />
           <Menu.Item

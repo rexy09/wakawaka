@@ -3,8 +3,6 @@ import { useState } from "react";
 import Env from "../../config/env";
 import {
   IPhoneLoginForm,
-  ISenderForm,
-  ITransporterForm,
 } from "./types";
 import useApiClient from "../services/ApiClient";
 // import useApiClient from "../services/ApiClient";
@@ -71,54 +69,6 @@ export default function useAuthServices() {
   }
  
 
-  const postOwnerDetails = async (d: ITransporterForm) => {
-    const url = "/owner/details";
-
-    const formData = new FormData();
-    formData.append("full_name", d.full_name);
-    formData.append("phone_number", d.phone_number);
-    formData.append("role", d.identification);
-
-    formData.append("company", d.company);
-    formData.append("company_phone", d.company_phone);
-    formData.append("years_of_experience", d.years_of_experience);
-    if (d.logo) {
-      formData.append("logo", d.logo);
-    }
-    if (d.registration_certificate) {
-      formData.append("registration_certificate", d.registration_certificate);
-    }
-
-    return sendRequest({
-      method: "post",
-      url: url,
-      data: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-  };
-  const postSenderDetails = async (d: ISenderForm) => {
-    const url = "/sender/details";
-
-    const formData = new FormData();
-    formData.append("full_name", d.full_name);
-    formData.append("phone_number", d.phone_number);
-    formData.append("role", d.identification);
-
-    if (d.profile_img) {
-      formData.append("profile_img", d.profile_img);
-    }
-
-    return sendRequest({
-      method: "post",
-      url: url,
-      data: formData,
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-  };
 
   const updateUserDevice = async (token: string) => {
     const url = "/user/";
@@ -146,8 +96,6 @@ export default function useAuthServices() {
     setSubmitted,
     getCargoUserDetails,
     getAuthStatus,
-    postOwnerDetails,
-    postSenderDetails,
     updateUserDevice,
     deleteUserDevice,
     userLoginWithPhone,

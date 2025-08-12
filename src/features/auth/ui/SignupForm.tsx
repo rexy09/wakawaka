@@ -14,10 +14,7 @@ import GoogleSigninButton from "./GoogleSigninButton";
 import XSigninButton from "./XSigninButton";
 
 function SignupForm() {
-  // const auth = getAuth();
   const navigate = useNavigate();
-  // const { submitted, setSubmitted } = useAuthServices();
-  // const signIn = useSignIn();
 
   const form = useForm<ISignupUserForm>({
     initialValues: {

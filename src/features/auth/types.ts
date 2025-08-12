@@ -1,7 +1,10 @@
+import { Country, Currency, Timestamp } from "../dashboard/profile/types";
+
 export interface UserCredentials {
   username: string;
   password: string;
 }
+
 export interface IPhoneLoginForm {
   phone: string;
   phoneCountry: string;
@@ -14,51 +17,39 @@ export interface ISignupUserForm {
 }
 
 export interface IUser {
+  // Essential auth fields (always required)
+  id: string;
   uid: string;
   email: string;
-  name: string;
-  photoUrl: string;
+  fullName: string;
+  role: string;
+  isVerified: boolean | null;
+  userType: string;
+  
+  // Optional fields (can be fetched separately when needed)
+  avatarURL?: string | null;
+  notifToken?: string;
+  fcmTokens?: string[];
+  deviceUniqueId?: string | null;
+  country?: Country;
+  currency?: Currency;
+  dateAdded?: Timestamp;
+  dateUpdated?: Timestamp;
+  gender?: string | null;
+  isProduction?: boolean;
+  phoneNumber?: string | null;
+  status?: string;
+  updatedAt?: Timestamp;
 }
 
-
-
-// Interface for the owner object
-export interface IOwner {
+// Minimal auth user for auth state
+export interface IAuthUser {
   id: string;
-  logo: string;
-  company: string;
-  office_location: string;
-  website: string;
-  company_email: string | null;
-  company_phone: string;
-  areas_of_operation: string | null;
-  tin_number: string | null;
-  registration_certificate: string;
-  is_verified: boolean;
-  created_at: string;
-  updated_at: string;
-  user: IUser;
-  years_of_experience: string;
-}
-
-
-export interface ITransporterForm {
-  full_name: string;
-  phone_number: string;
+  uid: string;
+  email: string;
+  fullName: string;
+  avatarURL?: string | null;
   role: string;
-  identification: string;
-
-  company: string;
-  company_phone: string;
-  years_of_experience: string;
-  logo: File | null;
-  registration_certificate: File | null;
-}
-export interface ISenderForm {
-  full_name: string;
-  phone_number: string;
-  role: string;
-  identification: string;
-
-  profile_img: File | null;
+  isVerified: boolean | null;
+  userType: string;
 }

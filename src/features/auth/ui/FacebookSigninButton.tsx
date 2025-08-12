@@ -25,15 +25,10 @@ export default function FacebookSigninButton() {
         onClick={() => {
           signInWithPopup(auth, provider)
             .then(async (result) => {
-              // This gives you a Google Access Token. You can use it to access the Google API.
               const credential =
                 FacebookAuthProvider.credentialFromResult(result);
               const token = credential ? credential.accessToken : null;
-              // console.log("token", token);
-              // The signed-in user info.
               const user = result.user;
-              // IdP data available using getAdditionalUserInfo(result)
-              // console.log("user", user);
               if (token && user) {
                 const accessToken = await user.getIdToken();
                 if (

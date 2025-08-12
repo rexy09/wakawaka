@@ -15,6 +15,7 @@ import PostJobPage from "../pages/dashboard/PostJobPage";
 import RequireAuth from "@auth-kit/react-router/RequireAuth";
 import PublicLayout from "../common/layouts/PublicLayout";
 import AccountDeletionRequestPage from "../pages/auth/AccountDeletionRequestPage";
+import CompleteProfilePage from "../pages/dashboard/CompleteProfilePage";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -37,6 +38,7 @@ export const router = createBrowserRouter(
       >
         <Route index path="/jobs" element={<JobPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
+        <Route index path="/complete_profile" element={<CompleteProfilePage />} />
 
         {/* 
         <Route element={<AuthRights allowedRights={["owner"]} />}>

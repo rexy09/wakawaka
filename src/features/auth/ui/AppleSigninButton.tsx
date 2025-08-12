@@ -1,17 +1,15 @@
 import { Button } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import {  getAuth, OAuthProvider, signInWithPopup } from "firebase/auth";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
-import { useNavigate } from "react-router-dom";
 import { FaApple } from "react-icons/fa";
+import { useAuthSignIn } from "../hooks/useAuthSignIn";
 
 
 export default function AppleSigninButton() {
   const provider = new OAuthProvider('apple.com');
   const auth = getAuth();
-  const signIn = useSignIn();
+  const { handleAuthSignIn } = useAuthSignIn();
 
-  const navigate = useNavigate();
 
   return (
     <>
@@ -25,50 +23,18 @@ export default function AppleSigninButton() {
         onClick={() => {
           signInWithPopup(auth, provider)
             .then(async (result) => {
-              // This gives you a Google Access Token. You can use it to access the Google API.
               const credential =
                 OAuthProvider.credentialFromResult(result);
               const token = credential ? credential.accessToken : null;
-              // console.log("token", token);
-              // The signed-in user info.
               const user = result.user;
-              // IdP data available using getAdditionalUserInfo(result)
-              // console.log("user", user);
               if (token && user) {
                 const accessToken = await user.getIdToken();
-                if (
-                  signIn({
-                    auth: {
-                      token: accessToken,
-                      type: "Bearer",
-                    },
-                    userState: {
-                      uid: user.uid,
-                      email: user.email,
-                      name: user.displayName,
-                      photoUrl: user.photoURL,
-                    },
-                  })
-                ) {
-                  navigate("/");
-                } else {
-                  navigate("/login");
-                }
+                await handleAuthSignIn(accessToken, user);
+
               }
             })
             .catch((error) => {
-              // Handle Errors here.
-              // const errorCode = error.code;
               const errorMessage = error.message;
-              // The email of the user's account used.
-              // const email = error.customData.email;
-              // The AuthCredential type that was used.
-              // const credential =
-              //   GoogleAuthProvider.credentialFromError(error);
-              // console.log(errorCode);
-              // console.log(errorMessage);
-              // console.log(email);
-              // console.log(credential);
               notifications.show({
                 title: `Error`,
                 color: "red",
