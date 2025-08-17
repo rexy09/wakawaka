@@ -1,29 +1,26 @@
 import {
-  Box,
-  Burger,
-  Button,
-  Center,
-  Divider,
-  Drawer,
-  Group,
-  Image,
-  ScrollArea,
-  UnstyledButton,
+    Box,
+    Burger,
+    Button,
+    Divider,
+    Drawer,
+    Group,
+    Image,
+    ScrollArea
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { SetStateAction } from "react";
 import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { useNavigate } from "react-router-dom";
+import logo_white from "../../../../assets/logo_white.svg";
 import { Icons } from "../../../icons";
 import classes from "./Header.module.css";
 import AccountMenu from "./components/AccountMenu";
 import NavLinkButton from "./components/NavLinkButton";
-import logo_white from "../../../../assets/logo_white.svg";
 
 export default function HeaderMegaMenu() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
     useDisclosure(false);
-  const [_linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
   const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
 
@@ -193,19 +190,13 @@ export default function HeaderMegaMenu() {
           <a href="/jobs" className={classes.link}>
             Jobs
           </a>
-          <UnstyledButton className={classes.link} onClick={toggleLinks}>
-            <Center inline>
-              <Box component="span" mr={5}>
-                Features
-              </Box>
-            </Center>
-          </UnstyledButton>
-          <a href="#" className={classes.link}>
-            Learn
+            <a href="/post_job" className={classes.link}>
+                Post Job
+            </a>
+          <a href="/my_jobs" className={classes.link}>
+            My Jobs
           </a>
-          <a href="#" className={classes.link}>
-            Academy
-          </a>
+         
 
           <Divider my="sm" />
 
