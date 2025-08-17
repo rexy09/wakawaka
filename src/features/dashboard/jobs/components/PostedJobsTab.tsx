@@ -6,27 +6,28 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { useUtilities } from "../../../hooks/utils";
 import { useJobServices } from "../services";
 import { useJobParameters } from "../stores";
 import { IJobPost } from "../types";
+import { IUser } from "../../../auth/types";
 import JobCard from "./JobCard";
 import { JobCardSkeleton } from "./Loaders";
 
 export default function PostedJobsTab() {
   const parameters = useJobParameters();
-  const { getJobs,  } =
-    useJobServices();
+  const { getPostedJobs } = useJobServices();
+  const authUser = useAuthUser<IUser>();
   const { getFormattedDate } = useUtilities();
   const [isLoading, setIsLoading] = useState(false);
   const [jobs, setJobs] = useState<IJobPost[]>([]);
   const [lastDoc, setLastDoc] = useState<any | null>(null);
   const [hasMore, setHasMore] = useState(true);
-
-  const observer = useRef<IntersectionObserver | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  // Set up Intersection Observer (following NotificationSection pattern)
+  // Infinite scroll observer
   const lastJobRef = useCallback(
     (node: HTMLDivElement | null) => {
       if (isLoading || !hasMore) return;
@@ -48,18 +49,15 @@ export default function PostedJobsTab() {
     [isLoading, hasMore, lastDoc]
   );
 
-
   const getFirstDayOfCurrentMonth = (): Date => {
     const today = new Date();
     const value = new Date(today.getFullYear(), today.getMonth(), 1);
-
     return value;
   };
 
   const getLastDayOfCurrentMonth = (): Date => {
     const today = new Date();
     const value = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
     return value;
   };
 
@@ -70,56 +68,40 @@ export default function PostedJobsTab() {
     getLastDayOfCurrentMonth()
   );
 
-
-  const fetchJobs = () => {
-    const params = useJobParameters.getState();
-    console.log("Fetching jobs with parameters: 2", params);
-    if (isLoading) return;
-    console.log("Fetching jobs with parameters: 3", params);
-
+  const fetchJobs = async () => {
+    if (isLoading || !authUser?.uid || !hasMore) return;
     setIsLoading(true);
-    // On initial load, lastDoc is null, so fetch first page
-    // On next page, pass direction 'next' and lastDoc
-    getJobs(params, lastDoc ? "next" : undefined, lastDoc ?? undefined)
-      .then((response) => {
-        setIsLoading(false);
-        setJobs((prev) => {
-          const existingIds = new Set(prev.map((job) => job.id));
-          const newJobs = response.data.filter((job) => !existingIds.has(job.id));
-          return [...prev, ...newJobs];
-        });
-        setLastDoc(response.lastDoc ?? null);
-        setHasMore(response.data.length > 0 && !!response.lastDoc);
-      })
-      .catch((error) => {
-        console.error("Error fetching filter data:", error);
-
-        setIsLoading(false);
-        setHasMore(false);
-        notifications.show({
-          color: "red",
-          title: "Error",
-          message: "Something went wrong!",
-        });
+    try {
+      // getPostedJobs should accept pagination params: userId, direction, startAfterDoc
+      const response = await getPostedJobs(authUser.uid, "next", lastDoc);
+      const newJobs = response.data || response;
+      setJobs((prev) => {
+        const existingIds = new Set(prev.map((job) => job.id));
+        return [...prev, ...newJobs.filter((job: IJobPost) => !existingIds.has(job.id))];
       });
+      setLastDoc(response.lastDoc ?? null);
+      setHasMore(newJobs.length > 0 && !!response.lastDoc);
+    } catch (error: any) {
+      setHasMore(false);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: error.message || "Failed to fetch your posted jobs",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   useEffect(() => {
     parameters.updateText("startDate", getFormattedDate(startDate));
     parameters.updateText("endDate", getFormattedDate(endDate));
-    fetchData();
-  }, []);
-
-  
-
-  const fetchData = async () => {
     setJobs([]);
     setLastDoc(null);
     setHasMore(true);
     fetchJobs();
-  }
-
-
-
+    // eslint-disable-next-line
+  }, [authUser?.uid]);
 
   const skeletons = Array.from({ length: 6 }, (_, index) => (
     <JobCardSkeleton key={index} />
@@ -146,7 +128,12 @@ export default function PostedJobsTab() {
           {cards}
           {isLoading && skeletons}
         </SimpleGrid>
-        {!hasMore && !isLoading && (
+        {!isLoading && jobs.length === 0 && (
+          <Group justify="center" mt="md">
+            <Text c="dimmed" size="md">No posted jobs found</Text>
+          </Group>
+        )}
+        {!hasMore && jobs.length > 0 && (
           <Group justify="center" mt="md">
             <Text c="dimmed" size="md">No more jobs to show</Text>
           </Group>

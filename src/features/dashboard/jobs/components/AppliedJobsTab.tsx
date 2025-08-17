@@ -12,11 +12,13 @@ import { useJobParameters } from "../stores";
 import { IJobPost } from "../types";
 import JobCard from "./JobCard";
 import { JobCardSkeleton } from "./Loaders";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { IUser } from "../../../auth/types";
 
 export default function AppliedJobsTab() {
   const parameters = useJobParameters();
-  const { getJobs,  } =
-    useJobServices();
+  const { getAppliedJobs } = useJobServices();
+  const authUser = useAuthUser<IUser>();
   const { getFormattedDate } = useUtilities();
   const [isLoading, setIsLoading] = useState(false);
   const [jobs, setJobs] = useState<IJobPost[]>([]);
@@ -72,15 +74,9 @@ export default function AppliedJobsTab() {
 
 
   const fetchJobs = () => {
-    const params = useJobParameters.getState();
-    console.log("Fetching jobs with parameters: 2", params);
-    if (isLoading) return;
-    console.log("Fetching jobs with parameters: 3", params);
-
+    if (isLoading || !authUser?.uid) return;
     setIsLoading(true);
-    // On initial load, lastDoc is null, so fetch first page
-    // On next page, pass direction 'next' and lastDoc
-    getJobs(params, lastDoc ? "next" : undefined, lastDoc ?? undefined)
+    getAppliedJobs(authUser.uid, lastDoc ? "next" : undefined, lastDoc ?? undefined)
       .then((response) => {
         setIsLoading(false);
         setJobs((prev) => {
@@ -92,14 +88,13 @@ export default function AppliedJobsTab() {
         setHasMore(response.data.length > 0 && !!response.lastDoc);
       })
       .catch((error) => {
-        console.error("Error fetching filter data:", error);
-
+        console.error("Error fetching jobs:", error);
         setIsLoading(false);
         setHasMore(false);
         notifications.show({
           color: "red",
           title: "Error",
-          message: "Something went wrong!",
+          message: error.message || "Something went wrong!",
         });
       });
   };

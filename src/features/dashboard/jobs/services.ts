@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   DocumentSnapshot,
@@ -343,7 +344,7 @@ export const useJobServices = () => {
     ];
     const querySnapshot = await getDocs(
       query(applicationsCollection, ...queryConstraints)
-    );  
+    );
     return querySnapshot.docs.length > 0;
   };
 
@@ -359,10 +360,13 @@ export const useJobServices = () => {
     }
 
     const savedJobsCollection = collection(db, "savedJobs");
-    
+
     // Get total count
     const totalQueryConstraints = [where("userId", "==", userId)];
-    const totalQuerySnapshot = query(savedJobsCollection, ...totalQueryConstraints);
+    const totalQuerySnapshot = query(
+      savedJobsCollection,
+      ...totalQueryConstraints
+    );
     const count = await getCountFromServer(totalQuerySnapshot);
 
     // Build query for paginated data
@@ -390,7 +394,7 @@ export const useJobServices = () => {
     }
 
     const querySnapshot = await getDocs(dataQuery);
-    
+
     // Extract job details directly from saved jobs documents
     const jobsWithDetails: IJobPost[] = querySnapshot.docs.map((doc) => {
       const data = doc.data() as ISavedJob;
@@ -413,7 +417,7 @@ export const useJobServices = () => {
     const savedJobsCollection = collection(db, "savedJobs");
     const date = new Date().toISOString();
     const savedJobId = `${authUser.uid}_${jobId}`;
-    
+
     // Check if job is already saved
     const existingQuery = query(
       savedJobsCollection,
@@ -421,7 +425,7 @@ export const useJobServices = () => {
       where("jobId", "==", jobId)
     );
     const existingDocs = await getDocs(existingQuery);
-    
+
     if (existingDocs.docs.length > 0) {
       throw new Error("Job is already saved");
     }
@@ -441,7 +445,7 @@ export const useJobServices = () => {
       dateUpdated: date,
       isProduction: Env.isProduction,
     };
-    
+
     const savedJobRef = await addDoc(savedJobsCollection, savedJobData);
     return savedJobRef.id;
   };
@@ -454,21 +458,21 @@ export const useJobServices = () => {
     const savedJobsCollection = collection(db, "savedJobs");
     const queryConstraints = [
       where("userId", "==", authUser.uid),
-      where("jobId", "==", jobId)
+      where("jobId", "==", jobId),
     ];
-    
+
     const querySnapshot = await getDocs(
       query(savedJobsCollection, ...queryConstraints)
     );
-    
+
     if (querySnapshot.docs.length === 0) {
       throw new Error("Saved job not found");
     }
 
     // Delete all matching saved job documents (should be only one)
-    const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+    const deletePromises = querySnapshot.docs.map((doc) => deleteDoc(doc.ref));
     await Promise.all(deletePromises);
-    
+
     return true;
   };
 
@@ -480,16 +484,134 @@ export const useJobServices = () => {
     const savedJobsCollection = collection(db, "savedJobs");
     const queryConstraints = [
       where("userId", "==", authUser.uid),
-      where("jobId", "==", jobId)
+      where("jobId", "==", jobId),
     ];
-    
+
     const querySnapshot = await getDocs(
       query(savedJobsCollection, ...queryConstraints)
     );
-    
+
     return querySnapshot.docs.length > 0;
   };
 
+  const getPostedJobs = async (
+    userId: string,
+    direction: "next" | "prev" | string | undefined = "next",
+    startAfterDoc?: DocumentSnapshot,
+    endBeforeDoc?: DocumentSnapshot
+  ) => {
+    const pageLimit: number = 6;
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+    const jobPostsCollection = collection(db, "jobPosts");
+    let dataQuery = query(
+      jobPostsCollection,
+      where("postedByUserId", "==", userId),
+      orderBy("datePosted", "desc"),
+      limit(pageLimit)
+    );
+    if (direction === "next" && startAfterDoc) {
+      dataQuery = query(
+        jobPostsCollection,
+        where("postedByUserId", "==", userId),
+        orderBy("datePosted", "desc"),
+        startAfter(startAfterDoc),
+        limit(pageLimit)
+      );
+    } else if (direction === "prev" && endBeforeDoc) {
+      dataQuery = query(
+        jobPostsCollection,
+        where("postedByUserId", "==", userId),
+        orderBy("datePosted", "desc"),
+        endBefore(endBeforeDoc),
+        limitToLast(pageLimit)
+      );
+    }
+    const querySnapshot = await getDocs(dataQuery);
+    const dataList = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        ...(data as IJobPost),
+      };
+    });
+    return {
+      data: dataList,
+      lastDoc: querySnapshot.docs[querySnapshot.docs.length - 1],
+      firstDoc: querySnapshot.docs[0],
+    };
+  };
+
+  const getAppliedJobs = async (
+    userId: string,
+    direction: "next" | "prev" | string | undefined = "next",
+    startAfterDoc?: DocumentSnapshot,
+    endBeforeDoc?: DocumentSnapshot
+  ) => {
+    const pageLimit: number = 6;
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+
+    // 1. Get all applications for this user (using collectionGroup)
+    // @ts-ignore
+    let applicationsQuery = query(
+      collectionGroup(db, "applications"),
+      where("uid", "==", userId),
+      orderBy("dateApplied", "desc"),
+      limit(pageLimit)
+    );
+    if (direction === "next" && startAfterDoc) {
+      applicationsQuery = query(
+        collectionGroup(db, "applications"),
+        where("uid", "==", userId),
+        orderBy("dateApplied", "desc"),
+        startAfter(startAfterDoc),
+        limit(pageLimit)
+      );
+    } else if (direction === "prev" && endBeforeDoc) {
+      applicationsQuery = query(
+        collectionGroup(db, "applications"),
+        where("uid", "==", userId),
+        orderBy("dateApplied", "desc"),
+        endBefore(endBeforeDoc),
+        limitToLast(pageLimit)
+      );
+    }
+
+    const applicationsSnapshot = await getDocs(applicationsQuery);
+    const applications = applicationsSnapshot.docs.map(
+      (doc) => doc.data() as IJobApplication
+    );
+
+    // 2. Get the job post IDs from the applications
+    const jobIds = applications.map((app) => app.jobId);
+
+    // 3. Fetch the job posts in parallel
+    let jobPosts: IJobPost[] = [];
+    if (jobIds.length > 0) {
+      const jobPostsCollection = collection(db, "jobPosts");
+      // Firestore doesn't support 'in' queries with more than 10 items, so batch if needed
+      const batchSize = 10;
+      for (let i = 0; i < jobIds.length; i += batchSize) {
+        const batchIds = jobIds.slice(i, i + batchSize);
+        const jobsQuery = query(
+          jobPostsCollection,
+          where("id", "in", batchIds)
+        );
+        const jobsSnapshot = await getDocs(jobsQuery);
+        jobPosts = jobPosts.concat(
+          jobsSnapshot.docs.map((doc) => doc.data() as IJobPost)
+        );
+      }
+    }
+
+    return {
+      data: jobPosts,
+      lastDoc: applicationsSnapshot.docs[applicationsSnapshot.docs.length - 1],
+      firstDoc: applicationsSnapshot.docs[0],
+    };
+  };
 
   return {
     getJobs,
@@ -506,5 +628,7 @@ export const useJobServices = () => {
     saveJob,
     unsaveJob,
     isJobSaved,
+    getPostedJobs,
+    getAppliedJobs,
   };
 };
