@@ -11,7 +11,6 @@ import { Color } from "../../../common/theme";
 import { UserCredentials } from "../types";
 import AppleSigninButton from "./AppleSigninButton";
 import GoogleSigninButton from "./GoogleSigninButton";
-import XSigninButton from "./XSigninButton";
 
 function LoginForm() {
   // const { submitted, setSubmitted } = useAuthServices();
@@ -185,7 +184,7 @@ function LoginForm() {
       <Space h="md" />
       {/* <FacebookSigninButton />
         <Space h="md" /> */}
-      <XSigninButton />
+      {/* <XSigninButton /> */}
       <Space h="lg" />
       <Group justify="center" gap={5}>
         <Text size="14px" fw={400} c={Color.Text1}>

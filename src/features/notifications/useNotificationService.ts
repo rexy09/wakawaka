@@ -19,7 +19,7 @@ export const useNotificationService = () => {
         const token = await getToken(messaging, {
           vapidKey: Env.APP_VAPID_KEY,
         });
-        console.log("FCM Token generated:", token);
+        // console.log("FCM Token generated:", token);
         return token;
       } else {
         console.log("Notification permission denied");

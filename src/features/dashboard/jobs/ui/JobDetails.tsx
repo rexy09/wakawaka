@@ -7,25 +7,32 @@ import {
   Grid,
   Group,
   Image,
+  Modal,
   NumberFormatter,
   Paper,
   SimpleGrid,
   Space,
   Spoiler,
   Text,
-  TextInput,
+  TextInput
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FaMoneyBills } from "react-icons/fa6";
 import { FiBookmark } from "react-icons/fi";
 import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
-import { MdBusinessCenter, MdOutlineClear } from "react-icons/md";
+import { MdBusinessCenter, MdOutlineClear, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
 import { Icons } from "../../../../common/icons";
 import { Color } from "../../../../common/theme";
+import AuthModal from "../../../auth/components/AuthModal";
+import { IUser } from "../../../auth/types";
+import AppleSigninButton from "../../../auth/ui/AppleSigninButton";
+import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
 import JobCard from "../components/JobCard";
 import { JobCardSkeleton, JobDetailsCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
@@ -33,26 +40,140 @@ import { useJobParameters } from "../stores";
 import { IJobPost, PaginatedResponse } from "../types";
 
 export default function JobDetails() {
+  const isAuthenticated = useIsAuthenticated();
+  const authUser = useAuthUser<IUser>();
   const parameters = useJobParameters();
 
-  const { getJob, getRelatedJobs } = useJobServices();
+  const {
+    getJob,
+    getRelatedJobs,
+    postJobApplication,
+    userAppliedForJob,
+    isJobSaved,
+    saveJob,
+    unsaveJob,
+  } = useJobServices();
   const { id } = useParams();
 
   const [isLoading, setIsLoading] = useState(false);
   const [_loadingJobs, setLoadingJobs] = useState(false);
   const [jobs, setJobs] = useState<PaginatedResponse<IJobPost>>();
   const [job, setJob] = useState<IJobPost>();
+  const [applicationModalOpen, setApplicationModalOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [isApplying, setIsApplying] = useState(false);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [checkingApplication, setCheckingApplication] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [checkingSavedStatus, setCheckingSavedStatus] = useState(false);
+  const [authModalStatus, openAuthModal] = useState(false);
 
-  // const form = useForm<IBidForm>({
-  //   initialValues: { price: 0 },
 
-  //   validate: {
-  //     price: (value) =>
-  //       value < order?.price!
-  //         ? `Amount should be greater or equal to Tshs ${order?.price.toLocaleString()}`
-  //         : null,
-  //   },
-  // });
+  const handleJobApplication = async () => {
+    if (!job) return;
+
+    setIsApplying(true);
+
+    try {
+      await postJobApplication(job.id, coverLetter);
+
+      setIsApplying(false);
+      setApplicationModalOpen(false);
+      setCoverLetter("");
+      setHasApplied(true);
+
+      notifications.show({
+        color: "green",
+        title: "Success",
+        message: "Your application has been submitted successfully!",
+      });
+    } catch (error) {
+      setIsApplying(false);
+      console.error("Error applying for job:", error);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: "Failed to apply for the job. Please try again later.",
+      });
+    }
+  };
+
+  const checkUserApplication = async () => {
+    if (!job || !authUser?.uid || !isAuthenticated) return;
+
+    setCheckingApplication(true);
+    try {
+      const applied = await userAppliedForJob(job.id, authUser.uid);
+      setHasApplied(applied);
+    } catch (error) {
+      console.error("Error checking application status:", error);
+    } finally {
+      setCheckingApplication(false);
+    }
+  };
+
+  const checkSavedStatus = async () => {
+    if (!job || !authUser?.uid || !isAuthenticated) return;
+
+    setCheckingSavedStatus(true);
+    try {
+      const saved = await isJobSaved(job.id);
+      setIsSaved(saved);
+    } catch (error) {
+      console.error("Error checking saved status:", error);
+    } finally {
+      setCheckingSavedStatus(false);
+    }
+  };
+
+  const handleSaveToggle = async () => {
+    if (!job) return;
+
+    if (!isAuthenticated || !authUser?.uid) {
+      openAuthModal(true);
+      // notifications.show({
+      //   color: "blue",
+      //   title: "Authentication Required",
+      //   message: "Please sign in to save jobs",
+      // });
+      return;
+    }
+
+    if (isSaving || checkingSavedStatus) {
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (isSaved) {
+        await unsaveJob(job.id);
+        setIsSaved(false);
+        notifications.show({
+          color: "green",
+          title: "Success",
+          message: "Job removed from saved jobs",
+        });
+      } else {
+        await saveJob(job.id);
+        setIsSaved(true);
+        notifications.show({
+          color: "green",
+          title: "Success",
+          message: "Job saved successfully",
+        });
+      }
+    } catch (error: any) {
+      console.error("Error toggling save status:", error);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: error.message || "Failed to update saved status",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const fetchData = () => {
     setIsLoading(true);
@@ -96,6 +217,12 @@ export default function JobDetails() {
       fetchRelatedJobs();
     }
   }, [job]);
+  useEffect(() => {
+    if (job && isAuthenticated && authUser?.uid) {
+      checkUserApplication();
+      checkSavedStatus();
+    }
+  }, [job, isAuthenticated, authUser?.uid]);
   const skeletons = Array.from({ length: 6 }, (_, index) => (
     <JobCardSkeleton key={index} />
   ));
@@ -104,6 +231,9 @@ export default function JobDetails() {
   ));
   return (
     <div>
+       <AuthModal opened={authModalStatus} onClose={()=>{
+              openAuthModal(false);
+            }}/>
       <Space h="md" />
 
       <Paper p={"md"} radius={"md"}>
@@ -165,36 +295,15 @@ export default function JobDetails() {
         </Group>
       </Paper>
       <Space h="md" />
-      <Group justify="space-between" visibleFrom="md">
-        <Text size="28px" fw={700}>
-          Related Jobs
-        </Text>
-      </Group>
-      <Space h="md" />
       <Grid>
         <Grid.Col span={{ base: 12, md: 6, lg: 4 }} order={{ base: 2, md: 1 }}>
-          {/* <Group justify="space-between">
-            <Group>
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                onClick={() => {
-                  navigate(-1);
-                }}
-              >
-                <IoMdArrowRoundBack />
-              </ActionIcon>
-              <Text size="18px" fw={500}>
-                Related Jobs
-              </Text>
-            </Group>
-            <UnstyledButton onClick={() => navigate("/jobs")}>
-              <Text size="14px" fw={500} c={Color.PrimaryBlue}>
-                View More
-              </Text>
-            </UnstyledButton>
-          </Group> */}
-          <Group justify="space-between" hiddenFrom="md">
+          <Group justify="space-between" visibleFrom="md">
+            <Text size="28px" fw={700}>
+              Related Jobs
+            </Text>
+          </Group>
+          <Space h="md" />
+          <Group justify="space-between" hiddenFrom="md" mb="md">
             <Text size="28px" fw={700}>
               Related Jobs
             </Text>
@@ -204,43 +313,84 @@ export default function JobDetails() {
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 1, md: 2 }}>
           {job ? (
             <>
-              <Card p={"md"} radius={"md"}>
-                <Group wrap="wrap" justify="space-between">
-                  <Text size="24px" fw={700} c="#141514">
-                    Job Details
-                  </Text>
-                  <Group>
+              <Group wrap="wrap" justify="space-between" align="start">
+                <Text size="28px" fw={700} c="#141514">
+                  Job Details
+                </Text>
+                <Group>
+                  <Button
+                    variant="filled"
+                    color={isSaved ? "#151F42" : "#E5E5E5"}
+                    c={isSaved ? "white" : "black"}
+                    size="xs"
+                    radius={"md"}
+                    fw={500}
+                    leftSection={
+                      <FiBookmark
+                        size={16}
+                        fill={isSaved ? "white" : "none"}
+                        color={isSaved ? "white" : "black"}
+                      />
+                    }
+                    onClick={handleSaveToggle}
+                    loading={isSaving || checkingSavedStatus}
+                    disabled={isSaving || checkingSavedStatus}
+                  >
+                    {isSaved ? "Saved" : "Save job"}
+                  </Button>
+                  {hasApplied ? (
                     <Button
                       variant="filled"
-                      color="#E5E5E5"
-                      c={"black"}
-                      size="md"
+                      color="green"
+                      size="xs"
                       radius={"md"}
                       fw={500}
-                      leftSection={<FiBookmark size={16} />}
+                      disabled
                     >
-                      Save job
+                      Applied
                     </Button>
+                  ) : (
                     <Button
                       variant="filled"
                       color="#151F42"
-                      size="md"
+                      size="xs"
                       radius={"md"}
                       fw={500}
+                      onClick={() => setApplicationModalOpen(true)}
+                      loading={checkingApplication}
                     >
                       Apply Now
                     </Button>
-                  </Group>
+                  )}
                 </Group>
-                <Space h="md" />
+              </Group>
+              <Space h="md" />
+              <Card p={"md"} radius={"md"}>
                 <div>
-                  <Text size="18px" fw={600} c="#141514">
-                    {job.title ? job.title : job.category}
-                  </Text>
+                  <Group justify="space-between" wrap="nowrap" align="start">
+                    <Text size="18px" fw={600} c="#141514">
+                      {job.title ? job.title : job.category}
+                    </Text>
+                    <div
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                        job.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {job.isActive ? "Active" : "Closed"}
+                    </div>
+                  </Group>
                   <Group wrap="nowrap" gap={2} mt={"xs"}>
                     <IoTimeOutline size={12} />
                     <Text size="12px" fw={500} c="#596258">
-                      {moment(job.datePosted).startOf("day").fromNow()}
+                      {moment(
+                        typeof job.datePosted === "string"
+                          ? new Date(job.datePosted)
+                          : job.datePosted.toDate()
+                      )
+                        .startOf("day")
+                        .fromNow()}
                     </Text>
                   </Group>
                 </div>
@@ -282,29 +432,6 @@ export default function JobDetails() {
                   />
                 </TypographyStylesProvider> */}
                 </Spoiler>
-
-                {job.imageUrls.length > 0 && (
-                  <div>
-                    <Space h="lg" />
-                    <Text size="20px" fw={500} c="#141514">
-                      Photos
-                    </Text>
-                    <Space h="xs" />
-                    <SimpleGrid cols={4}>
-                      {job.imageUrls.map((item, index) => (
-                        <div key={index}>
-                          <Image
-                            radius="md"
-                            h={150}
-                            w="100%"
-                            fit="cover"
-                            src={item}
-                          />
-                        </div>
-                      ))}
-                    </SimpleGrid>
-                  </div>
-                )}
               </Card>
               <Space h="md" />
 
@@ -370,6 +497,27 @@ export default function JobDetails() {
                   </Group>
                 </div>
               </Card>
+              {job.imageUrls.length > 0 && (
+                <Card p={"md"} radius={"md"} mt={"md"}>
+                  <Text size="20px" fw={500} c="#141514">
+                    Photos
+                  </Text>
+                  <Space h="xs" />
+                  <SimpleGrid cols={4}>
+                    {job.imageUrls.map((item, index) => (
+                      <div key={index}>
+                        <Image
+                          radius="md"
+                          h={150}
+                          w="100%"
+                          fit="cover"
+                          src={item}
+                        />
+                      </div>
+                    ))}
+                  </SimpleGrid>
+                </Card>
+              )}
               <Space h="md" />
               <Card p={"md"} radius={"md"}>
                 <div>
@@ -377,16 +525,46 @@ export default function JobDetails() {
                     About Employer
                   </Text>
                   <Space h="xs" />
-                  <Group wrap="nowrap">
+                  <Group wrap="nowrap" align="start">
                     <Avatar
                       w="50px"
                       h="50px"
                       radius={"xl"}
                       src={job.avatarUrl}
                     />
-                    <Text size="16px" fw={500} c="#000000">
-                      {job.fullName}
-                    </Text>
+                    <div style={{ flex: 1 }}>
+                      <Text size="16px" fw={500} c="#000000">
+                        {job.fullName}
+                      </Text>
+                      <Space h="xs" />
+                      <Group wrap="nowrap" gap={3}>
+                        <IoTimeOutline size={14} color="#596258" />
+                        <Text size="14px" fw={400} c="#596258">
+                          Joined{" "}
+                          {moment(
+                            typeof job.userDateJoined === "string"
+                              ? new Date(job.userDateJoined)
+                              : job.userDateJoined.toDate()
+                          ).format("MMMM YYYY")}
+                        </Text>
+                      </Group>
+                      <Group wrap="nowrap" gap={3} mt={4}>
+                        <MdBusinessCenter size={14} color="#596258" />
+                        <Text size="14px" fw={400} c="#596258">
+                          {job.numberOfPostedJobsByUser}{" "}
+                          {job.numberOfPostedJobsByUser === 1 ? "job" : "jobs"}{" "}
+                          posted
+                        </Text>
+                      </Group>
+                      {job.isUserVerified && (
+                        <Group wrap="nowrap" gap={3} mt={4}>
+                          <MdVerified size={14} color="#44A047" />
+                          <Text size="14px" fw={400} c="#44A047">
+                            Verified employer
+                          </Text>
+                        </Group>
+                      )}
+                    </div>
                   </Group>
                 </div>
               </Card>
@@ -396,6 +574,64 @@ export default function JobDetails() {
           )}
         </Grid.Col>
       </Grid>
+
+      {/* Job Application Modal */}
+      <Modal
+        opened={applicationModalOpen}
+        onClose={() => setApplicationModalOpen(false)}
+        title={<strong>Apply Now</strong>}
+        size="lg"
+        centered
+      >
+        <Text size="md" c="">
+          You are about to apply for:{" "}
+          <strong>{job?.title ? job.title : job?.category}</strong>
+        </Text>
+        <Space h="md" />
+        {/* <Textarea
+            label="Cover Letter (Optional)"
+            placeholder="Write a brief cover letter explaining why you're interested in this position..."
+            value={coverLetter}
+            onChange={(event) => setCoverLetter(event.currentTarget.value)}
+            minRows={6}
+            mb="lg"
+          /> */}
+        {isAuthenticated ? (
+          <Group justify="center">
+            {/* <Button 
+              variant="outline" 
+              onClick={() => {
+                setApplicationModalOpen(false);
+                setCoverLetter("");
+              }}
+              disabled={isApplying}
+              color="gray"
+            >
+              Cancel
+            </Button> */}
+            <Button
+              onClick={handleJobApplication}
+              loading={isApplying}
+              disabled={isApplying || hasApplied}
+            >
+              {hasApplied ? "Already Applied" : "Submit Application"}
+            </Button>
+          </Group>
+        ) : (
+          <>
+            <Text size="md" c="dimmed" ta={"center"}>
+              You must be logged in to apply for jobs. Please log in to
+              continue.
+            </Text>
+            <Space h="md" />
+            <div className="px-20">
+              <GoogleSigninButton />
+              <Space h="md" />
+              <AppleSigninButton />
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import {
 import DashboardLayout from "../common/layouts/DashboardLayout";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import { NotFound } from "../pages/NotFound";
-import JobPage from "../pages/dashboard/JobPage";
+import JobsPage from "../pages/dashboard/JobsPage";
 import JobDetailsPage from "../pages/dashboard/JobDetailsPage";
 import AuthLayout from "../common/layouts/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
@@ -16,6 +16,8 @@ import RequireAuth from "@auth-kit/react-router/RequireAuth";
 import PublicLayout from "../common/layouts/PublicLayout";
 import AccountDeletionRequestPage from "../pages/auth/AccountDeletionRequestPage";
 import CompleteProfilePage from "../pages/dashboard/CompleteProfilePage";
+import MyJobsPage from "../pages/dashboard/MyJobsPage";
+import ServerError from "../pages/ServerError";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -34,15 +36,14 @@ export const router = createBrowserRouter(
           <DashboardLayout />
           // </RequireAuth>
         }
-        // errorElement={<ServerError />}
+        errorElement={<ServerError />}
       >
-        <Route index path="/jobs" element={<JobPage />} />
+        <Route index path="/jobs" element={<JobsPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
-        <Route index path="/complete_profile" element={<CompleteProfilePage />} />
 
         {/* 
         <Route element={<AuthRights allowedRights={["owner"]} />}>
-          <Route index path="/company" element={<CompanyPage />} />
+        <Route index path="/company" element={<CompanyPage />} />
         </Route>
         <Route index path="/order/:id" element={<CargoDetailsPage />} />
         <Route index path="/bids" element={<BidPage />} />
@@ -62,7 +63,9 @@ export const router = createBrowserRouter(
           </RequireAuth>
         }
       >
+        <Route index path="/complete_profile" element={<CompleteProfilePage />} />
         <Route index path="/post_job" element={<PostJobPage />} />
+        <Route index path="/my_jobs" element={<MyJobsPage />} />
         <Route index path="/delete/account/request" element={<AccountDeletionRequestPage />} />
       </Route>
 

@@ -11,7 +11,6 @@ import { Color } from "../../../common/theme";
 import { ISignupUserForm } from "../types";
 import AppleSigninButton from "./AppleSigninButton";
 import GoogleSigninButton from "./GoogleSigninButton";
-import XSigninButton from "./XSigninButton";
 
 function SignupForm() {
   const navigate = useNavigate();
@@ -139,7 +138,7 @@ function SignupForm() {
       <Space h="md" />
       {/* <FacebookSigninButton />
         <Space h="md" /> */}
-      <XSigninButton />
+      {/* <XSigninButton /> */}
 
       <Space h="lg" />
 

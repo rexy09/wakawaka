@@ -1,13 +1,6 @@
-export interface JobFilterParameters {
-  startDate: string;
-  endDate: string;
-  search: string;
-}
+import { Timestamp } from "firebase/firestore";
 
-export interface Actions {
-  updateText(type: "startDate" | "endDate" | "search", val: string): void;
-  reset: () => void;
-}
+
 
 export interface PaginatedResponse<T> {
   count: number;
@@ -35,7 +28,7 @@ export interface IJobPost {
     name: string;
     symbol: string;
   };
-  datePosted: string; // or Date if parsed
+  datePosted: string |Timestamp; // or Date if parsed
   description: string;
   fullName: string;
   hasBidding: boolean;
@@ -55,7 +48,7 @@ export interface IJobPost {
   postedByUserId: string;
   title: string | null;
   urgency: string;
-  userDateJoined: string; // or Date if parsed
+  userDateJoined: Timestamp; // or Date if parsed
   videoUrl: string | null;
   voiceUrl: string | null;
   workLocation: string;
@@ -90,3 +83,29 @@ export interface IJobForm {
   urgency: string;
 }
 
+export interface IJobApplication {
+  applicantName: string;
+  attachments: any[];
+  avatarURL: string;
+  coverLetter: string | null;
+  dateAdded: string;
+  dateApplied: string;
+  dateUpdated: string;
+  feedback: string | null;
+  id: string;
+  isProduction: boolean;
+  jobId: string;
+  lastUpdated: string;
+  resumeUrl: string | null;
+  status: string;
+  uid: string;
+}
+
+export interface ISavedJob {
+  id: string;
+  jobId: string;
+  userId: string;
+  jobDetails: IJobPost;
+  dateAdded: string;
+  dateUpdated: string;
+}

@@ -1,14 +1,14 @@
 import {
-    Box,
-    Burger,
-    Button,
-    Center,
-    Divider,
-    Drawer,
-    Group,
-    Image,
-    ScrollArea,
-    UnstyledButton
+  Box,
+  Burger,
+  Button,
+  Center,
+  Divider,
+  Drawer,
+  Group,
+  Image,
+  ScrollArea,
+  UnstyledButton,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { SetStateAction } from "react";
@@ -20,66 +20,64 @@ import AccountMenu from "./components/AccountMenu";
 import NavLinkButton from "./components/NavLinkButton";
 import logo_white from "../../../../assets/logo_white.svg";
 
-
 export default function HeaderMegaMenu() {
-    const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
-        useDisclosure(false);
-    const [_linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
-    const isAuthenticated = useIsAuthenticated();
-    const navigate = useNavigate();
+  const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] =
+    useDisclosure(false);
+  const [_linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
+  const isAuthenticated = useIsAuthenticated();
+  const navigate = useNavigate();
 
+  return (
+    <Box bg={"#151F42"}>
+      <header className={classes.header}>
+        <Group justify="space-between" h="100%">
+          <Image h={36} src={logo_white} />
 
-    return (
-        <Box bg={"#151F42"}>
-            <header className={classes.header}>
-                <Group justify="space-between" h="100%">
-                    <Image h={36} src={logo_white} />
+          <Group h="100%" gap={"xs"} visibleFrom="md">
+            <NavLinkButton
+              label={"Home"}
+              to={"/"}
+              setOpened={function (_value: SetStateAction<boolean>): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+            <NavLinkButton
+              label={"Find Jobs"}
+              to={"/jobs"}
+              setOpened={function (_value: SetStateAction<boolean>): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+            <NavLinkButton
+              label={"Post Job"}
+              to={"/post_job"}
+              setOpened={function (_value: SetStateAction<boolean>): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+            <NavLinkButton
+              label={"My Jobs"}
+              to={"/my_jobs"}
+              setOpened={function (_value: SetStateAction<boolean>): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+            <NavLinkButton
+              label={"Career"}
+              to={"/career"}
+              setOpened={function (_value: SetStateAction<boolean>): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+            <NavLinkButton
+              label={"About"}
+              to={"/bout"}
+              setOpened={function (_value: SetStateAction<boolean>): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
 
-                    <Group h="100%" gap={"xs"} visibleFrom="md">
-                        <NavLinkButton
-                            label={"Home"}
-                            to={"/"}
-                            setOpened={function (_value: SetStateAction<boolean>): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                        />
-                        <NavLinkButton
-                            label={"Find Jobs"}
-                            to={"/jobs"}
-                            setOpened={function (_value: SetStateAction<boolean>): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                        />
-                        <NavLinkButton
-                            label={"Post Job"}
-                            to={"/post_job"}
-                            setOpened={function (_value: SetStateAction<boolean>): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                        />
-                        <NavLinkButton
-                            label={"Business"}
-                            to={"/business"}
-                            setOpened={function (_value: SetStateAction<boolean>): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                        />
-                        <NavLinkButton
-                            label={"Career"}
-                            to={"/career"}
-                            setOpened={function (_value: SetStateAction<boolean>): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                        />
-                        <NavLinkButton
-                            label={"About"}
-                            to={"/bout"}
-                            setOpened={function (_value: SetStateAction<boolean>): void {
-                                throw new Error("Function not implemented.");
-                            }}
-                        />
-
-                        {/* <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
+            {/* <HoverCard width={600} position="bottom" radius="md" shadow="md" withinPortal>
                             <HoverCard.Target>
                                 <a href="#" className={classes.link}>
                                     <Center inline>
@@ -119,104 +117,123 @@ export default function HeaderMegaMenu() {
                                 </div>
                             </HoverCard.Dropdown>
                         </HoverCard> */}
-                    </Group>
+          </Group>
 
-                    <Group visibleFrom="md">
-                        {isAuthenticated ? (
-                            <>
-                                {/* {Icons.message} */}
-                                {Icons.notification}
-                                <AccountMenu />
-                            </>
-                        ) : (
-                            <>
-                                <Button variant="default" onClick={() => {
-                                    navigate("/signin");
-                                }}>Sign in</Button>
-                                <Button onClick={() => {
-                                    navigate("/signup");
-                                }}>Sign up</Button>
-                            </>
-                        )}
-                    </Group>
-                    <Group hiddenFrom="md">
-                        {isAuthenticated && (
-                            <>
-                                {Icons.notification}
-                                <AccountMenu />
-                            </>)}
-                        <Burger
-                            opened={drawerOpened}
-                            onClick={toggleDrawer}
-                            hiddenFrom="md"
-                            color="white"
-                        />
-                    </Group>
+          <Group visibleFrom="md">
+            {isAuthenticated ? (
+              <>
+                {/* {Icons.message} */}
+                {Icons.notification}
+                <AccountMenu />
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    navigate("/signin");
+                  }}
+                >
+                  Sign in
+                </Button>
+                <Button
+                  onClick={() => {
+                    navigate("/signup");
+                  }}
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
+          </Group>
+          <Group hiddenFrom="md">
+            {isAuthenticated && (
+              <>
+                {Icons.notification}
+                <AccountMenu />
+              </>
+            )}
+            <Burger
+              opened={drawerOpened}
+              onClick={toggleDrawer}
+              hiddenFrom="md"
+              color="white"
+            />
+          </Group>
+        </Group>
+      </header>
 
-                </Group>
-            </header>
+      <Drawer
+        opened={drawerOpened}
+        onClose={closeDrawer}
+        size="100%"
+        padding="md"
+        title={
+          <Group>
+            {" "}
+            <Image h={30} src={logo_white} />{" "}
+            {isAuthenticated && <>{/* {Icons.message} */}</>}
+          </Group>
+        }
+        hiddenFrom="md"
+        zIndex={1000000}
+        styles={{
+          header: {
+            backgroundColor: "#151F42",
+            height: "100px",
+          },
+        }}
+      >
+        <ScrollArea h="calc(100vh - 80px" mx="-md">
+          {/* <Divider my="sm" /> */}
 
-            <Drawer
-                opened={drawerOpened}
-                onClose={closeDrawer}
-                size="100%"
-                padding="md"
+          <a href="/" className={classes.link}>
+            Home
+          </a>
+          <a href="/jobs" className={classes.link}>
+            Jobs
+          </a>
+          <UnstyledButton className={classes.link} onClick={toggleLinks}>
+            <Center inline>
+              <Box component="span" mr={5}>
+                Features
+              </Box>
+            </Center>
+          </UnstyledButton>
+          <a href="#" className={classes.link}>
+            Learn
+          </a>
+          <a href="#" className={classes.link}>
+            Academy
+          </a>
 
-                title={<Group> <Image h={30} src={logo_white} /> {isAuthenticated && (<>
-                    {/* {Icons.message} */}
-                </>)}</Group>}
-                hiddenFrom="md"
-                zIndex={1000000}
-                styles={{
-                    header: {
-                        backgroundColor: "#151F42",
-                        height: "100px"
-                    },
-                }}
-            >
-                <ScrollArea h="calc(100vh - 80px" mx="-md">
-                    {/* <Divider my="sm" /> */}
+          <Divider my="sm" />
 
-                    <a href="/" className={classes.link}>
-                        Home
-                    </a>
-                    <a href="/jobs" className={classes.link}>
-                        Jobs
-                    </a>
-                    <UnstyledButton className={classes.link} onClick={toggleLinks}>
-                        <Center inline>
-                            <Box component="span" mr={5}>
-                                Features
-                            </Box>
-                        </Center>
-                    </UnstyledButton>
-                    <a href="#" className={classes.link}>
-                        Learn
-                    </a>
-                    <a href="#" className={classes.link}>
-                        Academy
-                    </a>
-
-                    <Divider my="sm" />
-
-                    <Group justify="center" grow pb="xl" px="md">
-                        {isAuthenticated ? (
-                            <>
-
-                            </>
-                        ) : (
-                            <>
-                                <Button variant="default" onClick={() => {
-                                    navigate("/signin");
-                                }}>Sign in</Button>
-                                <Button onClick={() => {
-                                    navigate("/signup");
-                                }}>Sign up</Button>
-                            </>
-                        )}
-                    </Group>
-                </ScrollArea>
-            </Drawer>
-        </Box>
-    );
+          <Group justify="center" grow pb="xl" px="md">
+            {isAuthenticated ? (
+              <></>
+            ) : (
+              <>
+                <Button
+                  variant="default"
+                  onClick={() => {
+                    navigate("/signin");
+                  }}
+                >
+                  Sign in
+                </Button>
+                <Button
+                  onClick={() => {
+                    navigate("/signup");
+                  }}
+                >
+                  Sign up
+                </Button>
+              </>
+            )}
+          </Group>
+        </ScrollArea>
+      </Drawer>
+    </Box>
+  );
 }
