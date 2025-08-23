@@ -1,15 +1,13 @@
 import { Button, Container, Group, Text, Title } from '@mantine/core';
-import classes from './ServerError.module.css';
 
 export default function ServerError() {
 
 
   return (
-    <div className={classes.root}>
-      <Container>
-        <div className={classes.label}>500</div>
-        <Title className={classes.title}>Something bad just happened...</Title>
-        <Text size="lg" ta="center" className={classes.description}>
+      <Container h={"100vh"}>
+        <div >500</div>
+        <Title >Something bad just happened...</Title>
+        <Text size="lg" ta="center" >
           Our servers could not handle your request. Don&apos;t worry, our development team was
           already notified. Try refreshing the page.
         </Text>
@@ -19,6 +17,5 @@ export default function ServerError() {
           </Button>
         </Group>
       </Container>
-    </div>
   );
 }

@@ -1,5 +1,4 @@
 import { Button } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { Icons } from "../../../common/icons";
 import { useAuthSignIn } from "../hooks/useAuthSignIn";
@@ -33,12 +32,14 @@ export default function GoogleSigninButton() {
             })
             .catch((error) => {
               const errorMessage = error.message;
-              notifications.show({
-                title: `Error`,
-                color: "red",
-                message: `${errorMessage}`,
-                position: "bottom-left",
-              });
+              console.error(errorMessage);
+              
+              // notifications.show({
+              //   title: `Error`,
+              //   color: "red",
+              //   message: `${errorMessage}`,
+              //   position: "bottom-left",
+              // });
             });
         }}
       >

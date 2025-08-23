@@ -1,7 +1,10 @@
 import {
   Avatar,
+  Badge,
+  Button,
   Card,
   Group,
+  Menu,
   NumberFormatter,
   Space,
   Text,
@@ -21,10 +24,11 @@ import { IUser } from "../../../auth/types";
 import { IJobPost } from "../types";
 import { useJobServices } from "../services";
 import AuthModal from "../../../auth/components/AuthModal";
+import { IoIosMore } from "react-icons/io";
 interface Props {
   job: IJobPost;
 }
-export default function JobCard({ job }: Props) {
+export default function PostedJobCard({ job }: Props) {
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser<IUser>();
@@ -128,13 +132,9 @@ export default function JobCard({ job }: Props) {
           <Card
             p={"md"}
             radius={"12px"}
-            onClick={() => {
-              navigate("/jobs/" + job.id);
-            }}
+            
           >
             <Group wrap="nowrap" align="start">
-              <Avatar w="40px" h="40px" radius={"xl"} src={job.avatarUrl} />
-
               <div className="w-[100%]">
                 <Group
                   justify="space-between"
@@ -142,41 +142,34 @@ export default function JobCard({ job }: Props) {
                   gap={5}
                   align="start"
                 >
-                  <Text size="md" fw={400} c="#000000" lineClamp={1}>
-                    {job.fullName}
+                  <Text
+                    size="16px"
+                    fw={500}
+                    c="#151F42"
+                    lineClamp={1}
+                    style={{ lineHeight: 1.2 }}
+                  >
+                    {job.title ? job.title : job.category}
                   </Text>
-                  <div onClick={handleSaveToggle} style={{ cursor: "pointer" }}>
-                    <UnstyledButton
-                      variant="subtle"
-                      color={isSaved ? "#151F42" : "#C7C7C7"}
-                      size={"md"}
-                      disabled={checkingStatus || isLoading}
-                      style={{
-                        opacity: checkingStatus || isLoading ? 0.5 : 1,
-                        cursor:
-                          isLoading || checkingStatus
-                            ? "not-allowed"
-                            : "pointer",
-                        pointerEvents: "none", // Prevent button from handling click
-                      }}
-                    >
-                      <FiBookmark
-                        size={16}
-                        fill={isSaved ? "#151F42" : "none"}
-                        color={isSaved ? "#151F42" : "#C7C7C7"}
-                      />
-                    </UnstyledButton>
-                  </div>
+                  <Menu shadow="md" width={150}>
+                    <Menu.Target>
+                      <UnstyledButton className="inline-flex items-center justify-center rounded-full p-2 hover:bg-gray-100">
+                        <IoIosMore size={20} />
+                      </UnstyledButton>
+                    </Menu.Target>
+
+                    <Menu.Dropdown>
+                      <Menu.Item onClick={() => {
+                        navigate("/jobs/" + job.id +"/posted");
+                      }}>View Job</Menu.Item>
+                      <Menu.Item>View Applications</Menu.Item>
+                      <Menu.Item>View Bids</Menu.Item>
+                      <Menu.Item>Close Job</Menu.Item>
+                      <Menu.Item>Reopen Job</Menu.Item>
+                    </Menu.Dropdown>
+                  </Menu>
                 </Group>
-                <Text
-                  size="16px"
-                  fw={500}
-                  c="#151F42"
-                  lineClamp={1}
-                  style={{ lineHeight: 1.2 }}
-                >
-                  {job.title ? job.title : job.category}
-                </Text>
+
                 <Group wrap="nowrap" gap={2} mt={2}>
                   <IoTimeOutline size={10} />
                   <Text size="10px" fw={500} c="#596258">
@@ -241,45 +234,24 @@ export default function JobCard({ job }: Props) {
             <Text size="sm" fw={400} c="#596258" lineClamp={3}>
               {job.description}
             </Text>
+
             <Space h="xs" />
-            {job.imageUrls.length > 0 && (
-              <Group gap={4}>
-                <Avatar.Group>
-                  {job.imageUrls.slice(0, 3).map((image, i) => (
-                    <Avatar
-                      radius={"md"}
-                      key={i}
-                      src={
-                        typeof image === "string"
-                          ? image
-                          : URL.createObjectURL(image)
-                      }
-                      size="md"
-                    />
-                  ))}
-                  {job.imageUrls.length > 3 && (
-                    <Avatar size="md" radius={"md"}>
-                      +{job.imageUrls.length - 3}
-                    </Avatar>
-                  )}
-                </Avatar.Group>
-              </Group>
-            )}
-            <Space h="xs" />
-            <Text size="20px" fw={500} c="#151F42">
-              <NumberFormatter
-                prefix={`${job.currency ? job.currency.code : "TZS"} `}
-                value={job.budget}
-                thousandSeparator
-              />
-              {job.maxBudget > 0 && (
-                <NumberFormatter
-                  prefix={` - ${job.currency ? job.currency.code : "TZS"} `}
-                  value={job.maxBudget}
-                  thousandSeparator
-                />
-              )}
-            </Text>
+            <Group justify="space-between" align="center">
+              <Button variant="default" size="xs" leftSection={<TbUsers />} onClick={() => {
+                navigate("/my_jobs/" + job.id + "/posted");
+              }}>
+                View {job.hasBidding && "Bid"} Applications
+              </Button>
+              <Badge
+                color={!job?.isActive ? "#E53935" : "#044299"}
+                radius="sm"
+                size="lg"
+              >
+                <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
+                  {!job?.isActive ? "Closed" : "Active"}
+                </Text>
+              </Badge>
+            </Group>
           </Card>
         </div>
       </div>

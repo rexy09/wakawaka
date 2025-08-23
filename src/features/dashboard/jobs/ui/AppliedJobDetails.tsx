@@ -1,20 +1,17 @@
 import {
-  ActionIcon,
   Avatar,
+  Badge,
   Button,
   Card,
-  Divider,
   Grid,
   Group,
   Image,
   Modal,
   NumberFormatter,
-  Paper,
   SimpleGrid,
   Space,
   Spoiler,
   Text,
-  TextInput
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
@@ -22,54 +19,33 @@ import { useEffect, useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FaMoneyBills } from "react-icons/fa6";
-import { FiBookmark } from "react-icons/fi";
 import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
-import { MdBusinessCenter, MdOutlineClear, MdVerified } from "react-icons/md";
+import { MdBusinessCenter, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
-import { Icons } from "../../../../common/icons";
-import { Color } from "../../../../common/theme";
 import AuthModal from "../../../auth/components/AuthModal";
 import { IUser } from "../../../auth/types";
 import AppleSigninButton from "../../../auth/ui/AppleSigninButton";
 import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
-import JobCard from "../components/JobCard";
-import { JobCardSkeleton, JobDetailsCardSkeleton } from "../components/Loaders";
+import { JobDetailsCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
-import { useJobParameters } from "../stores";
-import { IJobPost, PaginatedResponse } from "../types";
-import SearchModal from "../components/SearchModal";
+import { IJobApplication, IJobPost } from "../types";
 
-export default function JobDetails() {
+export default function AppliedJobDetails() {
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser<IUser>();
-  const parameters = useJobParameters();
 
-  const {
-    getJob,
-    getRelatedJobs,
-    postJobApplication,
-    userAppliedForJob,
-    isJobSaved,
-    saveJob,
-    unsaveJob,
-  } = useJobServices();
+  const { getJob, postJobApplication, getAppliedJob } = useJobServices();
   const { id } = useParams();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [_loadingJobs, setLoadingJobs] = useState(false);
-  const [jobs, setJobs] = useState<PaginatedResponse<IJobPost>>();
   const [job, setJob] = useState<IJobPost>();
   const [applicationModalOpen, setApplicationModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [isApplying, setIsApplying] = useState(false);
-  const [hasApplied, setHasApplied] = useState(false);
+  const [applied, setHasApplied] = useState<IJobApplication>();
   const [checkingApplication, setCheckingApplication] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [checkingSavedStatus, setCheckingSavedStatus] = useState(false);
   const [authModalStatus, openAuthModal] = useState(false);
-
 
   const handleJobApplication = async () => {
     if (!job) return;
@@ -82,7 +58,6 @@ export default function JobDetails() {
       setIsApplying(false);
       setApplicationModalOpen(false);
       setCoverLetter("");
-      setHasApplied(true);
 
       notifications.show({
         color: "green",
@@ -101,88 +76,31 @@ export default function JobDetails() {
   };
 
   const checkUserApplication = async () => {
-    if (!job || !authUser?.uid || !isAuthenticated) return;
-
+    if (!job || !authUser?.uid) return;
     setCheckingApplication(true);
     try {
-      const applied = await userAppliedForJob(job.id, authUser.uid);
-      setHasApplied(applied);
+      const application = await getAppliedJob(authUser.uid, job.id);
+      setHasApplied(application);
     } catch (error) {
-      console.error("Error checking application status:", error);
+      console.error("Error checking user application:", error);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message:
+          "Failed to check your application status. Please try again later.",
+      });
     } finally {
       setCheckingApplication(false);
     }
   };
 
-  const checkSavedStatus = async () => {
-    if (!job || !authUser?.uid || !isAuthenticated) return;
-
-    setCheckingSavedStatus(true);
-    try {
-      const saved = await isJobSaved(job.id);
-      setIsSaved(saved);
-    } catch (error) {
-      console.error("Error checking saved status:", error);
-    } finally {
-      setCheckingSavedStatus(false);
-    }
-  };
-
-  const handleSaveToggle = async () => {
-    if (!job) return;
-
-    if (!isAuthenticated || !authUser?.uid) {
-      openAuthModal(true);
-      // notifications.show({
-      //   color: "blue",
-      //   title: "Authentication Required",
-      //   message: "Please sign in to save jobs",
-      // });
-      return;
-    }
-
-    if (isSaving || checkingSavedStatus) {
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      if (isSaved) {
-        await unsaveJob(job.id);
-        setIsSaved(false);
-        notifications.show({
-          color: "green",
-          title: "Success",
-          message: "Job removed from saved jobs",
-        });
-      } else {
-        await saveJob(job.id);
-        setIsSaved(true);
-        notifications.show({
-          color: "green",
-          title: "Success",
-          message: "Job saved successfully",
-        });
-      }
-    } catch (error: any) {
-      console.error("Error toggling save status:", error);
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: error.message || "Failed to update saved status",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const fetchData = () => {
     setIsLoading(true);
-
     getJob(id!)
       .then((response) => {
         setIsLoading(false);
         setJob(response);
+        checkUserApplication();
       })
       .catch((_error) => {
         setIsLoading(false);
@@ -193,70 +111,28 @@ export default function JobDetails() {
         });
       });
   };
-  const fetchRelatedJobs = (next?: string) => {
-    setLoadingJobs(true);
 
-    getRelatedJobs(job?.category!, id!, next, jobs?.lastDoc, jobs?.firstDoc)
-      .then((response) => {
-        setLoadingJobs(false);
-        setJobs(response);
-      })
-      .catch((_error) => {
-        setLoadingJobs(false);
-        notifications.show({
-          color: "red",
-          title: "Error",
-          message: "Something went wrong!",
-        });
-      });
-  };
   useEffect(() => {
     fetchData();
   }, [id]);
+
   useEffect(() => {
-    if (job) {
-      fetchRelatedJobs();
-    }
-  }, [job]);
-  useEffect(() => {
-    if (job && isAuthenticated && authUser?.uid) {
+    if (job && authUser?.uid) {
       checkUserApplication();
-      checkSavedStatus();
     }
-  }, [job, isAuthenticated, authUser?.uid]);
-  const skeletons = Array.from({ length: 6 }, (_, index) => (
-    <JobCardSkeleton key={index} />
-  ));
-  const cards = jobs?.data.map((item, index) => (
-    <JobCard job={item} key={index} />
-  ));
+  }, [job, authUser?.uid]);
+
   return (
     <div>
-      <AuthModal opened={authModalStatus} onClose={() => {
-        openAuthModal(false);
-      }} />
+      <AuthModal
+        opened={authModalStatus}
+        onClose={() => {
+          openAuthModal(false);
+        }}
+      />
       <Space h="md" />
-
-      <Paper p={"md"} radius={"md"}>
-        <SearchModal jobCategories={[]} />
-      </Paper>
-      <Space h="md" />
-      <Grid>
-        <Grid.Col span={{ base: 12, md: 6, lg: 4 }} order={{ base: 2, md: 1 }}>
-          <Group justify="space-between" visibleFrom="md">
-            <Text size="28px" fw={700}>
-              Related Jobs
-            </Text>
-          </Group>
-          <Space h="md" />
-          <Group justify="space-between" hiddenFrom="md" mb="md">
-            <Text size="28px" fw={700}>
-              Related Jobs
-            </Text>
-          </Group>
-          <SimpleGrid cols={1}>{isLoading ? skeletons : cards}</SimpleGrid>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 1, md: 2 }}>
+      <Grid justify="center" align="start">
+        <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
           {job ? (
             <>
               <Group wrap="wrap" justify="space-between" align="start">
@@ -264,48 +140,17 @@ export default function JobDetails() {
                   Job Details
                 </Text>
                 <Group>
-                  <Button
-                    variant="filled"
-                    color={isSaved ? "#151F42" : "#E5E5E5"}
-                    c={isSaved ? "white" : "black"}
-                    size="xs"
-                    radius={"md"}
-                    fw={500}
-                    leftSection={
-                      <FiBookmark
-                        size={16}
-                        fill={isSaved ? "white" : "none"}
-                        color={isSaved ? "white" : "black"}
-                      />
-                    }
-                    onClick={handleSaveToggle}
-                    loading={isSaving || checkingSavedStatus}
-                    disabled={isSaving || checkingSavedStatus}
-                  >
-                    {isSaved ? "Saved" : "Save job"}
-                  </Button>
-                  {hasApplied ? (
-                    <Button
-                      variant="filled"
-                      color="green"
-                      size="xs"
-                      radius={"md"}
-                      fw={500}
-                      disabled
-                    >
-                      Applied
-                    </Button>
-                  ) : (
+                  {applied?.status == "accepted" && (
                     <Button
                       variant="filled"
                       color="#151F42"
                       size="xs"
                       radius={"md"}
                       fw={500}
-                      onClick={() => setApplicationModalOpen(true)}
+                      // onClick={() => setApplicationModalOpen(true)}
                       loading={checkingApplication}
                     >
-                      Apply Now
+                      Complete Job
                     </Button>
                   )}
                 </Group>
@@ -317,14 +162,31 @@ export default function JobDetails() {
                     <Text size="18px" fw={600} c="#141514">
                       {job.title ? job.title : job.category}
                     </Text>
-                    <div
-                      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${job.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                        }`}
-                    >
-                      {job.isActive ? "Active" : "Closed"}
-                    </div>
+                    {applied && (
+                      <Badge
+                        color={
+                          applied.status === "accepted"
+                            ? "#044299"
+                            : applied.status === "approved"
+                            ? "#6247BA"
+                            : applied.status === "completed"
+                            ? "#43A047"
+                            : applied.status === "pending"
+                            ? "#FF8810"
+                            : applied.status === "rejected"
+                            ? "#E53935"
+                            : "#044299"
+                        }
+                        radius="sm"
+                        size="md"
+                      >
+                        <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
+                          {applied.status === "rejected"
+                            ? "Closed"
+                            : applied.status}
+                        </Text>
+                      </Badge>
+                    )}
                   </Group>
                   <Group wrap="nowrap" gap={2} mt={"xs"}>
                     <IoTimeOutline size={12} />
@@ -409,15 +271,17 @@ export default function JobDetails() {
                       </Text>
                       <Text size="16px" fw={700} c="#151F42">
                         <NumberFormatter
-                          prefix={`${job.currency ? job.currency.code : "TZS"
-                            } `}
+                          prefix={`${
+                            job.currency ? job.currency.code : "TZS"
+                          } `}
                           value={job.budget}
                           thousandSeparator
                         />
                         {job.maxBudget > 0 && (
                           <NumberFormatter
-                            prefix={` - ${job.currency ? job.currency.code : "TZS"
-                              } `}
+                            prefix={` - ${
+                              job.currency ? job.currency.code : "TZS"
+                            } `}
                             value={job.maxBudget}
                             thousandSeparator
                           />
@@ -555,9 +419,9 @@ export default function JobDetails() {
             <Button
               onClick={handleJobApplication}
               loading={isApplying}
-              disabled={isApplying || hasApplied}
+              disabled={isApplying}
             >
-              {hasApplied ? "Already Applied" : "Submit Application"}
+              {applied ? "Already Applied" : "Submit Application"}
             </Button>
           </Group>
         ) : (

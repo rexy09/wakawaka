@@ -37,16 +37,19 @@ export default function MyJobs() {
 
   return (
     <div>
-      <Space h="md" />
+      <Space h="xs" />
       <Text fw={600} fz={40}>
         My Jobs
       </Text>
       <Text fw={400} fz={21} c={"#7F7D7D"}>
-        Here are the jobs you’ve applied for- good luck!
+        {activeTab == "applied" && "Here are the jobs you’ve applied for- good luck!"}
+        {activeTab == "saved" && "Your saved opportunities — ready when you are"}
+        {activeTab == "posted" && "Keep an eye on your active job posts here."}
+        
       </Text>
       <Space h="md" />
       <Group justify="end">
-        <div className="flex bg-[#F4F4F4C9] rounded-lg p-1 w-fit gap-2 border border-[#C7C7C72B]">
+        {/* <div className="flex bg-[#F4F4F4C9] rounded-lg p-1 w-fit gap-2 border border-[#C7C7C72B]">
           {tabs.map((tab) => (
             <button
               key={tab.id}
@@ -60,7 +63,32 @@ export default function MyJobs() {
               {tab.label}
             </button>
           ))}
+        </div> */}
+        <div className="flex bg-[#F4F4F4C9] rounded-lg p-1 w-fit gap-2 border border-[#C7C7C72B] relative overflow-hidden">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => handleTabChange(tab.id)}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 relative z-10 ${activeTab === tab.id
+                ? "text-white"
+                : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
+                }`}
+              style={{ background: "transparent" }}
+            >
+              {tab.label}
+            </button>
+          ))}
+          {/* Sliding indicator */}
+          <div
+            className="absolute top-0 left-0 h-full rounded-md bg-[#151F42] shadow-sm transition-all duration-300 z-0"
+            style={{
+              width: `calc(100% / ${tabs.length})`,
+              transform: `translateX(${tabs.findIndex(tab => tab.id === activeTab) * 100}%)`,
+            }}
+          />
         </div>
+
+
       </Group>
 
       <Tabs value={activeTab} keepMounted={false}>

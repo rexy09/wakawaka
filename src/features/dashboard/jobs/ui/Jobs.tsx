@@ -10,7 +10,7 @@ import {
   SimpleGrid,
   Space,
   Text,
-  TextInput
+  TextInput,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -22,7 +22,13 @@ import JobCard from "../components/JobCard";
 import { JobCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
 import { useJobParameters } from "../stores";
-import { ICommitmentType, IJobCategory, IJobPost, IUrgencyLevels } from "../types";
+import {
+  ICommitmentType,
+  IJobCategory,
+  IJobPost,
+  IUrgencyLevels,
+} from "../types";
+import SearchModal from "../components/SearchModal";
 
 export default function Jobs() {
   const parameters = useJobParameters();
@@ -62,7 +68,6 @@ export default function Jobs() {
     [isLoading, hasMore, lastDoc]
   );
 
-
   const getFirstDayOfCurrentMonth = (): Date => {
     const today = new Date();
     const value = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -84,11 +89,10 @@ export default function Jobs() {
     getLastDayOfCurrentMonth()
   );
 
-  
   const fetchJobs = () => {
     const params = useJobParameters.getState();
     if (isLoading) return;
-    
+
     setIsLoading(true);
     // On initial load, lastDoc is null, so fetch first page
     // On next page, pass direction 'next' and lastDoc
@@ -97,7 +101,9 @@ export default function Jobs() {
         setIsLoading(false);
         setJobs((prev) => {
           const existingIds = new Set(prev.map((job) => job.id));
-          const newJobs = response.data.filter((job) => !existingIds.has(job.id));
+          const newJobs = response.data.filter(
+            (job) => !existingIds.has(job.id)
+          );
           return [...prev, ...newJobs];
         });
         setLastDoc(response.lastDoc ?? null);
@@ -127,7 +133,7 @@ export default function Jobs() {
       const [categories, commitmentTypes, urgencyLevels] = await Promise.all([
         getCatgories(),
         getCommitmentTypes(),
-        getUrgencyLevels()
+        getUrgencyLevels(),
       ]);
 
       setJobCategories(categories);
@@ -143,8 +149,7 @@ export default function Jobs() {
     setLastDoc(null);
     setHasMore(true);
     fetchJobs();
-  }
-
+  };
 
   const handleResetFilters = () => {
     // Reset all parameters
@@ -154,7 +159,6 @@ export default function Jobs() {
     parameters.updateText("urgency", "");
     parameters.updateText("commitment", "");
     fetchData();
-  
   };
 
   const skeletons = Array.from({ length: 6 }, (_, index) => (
@@ -162,10 +166,7 @@ export default function Jobs() {
   ));
 
   const cards = jobs.map((item, index) => (
-    <div
-      key={index}
-      ref={index === jobs.length - 1 ? lastJobRef : undefined}
-    >
+    <div key={index} ref={index === jobs.length - 1 ? lastJobRef : undefined}>
       <JobCard job={item} />
     </div>
   ));
@@ -181,7 +182,11 @@ export default function Jobs() {
               <Text size="18px" fw={700} c="#040404">
                 Filter Job
               </Text>
-              <Text size="14px" fw={400} c="#F25454" style={{ cursor: 'pointer' }}
+              <Text
+                size="14px"
+                fw={400}
+                c="#F25454"
+                style={{ cursor: "pointer" }}
                 onClick={handleResetFilters}
               >
                 Reset Filter
@@ -228,7 +233,6 @@ export default function Jobs() {
               }}
             />
             <Space h="md" />
-
 
             {/* <div>
               <Group justify="space-between">
@@ -290,65 +294,7 @@ export default function Jobs() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
           <Paper p={"md"} radius={"md"}>
-            <Group justify="space-between">
-              <Group>
-                <TextInput
-                  leftSection={Icons.search}
-                  placeholder="UI UX Designer"
-                  radius={"md"}
-                  value={parameters.search}
-                  onChange={(value) => {
-                    parameters.updateText("search", value.currentTarget.value);
-                    // fetchOrders(1);
-                  }}
-                  rightSection={
-                    parameters.search.length != 0 ? (
-                      <ActionIcon
-                        variant="transparent"
-                        color="black"
-                        onClick={() => {
-                          parameters.updateText("search", "");
-                          // fetchOrders(1);
-                        }}
-                      >
-                        <MdOutlineClear />
-                      </ActionIcon>
-                    ) : null
-                  }
-                />
-                <Divider orientation="vertical" />
-                <TextInput
-                  leftSection={Icons.location}
-                  placeholder="Dar es salaam, Tanzania"
-                  radius={"md"}
-                  value={parameters.location}
-                  onChange={(value) => {
-                    parameters.updateText("location", value.currentTarget.value);
-                  }}
-                  rightSection={
-                    parameters.location.length != 0 ? (
-                      <ActionIcon
-                        variant="transparent"
-                        color="black"
-                        onClick={() => {
-                          parameters.updateText("location", "");
-                        }}
-                      >
-                        <MdOutlineClear />
-                      </ActionIcon>
-                    ) : null
-                  }
-                />
-              </Group>
-              <Button
-                size="md"
-                variant="filled"
-                color={Color.PrimaryBlue}
-                fw={400}
-              >
-                Find Job
-              </Button>
-            </Group>
+            <SearchModal jobCategories={jobCategories} />
           </Paper>
           {/* <Group justify="flex-end" my="md">
             {jobs && (
@@ -366,13 +312,15 @@ export default function Jobs() {
             style={{ height: "calc(100vh - 120px)" }}
             scrollbars="y"
           >
-            <SimpleGrid cols={{ sm: 2, xs: 1 }} >
+            <SimpleGrid cols={{ sm: 2, xs: 1 }}>
               {cards}
               {isLoading && skeletons}
             </SimpleGrid>
             {!hasMore && !isLoading && (
               <Group justify="center" mt="md">
-                <Text c="dimmed" size="md">No more jobs to show</Text>
+                <Text c="dimmed" size="md">
+                  No more jobs to show
+                </Text>
               </Group>
             )}
           </ScrollArea>
@@ -381,6 +329,3 @@ export default function Jobs() {
     </div>
   );
 }
-
-
-

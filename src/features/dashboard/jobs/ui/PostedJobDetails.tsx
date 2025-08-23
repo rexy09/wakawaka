@@ -1,0 +1,717 @@
+import {
+  ActionIcon,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  Group,
+  Image,
+  NumberFormatter,
+  Paper,
+  ScrollArea,
+  SimpleGrid,
+  Space,
+  Spoiler,
+  Stack,
+  Tabs,
+  Text,
+  UnstyledButton,
+} from "@mantine/core";
+import { notifications } from "@mantine/notifications";
+import moment from "moment";
+import { useEffect, useState } from "react";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
+import { FaMoneyBills } from "react-icons/fa6";
+import { IoArrowBack, IoLocationOutline, IoTimeOutline } from "react-icons/io5";
+import { MdBusinessCenter, MdOutlineCall, MdVerified } from "react-icons/md";
+import { TbUser, TbUsers } from "react-icons/tb";
+import { useNavigate, useParams } from "react-router-dom";
+import AuthModal from "../../../auth/components/AuthModal";
+import { IUser } from "../../../auth/types";
+import { JobDetailsCardSkeleton } from "../components/Loaders";
+import { useJobServices } from "../services";
+import {
+  IHiredApplication,
+  IJobApplication,
+  IJobBid,
+  IJobPost,
+} from "../types";
+
+export default function PostedJobDetails() {
+  const isAuthenticated = useIsAuthenticated();
+  const navigate = useNavigate();
+
+  const authUser = useAuthUser<IUser>();
+
+  const { getJob, getJobBids, getJobApplications, getAllHiredJobApplications } =
+    useJobServices();
+  const { id } = useParams();
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [job, setJob] = useState<IJobPost>();
+  const [applicationModalOpen, setApplicationModalOpen] = useState(false);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [isApplying, setIsApplying] = useState(false);
+  const [applications, setApplications] = useState<IJobApplication[]>([]);
+  const [bids, setBids] = useState<IJobBid[]>([]);
+  const [hiredApplications, setHiredApplications] = useState<
+    IHiredApplication[]
+  >([]);
+  const [checkingApplication, setCheckingApplication] = useState(false);
+  const [authModalStatus, openAuthModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("applicants");
+
+  const tabs = [
+    { id: "applicants", label: "Applicants" },
+    { id: "hired", label: "Hired" },
+  ];
+
+  // const handleJobApplication = async () => {
+  //   if (!job) return;
+
+  //   setIsApplying(true);
+
+  //   try {
+  //     await postJobApplication(job.id, coverLetter);
+
+  //     setIsApplying(false);
+  //     setApplicationModalOpen(false);
+  //     setCoverLetter("");
+
+  //     notifications.show({
+  //       color: "green",
+  //       title: "Success",
+  //       message: "Your application has been submitted successfully!",
+  //     });
+  //   } catch (error) {
+  //     setIsApplying(false);
+  //     console.error("Error applying for job:", error);
+  //     notifications.show({
+  //       color: "red",
+  //       title: "Error",
+  //       message: "Failed to apply for the job. Please try again later.",
+  //     });
+  //   }
+  // };
+
+  const fetchJobApplications = async () => {
+    if (!job || !authUser?.uid) return;
+    setCheckingApplication(true);
+    if (job.hasBidding) {
+      try {
+        const bids = await getJobBids({ jobId: job.id });
+        setBids(bids);
+      } catch (error) {
+        console.error("Error fetching job bids:", error);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Failed to fetch job bids. Please try again later.",
+        });
+      } finally {
+        setCheckingApplication(false);
+      }
+    } else {
+      try {
+        const application = await getJobApplications({ jobId: job.id });
+        setApplications(application);
+      } catch (error) {
+        console.error("Error checking user application:", error);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message:
+            "Failed to check your application status. Please try again later.",
+        });
+      } finally {
+        setCheckingApplication(false);
+      }
+    }
+    try {
+      const application = await getAllHiredJobApplications({ jobId: job.id });
+      setHiredApplications(application);
+    } catch (error) {
+      console.error("Error checking user application:", error);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message:
+          "Failed to check your application status. Please try again later.",
+      });
+    } finally {
+      setCheckingApplication(false);
+    }
+  };
+
+  const fetchData = () => {
+    setIsLoading(true);
+    getJob(id!)
+      .then((response) => {
+        setIsLoading(false);
+        setJob(response);
+      })
+      .catch((_error) => {
+        setIsLoading(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
+      });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [id]);
+
+  useEffect(() => {
+    if (job && authUser?.uid) {
+      fetchJobApplications();
+    }
+  }, [job, authUser?.uid]);
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+  };
+
+  const applicationsCards = applications.map((application) => (
+    <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={application.id}>
+      <Group wrap="nowrap" align="center" justify="space-between">
+        <Group wrap="nowrap" gap={"xs"}>
+          <Avatar w="50px" h="50px" radius={"xl"} src={application.avatarURL} />
+          <div>
+            <Text size="16px" fw={500} c="#000000">
+              {application.applicantName}
+            </Text>
+            <Space h="5px" />
+            <Group wrap="nowrap" gap={3}>
+              {/* <IoTimeOutline size={14} color="#596258" /> */}
+              <Text size="14px" fw={400} c="#596258">
+                Applied at{" "}
+                {moment(
+                  typeof application.dateAdded === "string"
+                    ? new Date(application.dateAdded)
+                    : application.dateAdded.toDate()
+                ).format("DD MMMM YYYY")}
+              </Text>
+            </Group>
+          </div>
+        </Group>
+        <Button
+          variant="filled"
+          color="#151F42"
+          size="xs"
+          radius={"xl"}
+          fw={500}
+        >
+          Employ
+        </Button>
+      </Group>
+    </Paper>
+  ));
+  const bidsCards = bids.map((bid) => (
+    <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={bid.id}>
+      <Group wrap="nowrap" align="center" justify="space-between">
+        <Group wrap="nowrap" gap={"xs"}>
+          <Avatar w="50px" h="50px" radius={"xl"} src={job?.avatarUrl} />
+          <div>
+            <Text size="16px" fw={500} c="#000000">
+              {bid.bidderName}
+            </Text>
+            <Space h="5px" />
+            <Group wrap="nowrap" gap={3}>
+              {/* <IoTimeOutline size={14} color="#596258" /> */}
+              <Text size="14px" fw={400} c="#596258">
+                Bid at{" "}
+                {moment(
+                  typeof bid?.dateAdded === "string"
+                    ? new Date(bid.dateAdded)
+                    : bid?.dateAdded.toDate()
+                ).format("D MMM YYYY  hh:mm A")}
+              </Text>
+            </Group>
+            <Badge
+              mt={"xs"}
+              variant="light"
+              color="#6247BA"
+              size="md"
+              radius={"xl"}
+              fw={500}
+            >
+                <NumberFormatter
+                  prefix={`${job?.currency ? job.currency.code : "TZS"} `}
+                  value={bid.amount}
+                  thousandSeparator
+                />
+            </Badge>
+          </div>
+        </Group>
+        <Stack align="end">
+          {bid.status != "accepted" && (
+          <Button
+            variant="filled"
+            color="#151F42"
+            size="xs"
+            radius={"xl"}
+            fw={500}
+          >
+            Employ
+          </Button>)
+            }
+        </Stack>
+      </Group>
+    </Paper>
+  ));
+  const hiredCards = hiredApplications.map((application, index) => (
+    <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={index}>
+      <Group wrap="nowrap" align="center" justify="space-between">
+        <Group wrap="nowrap" gap={"xs"}>
+          <Avatar
+            w="50px"
+            h="50px"
+            radius={"xl"}
+            // src={job?.avatarUrl}
+          />
+          <div>
+            <Text size="16px" fw={500} c="#000000">
+              {application?.applicantName}
+            </Text>
+            <Space h="5px" />
+            <Group wrap="nowrap" gap={3}>
+              {/* <IoTimeOutline size={14} color="#596258" /> */}
+              <Text size="14px" fw={400} c="#596258">
+                Hired at{" "}
+                {moment(
+                  typeof application?.dateHired === "string"
+                    ? new Date(application?.dateHired)
+                    : application?.dateHired.toDate()
+                ).format("MMMM YYYY")}
+              </Text>
+            </Group>
+          </div>
+        </Group>
+        <Group wrap="nowrap" gap={8}>
+          <ActionIcon color="#43A047" radius={"xl"} size={"lg"}>
+            <MdOutlineCall color="white" />
+          </ActionIcon>
+          <Button
+            variant="filled"
+            color="#E53935"
+            size="xs"
+            radius={"xl"}
+            fw={500}
+          >
+            Unemploy
+          </Button>
+        </Group>
+      </Group>
+    </Paper>
+  ));
+  return (
+    <div>
+      <AuthModal
+        opened={authModalStatus}
+        onClose={() => {
+          openAuthModal(false);
+        }}
+      />
+      <Space h="md" />
+      <Group wrap="wrap" justify="space-between" align="start">
+        <Group justify="start">
+          <UnstyledButton onClick={() => navigate(-1)}>
+            <IoArrowBack size={20} />
+          </UnstyledButton>
+          <Text size="28px" fw={700} c="#141514">
+            Job Details
+          </Text>
+        </Group>
+
+        
+      </Group>
+      <Divider my="md" />
+      <Grid>
+        <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 2, md: 1 }}>
+          {job ? (
+            <>
+              {/* <Group wrap="wrap" justify="space-between" align="start">
+                <Text size="28px" fw={700} c="#141514">
+                  Job Details
+                </Text>
+                <Group>
+                  {applied?.status == "accepted" && (
+                    <Button
+                      variant="filled"
+                      color="#151F42"
+                      size="xs"
+                      radius={"md"}
+                      fw={500}
+                      // onClick={() => setApplicationModalOpen(true)}
+                      loading={checkingApplication}
+                    >
+                      Complete Job
+                    </Button>
+                  )}
+                </Group>
+              </Group> */}
+              {/* <Space h="md" /> */}
+              <Card p={"md"} radius={"md"}>
+                <div>
+                  <Group justify="space-between" wrap="nowrap" align="start">
+                    <Text size="18px" fw={600} c="#141514">
+                      {job.title ? job.title : job.category}
+                    </Text>
+                    {job && (
+                        <Badge
+                          color={!job?.isActive ? "#E53935" : "#044299"}
+                          radius="sm"
+                          size="lg"
+                        >
+                          <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
+                            {!job?.isActive ? "Closed" : "Active"}
+                          </Text>
+                        </Badge>
+                    )}
+                  </Group>
+                  <Group wrap="nowrap" gap={2} mt={"xs"}>
+                    <IoTimeOutline size={12} />
+                    <Text size="12px" fw={500} c="#596258">
+                      {moment(
+                        typeof job.datePosted === "string"
+                          ? new Date(job.datePosted)
+                          : job.datePosted.toDate()
+                      )
+                        .startOf("day")
+                        .fromNow()}
+                    </Text>
+                  </Group>
+                </div>
+                <Space h="xs" />
+                <Group wrap="wrap" gap={5}>
+                  <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                    {job.commitment}
+                  </span>
+                  <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                    {job.urgency}
+                  </span>
+                  <span className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42]  ">
+                    {job.workLocation}
+                  </span>
+
+                  <div className="inline-flex items-center rounded-[7px] bg-[#F0F0F0] px-2 py-1 text-xs font-medium text-[#151F42] ">
+                    <span className="mr-1">
+                      {(job.numberOfPositions ?? 1) > 1
+                        ? `${job.numberOfPositions ?? 1}`
+                        : `${job.numberOfPositions ?? 1}`}
+                    </span>
+                    {(job.numberOfPositions ?? 1) > 1 ? (
+                      <TbUsers />
+                    ) : (
+                      <TbUser />
+                    )}
+                  </div>
+                </Group>
+                <Space h="xs" />
+
+                <Spoiler maxHeight={146} showLabel="Show more" hideLabel="Hide">
+                  <Text size="md" fw={400} c="#7F7D7D">
+                    {job.description}
+                  </Text>
+
+                  {/* <TypographyStylesProvider>
+                  <div
+                    dangerouslySetInnerHTML={{ __html: job.description }}
+                  />
+                </TypographyStylesProvider> */}
+                </Spoiler>
+              </Card>
+              <Space h="md" />
+
+              <Card p={"md"} radius={"md"}>
+                <div>
+                  <Text size="20px" fw={500} c="#141514">
+                    Location
+                  </Text>
+                  <Group wrap="nowrap" gap={3} mt={"xs"}>
+                    <IoLocationOutline />
+                    <Text size="14px" fw={400} c="#596258">
+                      {job.location.address}
+                    </Text>
+                  </Group>
+                </div>
+              </Card>
+              <Space h="md" />
+              <Card p={"md"} radius={"md"}>
+                <div>
+                  <Text size="20px" fw={500} c="#141514">
+                    Budget
+                  </Text>
+                  <Group wrap="nowrap" mt={"xs"}>
+                    <Avatar color="#EBEBEB" radius="xl" variant="filled">
+                      <FaMoneyBills color="#141514" />
+                    </Avatar>
+                    <div>
+                      <Text size="12px" fw={700} c="#7F7D7D" mb={"5px"}>
+                        Budget
+                      </Text>
+                      <Text size="16px" fw={700} c="#151F42">
+                        <NumberFormatter
+                          prefix={`${
+                            job.currency ? job.currency.code : "TZS"
+                          } `}
+                          value={job.budget}
+                          thousandSeparator
+                        />
+                        {job.maxBudget > 0 && (
+                          <NumberFormatter
+                            prefix={` - ${
+                              job.currency ? job.currency.code : "TZS"
+                            } `}
+                            value={job.maxBudget}
+                            thousandSeparator
+                          />
+                        )}
+                      </Text>
+                    </div>
+                  </Group>
+                  <Group wrap="nowrap" mt={"xs"}>
+                    <Avatar color="#EBEBEB" radius="xl" variant="filled">
+                      <MdBusinessCenter color="#141514" />
+                    </Avatar>
+                    <div>
+                      <Text size="12px" fw={700} c="#7F7D7D" mb={"5px"}>
+                        Job Type
+                      </Text>
+                      <Text size="16px" fw={700} c="#151F42">
+                        {job.commitment}
+                      </Text>
+                    </div>
+                  </Group>
+                </div>
+              </Card>
+              {job.imageUrls.length > 0 && (
+                <Card p={"md"} radius={"md"} mt={"md"}>
+                  <Text size="20px" fw={500} c="#141514">
+                    Photos
+                  </Text>
+                  <Space h="xs" />
+                  <SimpleGrid cols={4}>
+                    {job.imageUrls.map((item, index) => (
+                      <div key={index}>
+                        <Image
+                          radius="md"
+                          h={150}
+                          w="100%"
+                          fit="cover"
+                          src={item}
+                        />
+                      </div>
+                    ))}
+                  </SimpleGrid>
+                </Card>
+              )}
+              <Space h="md" />
+              <Card p={"md"} radius={"md"}>
+                <div>
+                  <Text size="20px" fw={500} c="#141514">
+                    About Employer
+                  </Text>
+                  <Space h="xs" />
+                  <Group wrap="nowrap" align="start">
+                    <Avatar
+                      w="50px"
+                      h="50px"
+                      radius={"xl"}
+                      src={job.avatarUrl}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <Text size="16px" fw={500} c="#000000">
+                        {job.fullName}
+                      </Text>
+                      <Space h="xs" />
+                      <Group wrap="nowrap" gap={3}>
+                        <IoTimeOutline size={14} color="#596258" />
+                        <Text size="14px" fw={400} c="#596258">
+                          Joined{" "}
+                          {moment(
+                            typeof job.userDateJoined === "string"
+                              ? new Date(job.userDateJoined)
+                              : job.userDateJoined.toDate()
+                          ).format("MMMM YYYY")}
+                        </Text>
+                      </Group>
+                      <Group wrap="nowrap" gap={3} mt={4}>
+                        <MdBusinessCenter size={14} color="#596258" />
+                        <Text size="14px" fw={400} c="#596258">
+                          {job.numberOfPostedJobsByUser}{" "}
+                          {job.numberOfPostedJobsByUser === 1 ? "job" : "jobs"}{" "}
+                          posted
+                        </Text>
+                      </Group>
+                      {job.isUserVerified && (
+                        <Group wrap="nowrap" gap={3} mt={4}>
+                          <MdVerified size={14} color="#44A047" />
+                          <Text size="14px" fw={400} c="#44A047">
+                            Verified employer
+                          </Text>
+                        </Group>
+                      )}
+                    </div>
+                  </Group>
+                </div>
+              </Card>
+            </>
+          ) : (
+            <JobDetailsCardSkeleton />
+          )}
+        </Grid.Col>
+        <Grid.Col span={{ base: 12, md: 6, lg: 4 }} order={{ base: 1, md: 2 }}>
+          {!job?.hasBidding && (
+            <Paper radius={"md"} p={"md"}>
+              <Group justify="space-between">
+                <Text size="28px" fw={700}>
+                  Applications
+                </Text>
+              </Group>
+              <Space h="lg" />
+              <Group justify="center">
+                <div className="flex bg-[#F4F4F4C9] rounded-lg p-1 w-fit gap-2 border border-[#C7C7C72B]">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabChange(tab.id)}
+                      className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                        activeTab === tab.id
+                          ? "bg-[#151F42] text-white shadow-sm"
+                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </Group>
+              <Space h="lg" />
+              <Tabs value={activeTab} keepMounted={false}>
+                <Tabs.Panel value="applicants">
+                  {applicationsCards.length > 0 ? (
+                    applicationsCards
+                  ) : (
+                    <Paper withBorder p={"xs"} radius={"md"}>
+                      <Text size="sm" c="#7F7D7D" ta={"center"}>
+                        No applications yet.
+                      </Text>
+                    </Paper>
+                  )}
+                </Tabs.Panel>
+                <Tabs.Panel value="hired">
+                  {hiredCards.length > 0 ? (
+                    hiredCards
+                  ) : (
+                    <Paper withBorder p={"xs"} radius={"md"}>
+                      <Text size="sm" c="#7F7D7D" ta={"center"}>
+                        No hired applications yet.
+                      </Text>
+                    </Paper>
+                  )}
+                </Tabs.Panel>
+              </Tabs>
+            </Paper>
+          )}
+          {job?.hasBidding && (
+            <Paper radius={"md"} p={"md"}>
+              <Group justify="space-between">
+                <Text size="28px" fw={700}>
+                  Bid Applications
+                </Text>
+              </Group>
+              <Space h="lg" />
+              <Group justify="center">
+                <div className="flex bg-[#F4F4F4C9] rounded-lg p-1 w-fit gap-2 border border-[#C7C7C72B]">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => handleTabChange(tab.id)}
+                      className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                        activeTab === tab.id
+                          ? "bg-[#151F42] text-white shadow-sm"
+                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </Group>
+              <Space h="lg" />
+              <Tabs value={activeTab} keepMounted={false}>
+                <Tabs.Panel value="applicants">
+                  <ScrollArea
+                    style={{ height: "calc(100vh - 45vh)" }}
+                    scrollbars="y"
+                  >
+                    {bidsCards.length > 0 ? (
+                      bidsCards
+                    ) : (
+                      <Paper withBorder p={"xs"} radius={"md"}>
+                        <Text size="sm" c="#7F7D7D" ta={"center"}>
+                          No bid applications yet.
+                        </Text>
+                      </Paper>
+                    )}
+                  </ScrollArea>
+                </Tabs.Panel>
+                <Tabs.Panel value="hired">
+                  <Paper withBorder p={"xs"} radius={"md"}>
+                    <Group wrap="nowrap" align="center" justify="space-between">
+                      <Group wrap="nowrap" gap={"xs"}>
+                        <Avatar
+                          w="50px"
+                          h="50px"
+                          radius={"xl"}
+                          src={job?.avatarUrl}
+                        />
+                        <div>
+                          <Text size="16px" fw={500} c="#000000">
+                            {job?.fullName}
+                          </Text>
+                          <Space h="5px" />
+                          <Group wrap="nowrap" gap={3}>
+                            {/* <IoTimeOutline size={14} color="#596258" /> */}
+                            <Text size="14px" fw={400} c="#596258">
+                              Applied at{" "}
+                              {moment(
+                                typeof job?.userDateJoined === "string"
+                                  ? new Date(job.userDateJoined)
+                                  : job?.userDateJoined.toDate()
+                              ).format("MMMM YYYY")}
+                            </Text>
+                          </Group>
+                        </div>
+                      </Group>
+                      <Group wrap="nowrap" gap={8}>
+                        <ActionIcon color="#43A047" radius={"xl"} size={"lg"}>
+                          <MdOutlineCall color="white" />
+                        </ActionIcon>
+                        <Button
+                          variant="filled"
+                          color="#E53935"
+                          size="xs"
+                          radius={"xl"}
+                          fw={500}
+                        >
+                          Unemploy
+                        </Button>
+                      </Group>
+                    </Group>
+                  </Paper>
+                </Tabs.Panel>
+              </Tabs>
+            </Paper>
+          )}
+        </Grid.Col>
+      </Grid>
+    </div>
+  );
+}

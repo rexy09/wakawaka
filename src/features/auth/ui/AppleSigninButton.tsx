@@ -1,5 +1,4 @@
 import { Button } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import {  getAuth, OAuthProvider, signInWithPopup } from "firebase/auth";
 import { FaApple } from "react-icons/fa";
 import { useAuthSignIn } from "../hooks/useAuthSignIn";
@@ -35,12 +34,13 @@ export default function AppleSigninButton() {
             })
             .catch((error) => {
               const errorMessage = error.message;
-              notifications.show({
-                title: `Error`,
-                color: "red",
-                message: `${errorMessage}`,
-                position: "bottom-left",
-              });
+              console.error(errorMessage);
+              // notifications.show({
+              //   title: `Error`,
+              //   color: "red",
+              //   message: `${errorMessage}`,
+              //   position: "bottom-left",
+              // });
             });
         }}
       >

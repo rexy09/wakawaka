@@ -14,6 +14,7 @@ import { IJobPost } from "../types";
 import { IUser } from "../../../auth/types";
 import JobCard from "./JobCard";
 import { JobCardSkeleton } from "./Loaders";
+import PostedJobCard from "./PostedJobCard";
 
 export default function PostedJobsTab() {
   const parameters = useJobParameters();
@@ -112,7 +113,7 @@ export default function PostedJobsTab() {
       key={index}
       ref={index === jobs.length - 1 ? lastJobRef : undefined}
     >
-      <JobCard job={item} />
+      <PostedJobCard job={item} />
     </div>
   ));
 
@@ -121,7 +122,7 @@ export default function PostedJobsTab() {
       <ScrollArea
         mt={"md"}
         ref={containerRef}
-        style={{ height: "calc(100vh - 120px)" }}
+        style={{ height: "calc(100vh - 40vh)" }}
         scrollbars="y"
       >
         <SimpleGrid cols={{ sm: 3, xs: 1 }} >

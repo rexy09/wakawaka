@@ -18,6 +18,9 @@ import AccountDeletionRequestPage from "../pages/auth/AccountDeletionRequestPage
 import CompleteProfilePage from "../pages/dashboard/CompleteProfilePage";
 import MyJobsPage from "../pages/dashboard/MyJobsPage";
 import ServerError from "../pages/ServerError";
+import AppliedJobDetailsPage from "../pages/dashboard/AppliedJobDetailsPage";
+import PostedJobDetailsPage from "../pages/dashboard/PostedJobDetailsPage";
+import ProfilePage from "../pages/dashboard/ProfilePage";
 export const router = createBrowserRouter(
   createRoutesFromElements(
     <>
@@ -25,36 +28,20 @@ export const router = createBrowserRouter(
         element={
           <PublicLayout />
         }
-        // errorElement={<ServerError />}
+        errorElement={<ServerError />}
 
       >
         <Route index path="/" element={<DashboardPage />} />
         </Route>
       <Route
         element={
-          // <RequireAuth fallbackPath={"/login"}>
           <DashboardLayout />
-          // </RequireAuth>
         }
         errorElement={<ServerError />}
       >
         <Route index path="/jobs" element={<JobsPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
-
-        {/* 
-        <Route element={<AuthRights allowedRights={["owner"]} />}>
-        <Route index path="/company" element={<CompanyPage />} />
-        </Route>
-        <Route index path="/order/:id" element={<CargoDetailsPage />} />
-        <Route index path="/bids" element={<BidPage />} />
-        <Route index path="/bids/:id" element={<BidDetailsPage />} />
-        <Route index path="/documents" element={<DocumentPage />} />
-        <Route index path="/eve" element={<EvePage />} />
-        <Route index path="/notifications" element={<NotificationPage />} />
-        <Route index path="/settings" element={<SettingsPage />} />
-        <Route index path="/reports" element={<ReportsPage />} />
-        <Route index path="/billing" element={<BillingPage />} />
-        <Route index path="/billing/:id" element={<BillingDetailsPage />} /> */}
+    
       </Route>
       <Route
         element={
@@ -66,17 +53,13 @@ export const router = createBrowserRouter(
         <Route index path="/complete_profile" element={<CompleteProfilePage />} />
         <Route index path="/post_job" element={<PostJobPage />} />
         <Route index path="/my_jobs" element={<MyJobsPage />} />
+        <Route index path="/my_jobs/:id/applied" element={<AppliedJobDetailsPage />} />
+        <Route index path="/my_jobs/:id/posted" element={<PostedJobDetailsPage />} />
+        <Route index path="/profile" element={<ProfilePage />} />
         <Route index path="/delete/account/request" element={<AccountDeletionRequestPage />} />
       </Route>
 
-      {/* <Route element={<RequireAuth fallbackPath={"/login"}>
-        <AuthLayout />
-      </RequireAuth>
-      }>
-        <Route path="/account_type" element={<AccountTypePage />} />
-      </Route>
-      <Route path="/auth/callback" element={<AuthCallbackPage />} />
-      */}
+     
       <Route element={<AuthLayout />}>
         <Route path="/signin" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />

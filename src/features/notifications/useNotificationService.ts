@@ -54,14 +54,14 @@ export const useNotificationService = () => {
           fcmTokens: updatedTokens,
           dateUpdated: Timestamp.fromDate(new Date()),
         });
-        console.log("New notification token added to array and notifToken updated");
+        // console.log("New notification token added to array and notifToken updated");
       } else {
         // Token exists, just update notifToken (current active token)
         await updateDoc(docRef, {
           notifToken: token,
           dateUpdated: Timestamp.fromDate(new Date()),
         });
-        console.log("Notification token already exists in array, updated notifToken only");
+        // console.log("Notification token already exists in array, updated notifToken only");
       }
     } catch (error) {
       console.error("Error updating notification token:", error);
@@ -85,7 +85,7 @@ export const useNotificationService = () => {
 
       // Update user's notification token
       await updateUserNotificationToken(authUser.uid, token);
-      console.log("User notification token updated successfully");
+      // console.log("User notification token updated successfully");
       
       return token;
     } catch (error) {

@@ -6,22 +6,18 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useUtilities } from "../../../hooks/utils";
-import { useJobServices } from "../services";
-import { useJobParameters } from "../stores";
-import { IJobPost } from "../types";
-import JobCard from "./JobCard";
-import { JobCardSkeleton } from "./Loaders";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { IUser } from "../../../auth/types";
+import { useJobServices } from "../services";
+import { IJobApplicationWithPost, } from "../types";
+import { JobCardSkeleton } from "./Loaders";
+import AppliedJobCard from "./AppliedJobCard";
 
 export default function AppliedJobsTab() {
-  const parameters = useJobParameters();
   const { getAppliedJobs } = useJobServices();
   const authUser = useAuthUser<IUser>();
-  const { getFormattedDate } = useUtilities();
   const [isLoading, setIsLoading] = useState(false);
-  const [jobs, setJobs] = useState<IJobPost[]>([]);
+  const [jobApplicationPairs, setJobApplicationPairs] = useState<IJobApplicationWithPost[]>([]);
   const [lastDoc, setLastDoc] = useState<any | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
@@ -50,45 +46,21 @@ export default function AppliedJobsTab() {
     [isLoading, hasMore, lastDoc]
   );
 
-
-  const getFirstDayOfCurrentMonth = (): Date => {
-    const today = new Date();
-    const value = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    return value;
-  };
-
-  const getLastDayOfCurrentMonth = (): Date => {
-    const today = new Date();
-    const value = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-    return value;
-  };
-
-  const [startDate, _setStartDate] = useState<Date | null>(() =>
-    getFirstDayOfCurrentMonth()
-  );
-  const [endDate, _setEndDate] = useState<Date | null>(() =>
-    getLastDayOfCurrentMonth()
-  );
-
-
   const fetchJobs = () => {
     if (isLoading || !authUser?.uid) return;
     setIsLoading(true);
     getAppliedJobs(authUser.uid, lastDoc ? "next" : undefined, lastDoc ?? undefined)
       .then((response) => {
         setIsLoading(false);
-        setJobs((prev) => {
-          const existingIds = new Set(prev.map((job) => job.id));
-          const newJobs = response.data.filter((job) => !existingIds.has(job.id));
-          return [...prev, ...newJobs];
+        setJobApplicationPairs((prev) => {
+          const existingIds = new Set(prev.map((pair) => pair.job?.id));
+          const newPairs = response.data.filter((pair) => pair.job && !existingIds.has(pair.job.id));
+          return [...prev, ...newPairs];
         });
         setLastDoc(response.lastDoc ?? null);
         setHasMore(response.data.length > 0 && !!response.lastDoc);
       })
       .catch((error) => {
-        console.error("Error fetching jobs:", error);
         setIsLoading(false);
         setHasMore(false);
         notifications.show({
@@ -99,33 +71,27 @@ export default function AppliedJobsTab() {
       });
   };
   useEffect(() => {
-    parameters.updateText("startDate", getFormattedDate(startDate));
-    parameters.updateText("endDate", getFormattedDate(endDate));
     fetchData();
   }, []);
 
-  
-
   const fetchData = async () => {
-    setJobs([]);
+    setJobApplicationPairs([]);
     setLastDoc(null);
     setHasMore(true);
     fetchJobs();
   }
 
-
-
-
   const skeletons = Array.from({ length: 6 }, (_, index) => (
     <JobCardSkeleton key={index} />
   ));
   
-  const cards = jobs.map((item, index) => (
+  const cards = jobApplicationPairs.map((item, index) => (
     <div
-      key={index}
-      ref={index === jobs.length - 1 ? lastJobRef : undefined}
+      key={item.job?.id || index}
+      ref={index === jobApplicationPairs.length - 1 ? lastJobRef : undefined}
     >
-      <JobCard job={item} />
+      <AppliedJobCard job={item.job} application={item.application} />
+      {/* You can use item.application here if you want to display application info */}
     </div>
   ));
 
@@ -134,7 +100,7 @@ export default function AppliedJobsTab() {
       <ScrollArea
         mt={"md"}
         ref={containerRef}
-        style={{ height: "calc(100vh - 120px)" }}
+        style={{ height: "calc(100vh - 40vh)" }}
         scrollbars="y"
       >
         <SimpleGrid cols={{ sm: 3, xs: 1 }} >

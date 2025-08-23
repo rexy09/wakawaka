@@ -1,7 +1,5 @@
 import { Timestamp } from "firebase/firestore";
 
-
-
 export interface PaginatedResponse<T> {
   count: number;
   lastDoc: any;
@@ -28,7 +26,7 @@ export interface IJobPost {
     name: string;
     symbol: string;
   };
-  datePosted: string |Timestamp; // or Date if parsed
+  datePosted: string | Timestamp; // or Date if parsed
   description: string;
   fullName: string;
   hasBidding: boolean;
@@ -55,6 +53,13 @@ export interface IJobPost {
 }
 export interface IJobCategory {
   name: string;
+}
+export interface ICategory {
+  en: string;
+  sw: string;
+  pt: string;
+  fr: string;
+  es: string;
 }
 export interface ICommitmentType {
   type: string;
@@ -88,7 +93,7 @@ export interface IJobApplication {
   attachments: any[];
   avatarURL: string;
   coverLetter: string | null;
-  dateAdded: string;
+  dateAdded: string | Timestamp;
   dateApplied: string;
   dateUpdated: string;
   feedback: string | null;
@@ -97,7 +102,7 @@ export interface IJobApplication {
   jobId: string;
   lastUpdated: string;
   resumeUrl: string | null;
-  status: string;
+  status: string | "accepted" | "approved" | "pending" | "rejected";
   uid: string;
 }
 
@@ -108,4 +113,44 @@ export interface ISavedJob {
   jobDetails: IJobPost;
   dateAdded: string;
   dateUpdated: string;
+}
+
+export interface IJobApplicationWithPost {
+  application: IJobApplication;
+  job: IJobPost;
+}
+
+
+export interface IHiredApplication {
+  applicantName: string;
+  applicantUid: string;
+  applicationId: string;
+  approvalNotes: string | null;
+  approvedAt: string; // ISO datetime
+  approvedBy: string;
+  completedAt: string; // ISO datetime
+  completedBy: string;
+  completionNotes: string | null;
+  coverLetter: string | null;
+  dateHired: string |Timestamp; // ISO datetime
+  lastUpdated: string; // ISO datetime
+  rating: number;
+  resumeUrl: string;
+  status: "approved" | "pending" | "rejected"; // inferred statuses
+}
+
+export interface IJobBid {
+  amount: number;
+  avatarUrl: string;
+  bidderId: string;
+  bidderName: string;
+  dateAdded: string | Timestamp; 
+  dateBid: Date; 
+  dateUpdated: string;
+  id: string;
+  isProduction: boolean;
+  jobId: string;
+  lastUpdated: string;
+  message: string;
+  status: string;
 }

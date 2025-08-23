@@ -118,7 +118,7 @@ export default function SavedJobsTab() {
       <ScrollArea
         mt={"md"}
         ref={containerRef}
-        style={{ height: "calc(100vh - 120px)" }}
+        style={{ height: "calc(100vh - 40vh)" }}
         scrollbars="y"
       >
         <SimpleGrid cols={{ sm: 3, xs: 1 }} >

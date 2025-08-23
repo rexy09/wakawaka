@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Badge,
   Card,
   Group,
   NumberFormatter,
@@ -18,13 +19,14 @@ import { TbUser, TbUsers } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { Icons } from "../../../../common/icons";
 import { IUser } from "../../../auth/types";
-import { IJobPost } from "../types";
+import { IJobApplication, IJobPost } from "../types";
 import { useJobServices } from "../services";
 import AuthModal from "../../../auth/components/AuthModal";
 interface Props {
   job: IJobPost;
+  application: IJobApplication;
 }
-export default function JobCard({ job }: Props) {
+export default function AppliedJobCard({ job, application }: Props) {
   const navigate = useNavigate();
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser<IUser>();
@@ -129,7 +131,7 @@ export default function JobCard({ job }: Props) {
             p={"md"}
             radius={"12px"}
             onClick={() => {
-              navigate("/jobs/" + job.id);
+              navigate("/my_jobs/" + job.id + "/applied");
             }}
           >
             <Group wrap="nowrap" align="start">
@@ -241,45 +243,45 @@ export default function JobCard({ job }: Props) {
             <Text size="sm" fw={400} c="#596258" lineClamp={3}>
               {job.description}
             </Text>
+
             <Space h="xs" />
-            {job.imageUrls.length > 0 && (
-              <Group gap={4}>
-                <Avatar.Group>
-                  {job.imageUrls.slice(0, 3).map((image, i) => (
-                    <Avatar
-                      radius={"md"}
-                      key={i}
-                      src={
-                        typeof image === "string"
-                          ? image
-                          : URL.createObjectURL(image)
-                      }
-                      size="md"
-                    />
-                  ))}
-                  {job.imageUrls.length > 3 && (
-                    <Avatar size="md" radius={"md"}>
-                      +{job.imageUrls.length - 3}
-                    </Avatar>
-                  )}
-                </Avatar.Group>
-              </Group>
-            )}
-            <Space h="xs" />
-            <Text size="20px" fw={500} c="#151F42">
-              <NumberFormatter
-                prefix={`${job.currency ? job.currency.code : "TZS"} `}
-                value={job.budget}
-                thousandSeparator
-              />
-              {job.maxBudget > 0 && (
+            <Group justify="space-between" align="center">
+              <Text size="20px" fw={400} c="#151F42">
                 <NumberFormatter
-                  prefix={` - ${job.currency ? job.currency.code : "TZS"} `}
-                  value={job.maxBudget}
+                  prefix={`${job.currency ? job.currency.code : "TZS"} `}
+                  value={job.budget}
                   thousandSeparator
                 />
-              )}
-            </Text>
+                {job.maxBudget > 0 && (
+                  <NumberFormatter
+                    prefix={` - ${job.currency ? job.currency.code : "TZS"} `}
+                    value={job.maxBudget}
+                    thousandSeparator
+                  />
+                )}
+              </Text>
+              <Badge
+                color={
+                  application.status === "accepted"
+                    ? "#044299"
+                    : application.status === "approved"
+                      ? "#6247BA"
+                      : application.status === "completed"
+                    ? "#43A047"
+                    : application.status === "pending"
+                    ? "#FF8810"
+                    : application.status === "rejected"
+                            ? "#E53935"
+                    : "#044299"
+                }
+                radius="sm"
+                size="md"
+              >
+                <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
+                  {application.status === "rejected"?"Closed":application.status}
+                </Text>
+              </Badge>
+            </Group>
           </Card>
         </div>
       </div>
