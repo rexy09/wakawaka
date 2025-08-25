@@ -1,9 +1,7 @@
 import {
-  ActionIcon,
   Avatar,
   Button,
   Card,
-  Divider,
   Grid,
   Group,
   Image,
@@ -13,37 +11,33 @@ import {
   SimpleGrid,
   Space,
   Spoiler,
-  Text,
-  TextInput
+  Text
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
+import { FaMapMarkedAlt } from "react-icons/fa";
 import { FaMoneyBills } from "react-icons/fa6";
 import { FiBookmark } from "react-icons/fi";
 import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
-import { MdBusinessCenter, MdOutlineClear, MdVerified } from "react-icons/md";
+import { MdBusinessCenter, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
-import { Icons } from "../../../../common/icons";
-import { Color } from "../../../../common/theme";
 import AuthModal from "../../../auth/components/AuthModal";
 import { IUser } from "../../../auth/types";
 import AppleSigninButton from "../../../auth/ui/AppleSigninButton";
 import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
 import JobCard from "../components/JobCard";
 import { JobCardSkeleton, JobDetailsCardSkeleton } from "../components/Loaders";
-import { useJobServices } from "../services";
-import { useJobParameters } from "../stores";
-import { IJobPost, PaginatedResponse } from "../types";
 import SearchModal from "../components/SearchModal";
+import { useJobServices } from "../services";
+import { IJobPost, PaginatedResponse } from "../types";
 
 export default function JobDetails() {
   const isAuthenticated = useIsAuthenticated();
   const authUser = useAuthUser<IUser>();
-  const parameters = useJobParameters();
 
   const {
     getJob,
@@ -230,6 +224,9 @@ export default function JobDetails() {
   const cards = jobs?.data.map((item, index) => (
     <JobCard job={item} key={index} />
   ));
+  const openGoogleMaps = () => {
+    window.open(`https://maps.google.com?q=${job?.location.latitude},${job?.location.longitude} (${encodeURIComponent(job?.location.address ?? "")})`, '_blank');
+  };
   return (
     <div>
       <AuthModal opened={authModalStatus} onClose={() => {
@@ -238,7 +235,7 @@ export default function JobDetails() {
       <Space h="md" />
 
       <Paper p={"md"} radius={"md"}>
-        <SearchModal jobCategories={[]} />
+        <SearchModal />
       </Paper>
       <Space h="md" />
       <Grid>
@@ -385,11 +382,25 @@ export default function JobDetails() {
                   <Text size="20px" fw={500} c="#141514">
                     Location
                   </Text>
+                  <Group wrap="nowrap" justify="space-between" align="center">
                   <Group wrap="nowrap" gap={3} mt={"xs"}>
                     <IoLocationOutline />
                     <Text size="14px" fw={400} c="#596258">
                       {job.location.address}
                     </Text>
+                  </Group>
+                    <Button
+                      variant="light"
+                      color="violet"
+                      size="sm"
+                      radius="md"
+                      onClick={() => openGoogleMaps()}
+                      leftSection={
+                          <FaMapMarkedAlt />
+                      }
+                    >
+                        Open Map
+                    </Button>
                   </Group>
                 </div>
               </Card>

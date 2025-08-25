@@ -12,7 +12,6 @@ import { useJobServices } from "../services";
 import { useJobParameters } from "../stores";
 import { IJobPost } from "../types";
 import { IUser } from "../../../auth/types";
-import JobCard from "./JobCard";
 import { JobCardSkeleton } from "./Loaders";
 import PostedJobCard from "./PostedJobCard";
 

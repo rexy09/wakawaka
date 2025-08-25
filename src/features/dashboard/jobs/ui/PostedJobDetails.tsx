@@ -4,10 +4,12 @@ import {
   Badge,
   Button,
   Card,
+  Center,
   Divider,
   Grid,
   Group,
   Image,
+  Loader,
   NumberFormatter,
   Paper,
   ScrollArea,
@@ -23,7 +25,6 @@ import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FaMoneyBills } from "react-icons/fa6";
 import { IoArrowBack, IoLocationOutline, IoTimeOutline } from "react-icons/io5";
 import { MdBusinessCenter, MdOutlineCall, MdVerified } from "react-icons/md";
@@ -41,7 +42,6 @@ import {
 } from "../types";
 
 export default function PostedJobDetails() {
-  const isAuthenticated = useIsAuthenticated();
   const navigate = useNavigate();
 
   const authUser = useAuthUser<IUser>();
@@ -50,17 +50,15 @@ export default function PostedJobDetails() {
     useJobServices();
   const { id } = useParams();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [_isLoading, setIsLoading] = useState(false);
   const [job, setJob] = useState<IJobPost>();
-  const [applicationModalOpen, setApplicationModalOpen] = useState(false);
-  const [coverLetter, setCoverLetter] = useState("");
-  const [isApplying, setIsApplying] = useState(false);
+  const [loadingApplication, setLoadingApplication] = useState(false);
   const [applications, setApplications] = useState<IJobApplication[]>([]);
   const [bids, setBids] = useState<IJobBid[]>([]);
   const [hiredApplications, setHiredApplications] = useState<
     IHiredApplication[]
   >([]);
-  const [checkingApplication, setCheckingApplication] = useState(false);
+  const [loadingHired, setLoadingHired] = useState(false);
   const [authModalStatus, openAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState("applicants");
 
@@ -99,12 +97,14 @@ export default function PostedJobDetails() {
 
   const fetchJobApplications = async () => {
     if (!job || !authUser?.uid) return;
-    setCheckingApplication(true);
+    setLoadingApplication(true);
     if (job.hasBidding) {
       try {
         const bids = await getJobBids({ jobId: job.id });
         setBids(bids);
       } catch (error) {
+        setLoadingApplication(false);
+
         console.error("Error fetching job bids:", error);
         notifications.show({
           color: "red",
@@ -112,13 +112,15 @@ export default function PostedJobDetails() {
           message: "Failed to fetch job bids. Please try again later.",
         });
       } finally {
-        setCheckingApplication(false);
+        setLoadingApplication(false);
       }
     } else {
       try {
         const application = await getJobApplications({ jobId: job.id });
         setApplications(application);
       } catch (error) {
+        setLoadingApplication(false);
+
         console.error("Error checking user application:", error);
         notifications.show({
           color: "red",
@@ -127,13 +129,16 @@ export default function PostedJobDetails() {
             "Failed to check your application status. Please try again later.",
         });
       } finally {
-        setCheckingApplication(false);
+        setLoadingApplication(false);
       }
     }
     try {
+      setLoadingHired(true);
       const application = await getAllHiredJobApplications({ jobId: job.id });
       setHiredApplications(application);
     } catch (error) {
+      setLoadingHired(false);
+
       console.error("Error checking user application:", error);
       notifications.show({
         color: "red",
@@ -142,7 +147,7 @@ export default function PostedJobDetails() {
           "Failed to check your application status. Please try again later.",
       });
     } finally {
-      setCheckingApplication(false);
+      setLoadingHired(false);
     }
   };
 
@@ -240,56 +245,67 @@ export default function PostedJobDetails() {
               radius={"xl"}
               fw={500}
             >
-                <NumberFormatter
-                  prefix={`${job?.currency ? job.currency.code : "TZS"} `}
-                  value={bid.amount}
-                  thousandSeparator
-                />
+              <NumberFormatter
+                prefix={`${job?.currency ? job.currency.code : "TZS"} `}
+                value={bid.amount}
+                thousandSeparator
+              />
             </Badge>
           </div>
         </Group>
         <Stack align="end">
           {bid.status != "accepted" && (
-          <Button
-            variant="filled"
-            color="#151F42"
-            size="xs"
-            radius={"xl"}
-            fw={500}
-          >
-            Employ
-          </Button>)
-            }
+            <Button
+              variant="filled"
+              color="#151F42"
+              size="xs"
+              radius={"xl"}
+              fw={500}
+            >
+              Employ
+            </Button>
+          )}
         </Stack>
       </Group>
     </Paper>
   ));
-  const hiredCards = hiredApplications.map((application, index) => (
+  const hiredCards = hiredApplications.map((applicant, index) => (
     <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={index}>
       <Group wrap="nowrap" align="center" justify="space-between">
         <Group wrap="nowrap" gap={"xs"}>
-          <Avatar
-            w="50px"
-            h="50px"
-            radius={"xl"}
-            // src={job?.avatarUrl}
-          />
+          <Avatar w="50px" h="50px" radius={"xl"} src={""} />
           <div>
             <Text size="16px" fw={500} c="#000000">
-              {application?.applicantName}
+              {applicant.applicantName}
             </Text>
             <Space h="5px" />
             <Group wrap="nowrap" gap={3}>
-              {/* <IoTimeOutline size={14} color="#596258" /> */}
               <Text size="14px" fw={400} c="#596258">
                 Hired at{" "}
                 {moment(
-                  typeof application?.dateHired === "string"
-                    ? new Date(application?.dateHired)
-                    : application?.dateHired.toDate()
-                ).format("MMMM YYYY")}
+                  typeof applicant?.dateHired === "string"
+                    ? new Date(applicant.dateHired)
+                    : applicant?.dateHired.toDate()
+                ).format("D MMM YYYY  hh:mm A")}
               </Text>
             </Group>
+
+            {job?.hasBidding && (
+              <Badge
+                mt={"xs"}
+                variant="light"
+                color="#6247BA"
+                size="md"
+                radius={"xl"}
+                fw={500}
+              >
+                <NumberFormatter
+                  prefix={`${job?.currency ? job.currency.code : "TZS"} `}
+                  value={applicant.amount}
+                  thousandSeparator
+                />
+              </Badge>
+            )}
           </div>
         </Group>
         <Group wrap="nowrap" gap={8}>
@@ -309,6 +325,51 @@ export default function PostedJobDetails() {
       </Group>
     </Paper>
   ));
+  // const hiredCards = hiredApplications.map((application, index) => (
+  //   <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={index}>
+  //     <Group wrap="nowrap" align="center" justify="space-between">
+  //       <Group wrap="nowrap" gap={"xs"}>
+  //         <Avatar
+  //           w="50px"
+  //           h="50px"
+  //           radius={"xl"}
+  //           // src={job?.avatarUrl}
+  //         />
+  //         <div>
+  //           <Text size="16px" fw={500} c="#000000">
+  //             {application?.applicantName}
+  //           </Text>
+  //           <Space h="5px" />
+  //           <Group wrap="nowrap" gap={3}>
+  //             {/* <IoTimeOutline size={14} color="#596258" /> */}
+  //             <Text size="14px" fw={400} c="#596258">
+  //               Hired at{" "}
+  //               {moment(
+  //                 typeof application?.dateHired === "string"
+  //                   ? new Date(application?.dateHired)
+  //                   : application?.dateHired.toDate()
+  //               ).format("MMMM YYYY")}
+  //             </Text>
+  //           </Group>
+  //         </div>
+  //       </Group>
+  //       <Group wrap="nowrap" gap={8}>
+  //         <ActionIcon color="#43A047" radius={"xl"} size={"lg"}>
+  //           <MdOutlineCall color="white" />
+  //         </ActionIcon>
+  //         <Button
+  //           variant="filled"
+  //           color="#E53935"
+  //           size="xs"
+  //           radius={"xl"}
+  //           fw={500}
+  //         >
+  //           Unemploy
+  //         </Button>
+  //       </Group>
+  //     </Group>
+  //   </Paper>
+  // ));
   return (
     <div>
       <AuthModal
@@ -327,8 +388,6 @@ export default function PostedJobDetails() {
             Job Details
           </Text>
         </Group>
-
-        
       </Group>
       <Divider my="md" />
       <Grid>
@@ -363,15 +422,15 @@ export default function PostedJobDetails() {
                       {job.title ? job.title : job.category}
                     </Text>
                     {job && (
-                        <Badge
-                          color={!job?.isActive ? "#E53935" : "#044299"}
-                          radius="sm"
-                          size="lg"
-                        >
-                          <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
-                            {!job?.isActive ? "Closed" : "Active"}
-                          </Text>
-                        </Badge>
+                      <Badge
+                        color={!job?.isActive ? "#E53935" : "#044299"}
+                        radius="sm"
+                        size="lg"
+                      >
+                        <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
+                          {!job?.isActive ? "Closed" : "Active"}
+                        </Text>
+                      </Badge>
                     )}
                   </Group>
                   <Group wrap="nowrap" gap={2} mt={"xs"}>
@@ -595,18 +654,30 @@ export default function PostedJobDetails() {
               <Space h="lg" />
               <Tabs value={activeTab} keepMounted={false}>
                 <Tabs.Panel value="applicants">
-                  {applicationsCards.length > 0 ? (
+                    {loadingApplication ? (
+                    <Paper withBorder p={"xs"} radius={"md"}>
+                      <Center>
+                        <Loader color="violet" size={"sm"} />
+                      </Center>
+                    </Paper>
+                    ) : applicationsCards.length > 0 ? (
                     applicationsCards
-                  ) : (
+                    ) : (
                     <Paper withBorder p={"xs"} radius={"md"}>
                       <Text size="sm" c="#7F7D7D" ta={"center"}>
-                        No applications yet.
+                      No applications yet.
                       </Text>
                     </Paper>
-                  )}
+                    )}
                 </Tabs.Panel>
                 <Tabs.Panel value="hired">
-                  {hiredCards.length > 0 ? (
+                  {loadingHired ? (
+                    <Paper withBorder p={"xs"} radius={"md"}>
+                      <Center>
+                        <Loader color="violet" size={"sm"} />
+                      </Center>
+                    </Paper>
+                  ) : hiredCards.length > 0 ? (
                     hiredCards
                   ) : (
                     <Paper withBorder p={"xs"} radius={"md"}>
@@ -663,49 +734,21 @@ export default function PostedJobDetails() {
                   </ScrollArea>
                 </Tabs.Panel>
                 <Tabs.Panel value="hired">
-                  <Paper withBorder p={"xs"} radius={"md"}>
-                    <Group wrap="nowrap" align="center" justify="space-between">
-                      <Group wrap="nowrap" gap={"xs"}>
-                        <Avatar
-                          w="50px"
-                          h="50px"
-                          radius={"xl"}
-                          src={job?.avatarUrl}
-                        />
-                        <div>
-                          <Text size="16px" fw={500} c="#000000">
-                            {job?.fullName}
-                          </Text>
-                          <Space h="5px" />
-                          <Group wrap="nowrap" gap={3}>
-                            {/* <IoTimeOutline size={14} color="#596258" /> */}
-                            <Text size="14px" fw={400} c="#596258">
-                              Applied at{" "}
-                              {moment(
-                                typeof job?.userDateJoined === "string"
-                                  ? new Date(job.userDateJoined)
-                                  : job?.userDateJoined.toDate()
-                              ).format("MMMM YYYY")}
-                            </Text>
-                          </Group>
-                        </div>
-                      </Group>
-                      <Group wrap="nowrap" gap={8}>
-                        <ActionIcon color="#43A047" radius={"xl"} size={"lg"}>
-                          <MdOutlineCall color="white" />
-                        </ActionIcon>
-                        <Button
-                          variant="filled"
-                          color="#E53935"
-                          size="xs"
-                          radius={"xl"}
-                          fw={500}
-                        >
-                          Unemploy
-                        </Button>
-                      </Group>
-                    </Group>
-                  </Paper>
+                  {loadingHired ? (
+                    <Paper withBorder p={"xs"} radius={"md"}>
+                      <Center>
+                        <Loader color="violet" size={"sm"} />
+                      </Center>
+                    </Paper>
+                  ) : hiredCards.length > 0 ? (
+                    hiredCards
+                  ) : (
+                    <Paper withBorder p={"xs"} radius={"md"}>
+                      <Text size="sm" c="#7F7D7D" ta={"center"}>
+                        No hired applications yet.
+                      </Text>
+                    </Paper>
+                  )}
                 </Tabs.Panel>
               </Tabs>
             </Paper>

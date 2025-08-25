@@ -133,7 +133,7 @@ export default function AppliedJobDetails() {
       <Space h="md" />
       <Grid justify="center" align="start">
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
-          {job ? (
+          {!isLoading && job  ? (
             <>
               <Group wrap="wrap" justify="space-between" align="start">
                 <Text size="28px" fw={700} c="#141514">

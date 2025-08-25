@@ -15,14 +15,12 @@ import { useNavigate } from "react-router-dom";
 import { TypeAnimation } from "react-type-animation";
 import { Icons } from "../../../../common/icons";
 import Env from "../../../../config/env";
-import { ICategory, IJobCategory } from "../types";
+import { ICategory } from "../types";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
 const searchClient = algoliasearch(Env.ALGOLIA_APP_ID, Env.ALGOLIA_SEARCH_KEY);
-interface Props {
-    jobCategories: IJobCategory[];
-}
+
 function CustomHits({ HitComponent }: { HitComponent: any }) {
     const { hits } = useHits();
     if (hits.length === 0) {
@@ -40,7 +38,8 @@ function CustomHits({ HitComponent }: { HitComponent: any }) {
         </>
     );
 }
-export default function SearchModal({ jobCategories }: Props) {
+
+export default function SearchModal() {
     const navigate = useNavigate();
 
     const [opened, { open, close }] = useDisclosure(false);

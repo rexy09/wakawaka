@@ -24,7 +24,6 @@ import waka from "../../assets/img/waka.gif";
 import ExploreSection from "../../features/dashboard/home/ui/ExploreSection";
 import SearchModal from "../../features/dashboard/jobs/components/SearchModal";
 import SplitText from "./components/SplitText";
-import BlurText from "./components/BlurText";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -139,7 +138,7 @@ export default function DashboardPage() {
       <Space h={40} />
       <Container size="sm">
         <Paper p={"md"} radius={"md"} mb={"xl"} shadow="md">
-          <SearchModal jobCategories={[]} />
+          <SearchModal />
         </Paper>
       </Container>
       <Image src={jobior_banner_2} />

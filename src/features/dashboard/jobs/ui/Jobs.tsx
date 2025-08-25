@@ -1,7 +1,4 @@
 import {
-  ActionIcon,
-  Button,
-  Divider,
   Grid,
   Group,
   Paper,
@@ -9,17 +6,14 @@ import {
   Select,
   SimpleGrid,
   Space,
-  Text,
-  TextInput,
+  Text
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { MdOutlineClear } from "react-icons/md";
-import { Icons } from "../../../../common/icons";
-import { Color } from "../../../../common/theme";
 import { useUtilities } from "../../../hooks/utils";
 import JobCard from "../components/JobCard";
 import { JobCardSkeleton } from "../components/Loaders";
+import SearchModal from "../components/SearchModal";
 import { useJobServices } from "../services";
 import { useJobParameters } from "../stores";
 import {
@@ -28,7 +22,6 @@ import {
   IJobPost,
   IUrgencyLevels,
 } from "../types";
-import SearchModal from "../components/SearchModal";
 
 export default function Jobs() {
   const parameters = useJobParameters();
@@ -294,7 +287,7 @@ export default function Jobs() {
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
           <Paper p={"md"} radius={"md"}>
-            <SearchModal jobCategories={jobCategories} />
+            <SearchModal />
           </Paper>
           {/* <Group justify="flex-end" my="md">
             {jobs && (

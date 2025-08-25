@@ -1,121 +1,39 @@
 import {
-  Avatar,
   Badge,
   Button,
   Card,
   Group,
   Menu,
-  NumberFormatter,
   Space,
   Text,
-  UnstyledButton,
+  UnstyledButton
 } from "@mantine/core";
-import { notifications } from "@mantine/notifications";
 import moment from "moment";
-import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
-import { FiBookmark } from "react-icons/fi";
+import { useState } from "react";
+import { IoIosMore } from "react-icons/io";
 import { IoTimeOutline } from "react-icons/io5";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { Icons } from "../../../../common/icons";
-import { IUser } from "../../../auth/types";
-import { IJobPost } from "../types";
-import { useJobServices } from "../services";
 import AuthModal from "../../../auth/components/AuthModal";
-import { IoIosMore } from "react-icons/io";
+import { IJobPost } from "../types";
 interface Props {
   job: IJobPost;
 }
 export default function PostedJobCard({ job }: Props) {
   const navigate = useNavigate();
-  const isAuthenticated = useIsAuthenticated();
-  const authUser = useAuthUser<IUser>();
-  const { isJobSaved, saveJob, unsaveJob } = useJobServices();
+  // const isAuthenticated = useIsAuthenticated();
+  // const authUser = useAuthUser<IUser>();
+  // const { isJobSaved, saveJob, unsaveJob } = useJobServices();
 
-  const [isSaved, setIsSaved] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [checkingStatus, setCheckingStatus] = useState(false);
+  // const [isSaved, setIsSaved] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [checkingStatus, setCheckingStatus] = useState(false);
   const [authModalStatus, openAuthModal] = useState(false);
 
-  // Check if job is saved when component mounts
-  useEffect(() => {
-    const checkSavedStatus = async () => {
-      if (!isAuthenticated || !authUser?.uid) {
-        console.log("User not authenticated, skipping save status check");
-        return;
-      }
+  
 
-      // console.log('Checking save status for job:', job.id);
-      setCheckingStatus(true);
-      try {
-        const saved = await isJobSaved(job.id);
-        // console.log('Job save status:', saved);
-        setIsSaved(saved);
-      } catch (error) {
-        console.error("Error checking saved status:", error);
-      } finally {
-        setCheckingStatus(false);
-      }
-    };
 
-    checkSavedStatus();
-  }, [job.id, isAuthenticated, authUser?.uid]); // Removed isJobSaved from dependencies
-
-  const handleSaveToggle = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation(); // Prevent card click navigation
-
-    console.log(
-      "Save toggle clicked for job:",
-      job.id,
-      "Current saved status:",
-      isSaved
-    );
-
-    if (!isAuthenticated || !authUser?.uid) {
-      openAuthModal(true);
-      return;
-    }
-
-    if (isLoading || checkingStatus) {
-      console.log("Already loading, skipping...");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      if (isSaved) {
-        console.log("Unsaving job:", job.id);
-        await unsaveJob(job.id);
-        setIsSaved(false);
-        notifications.show({
-          color: "green",
-          title: "Success",
-          message: "Job removed from saved jobs",
-        });
-      } else {
-        console.log("Saving job:", job.id);
-        await saveJob(job.id);
-        setIsSaved(true);
-        notifications.show({
-          color: "green",
-          title: "Success",
-          message: "Job saved successfully",
-        });
-      }
-    } catch (error: any) {
-      console.error("Error toggling save status:", error);
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: error.message || "Failed to update saved status",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
     <>

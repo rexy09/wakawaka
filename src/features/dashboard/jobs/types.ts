@@ -122,21 +122,24 @@ export interface IJobApplicationWithPost {
 
 
 export interface IHiredApplication {
+  amount: number;
   applicantName: string;
   applicantUid: string;
   applicationId: string;
   approvalNotes: string | null;
   approvedAt: string; // ISO datetime
   approvedBy: string;
+  bidId: string;
   completedAt: string; // ISO datetime
   completedBy: string;
   completionNotes: string | null;
   coverLetter: string | null;
-  dateHired: string |Timestamp; // ISO datetime
+  dateHired: string | Timestamp; // ISO datetime
   lastUpdated: string; // ISO datetime
+  message: string;
   rating: number;
   resumeUrl: string;
-  status: "approved" | "pending" | "rejected"; // inferred statuses
+  status: string | "approved" | "pending" | "rejected"; // inferred statuses
 }
 
 export interface IJobBid {

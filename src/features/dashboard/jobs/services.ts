@@ -640,7 +640,7 @@ export const useJobServices = () => {
     const application = applicationDoc.data() as IJobApplication;
     return application;
   };
-  const getJobApplications = async ({ jobId }: { jobId: string, }) => {
+  const getJobApplications = async ({ jobId }: { jobId: string }) => {
     const jobRef = doc(db, "jobPosts", jobId);
     const applicationsCollection = collection(jobRef, "applications");
     const queryConstraints = [where("jobId", "==", jobId)];
@@ -658,7 +658,7 @@ export const useJobServices = () => {
     );
     return applications;
   };
-  const getJobBids = async ({ jobId }: { jobId: string, }) => {
+  const getJobBids = async ({ jobId }: { jobId: string }) => {
     const jobRef = doc(db, "jobPosts", jobId);
     const applicationsCollection = collection(jobRef, "bids");
     const queryConstraints = [
@@ -677,28 +677,33 @@ export const useJobServices = () => {
     const applications = applicationDocs.map((doc) => doc.data() as IJobBid);
     return applications;
   };
-const getAllHiredJobApplications = async ({ jobId }: { jobId: string }) => {
-  // 1. Query hiredJobsRef for documents with jobId
-  const hiredJobsQuery = query(hiredJobsRef, where("jobId", "==", jobId));
-  const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
 
-  let allApplications: IHiredApplication[] = [];
-  if (!hiredJobsSnapshot.empty) {
-    // Get the first hired job document
-    const hiredJobDoc = hiredJobsSnapshot.docs[0];
-    // Get its applications subcollection
-    const applicationsCollection = collection(hiredJobDoc.ref, "applications");
-    const applicationsSnapshot = await getDocs(applicationsCollection);
-
-    // Add all applications to the result array
-    const applications = applicationsSnapshot.docs.map(
-      (doc) => doc.data() as IHiredApplication
+  const getAllHiredJobApplications = async ({ jobId }: { jobId: string }) => {
+    // 1. Query hiredJobsRef for documents with jobId
+    const hiredJobsQuery = query(
+      hiredJobsRef,
+      where("jobId", "==", jobId),
+      where("postedByUserId", "==", authUser?.uid)
     );
-    allApplications = applications;
-  }
+    const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
 
-  return allApplications;
-};
+    let allApplications: IHiredApplication[] = [];
+    if (!hiredJobsSnapshot.empty) {
+      // Get the first hired job document
+      const hiredJobDoc = hiredJobsSnapshot.docs[0];
+      // Get its applications subcollection
+      const applicationsCollection = collection(hiredJobDoc.ref, "applicants");
+      const applicationsSnapshot = await getDocs(applicationsCollection);
+
+      // Add all applications to the result array
+      const applications = applicationsSnapshot.docs.map(
+        (doc) => doc.data() as IHiredApplication
+      );
+      allApplications = applications;
+    }
+
+    return allApplications;
+  };
 
   return {
     getJobs,
