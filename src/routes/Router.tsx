@@ -28,7 +28,7 @@ export const router = createBrowserRouter(
         element={
           <PublicLayout />
         }
-        errorElement={<ServerError />}
+        // errorElement={<ServerError />}
       >
         <Route index path="/" element={<DashboardPage />} />
       </Route>
