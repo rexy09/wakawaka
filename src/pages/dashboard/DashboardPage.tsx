@@ -23,7 +23,6 @@ import jobior_banner_2 from "../../assets/img/jobior_banner_2.png";
 import waka from "../../assets/img/waka.gif";
 import ExploreSection from "../../features/dashboard/home/ui/ExploreSection";
 import SearchModal from "../../features/dashboard/jobs/components/SearchModal";
-import SplitText from "./components/SplitText";
 
 export default function DashboardPage() {
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ export default function DashboardPage() {
 
       <Group justify="center" align="center">
         <Text c="#1B3227" size={matches2 ? "64px" : "44px"} fw={700}>
-          <SplitText
+          {/* <SplitText
             text="Daywaka for"
             className=""
             delay={100}
@@ -47,8 +46,8 @@ export default function DashboardPage() {
             threshold={0.1}
             rootMargin="-100px"
             textAlign="center"
-          />
-          {/* Daywaka for */}
+          /> */}
+          Daywaka for
         </Text>
         <Text c="#9066D9" size="64px" fw={700} visibleFrom="md">
           {/* <BlurText

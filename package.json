@@ -40,6 +40,7 @@
     "axios": "^1.7.9",
     "browserslist": "^4.25.1",
     "caniuse-lite": "^1.0.30001731",
+    "core-js": "^3.45.1",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
     "firebase": "^11.4.0",
