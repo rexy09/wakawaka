@@ -23,6 +23,8 @@ import jobior_banner_2 from "../../assets/img/jobior_banner_2.png";
 import waka from "../../assets/img/waka.gif";
 import ExploreSection from "../../features/dashboard/home/ui/ExploreSection";
 import SearchModal from "../../features/dashboard/jobs/components/SearchModal";
+// import SplitText from "./components/SplitText";
+
 
 export default function DashboardPage() {
   const navigate = useNavigate();
