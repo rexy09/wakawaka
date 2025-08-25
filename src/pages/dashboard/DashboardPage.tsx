@@ -27,6 +27,30 @@ import SearchModal from "../../features/dashboard/jobs/components/SearchModal";
 export default function DashboardPage() {
   const navigate = useNavigate();
   const matches2 = useMediaQuery("(min-width: 1024px)");
+  const sequence = [
+    "Everyone",
+    1000,
+    "You",
+    1000,
+    "The hustlers",
+    1000,
+    "Dreamers",
+    1000,
+    "Gig workers",
+    1000,
+    "Tanzania",
+    1000,
+    "Wasaka kazi",
+    1000,
+    "Mabingwa",
+    1000,
+    "Go-getters",
+    1000,
+    "Kesho",
+    1000,
+    "All",
+    1000,
+  ];
   return (
     <>
       <Image src={jobior_banner_1} />
@@ -59,30 +83,7 @@ export default function DashboardPage() {
           /> */}
           <TypeAnimation
             cursor={false}
-            sequence={[
-              "Everyone",
-              1000,
-              "You",
-              1000,
-              "The hustlers",
-              1000,
-              "Dreamers",
-              1000,
-              "Gig workers",
-              1000,
-              "Tanzania",
-              1000,
-              "Wasaka kazi",
-              1000,
-              "Mabingwa",
-              1000,
-              "Go-getters",
-              1000,
-              "Kesho",
-              1000,
-              "All",
-              1000,
-            ]}
+            sequence={sequence}
             speed={1}
             repeat={Infinity}
           />
@@ -99,30 +100,7 @@ export default function DashboardPage() {
       >
         <TypeAnimation
           cursor={false}
-          sequence={[
-            "Everyone",
-            1000,
-            "You",
-            1000,
-            "The hustlers",
-            1000,
-            "Dreamers",
-            1000,
-            "Gig workers",
-            1000,
-            "Tanzania",
-            1000,
-            "Wasaka kazi",
-            1000,
-            "Mabingwa",
-            1000,
-            "Go-getters",
-            1000,
-            "Kesho",
-            1000,
-            "All",
-            1000,
-          ]}
+          sequence={sequence}
           speed={30}
           repeat={Infinity}
         />

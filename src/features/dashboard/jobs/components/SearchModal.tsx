@@ -10,7 +10,12 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { liteClient as algoliasearch } from "algoliasearch/lite";
-import { Configure, InstantSearch, SearchBox, useHits } from "react-instantsearch";
+import {
+    Configure,
+    InstantSearch,
+    SearchBox,
+    useHits,
+} from "react-instantsearch";
 import { useNavigate } from "react-router-dom";
 import { TypeAnimation } from "react-type-animation";
 import { Icons } from "../../../../common/icons";
@@ -25,7 +30,7 @@ function CustomHits({ HitComponent }: { HitComponent: any }) {
     const { hits } = useHits();
     if (hits.length === 0) {
         return (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+            <div style={{ textAlign: "center", padding: "2rem", color: "#888" }}>
                 No jobs found. Try a different search.
             </div>
         );
@@ -44,18 +49,22 @@ export default function SearchModal() {
 
     const [opened, { open, close }] = useDisclosure(false);
 
-    const [categories, setCategories] = useState < ICategory[]>([]);
+    const [categories, setCategories] = useState<ICategory[]>([]);
 
     useEffect(() => {
-        axios.get(Env.baseURL +"/jobs/categories").then(response => {
-            setCategories(response.data);
-           
-        }).catch(error => {
-            console.error('Error fetching jobs categories:', error);
-        });
-
-       
-    }, [])
+        axios
+            .get(Env.baseURL + "/jobs/categories")
+            .then((response) => {
+                setCategories(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching jobs categories:", error);
+            });
+    }, []);
+    const result = Array.isArray(categories) ? categories.flatMap((cat) => [
+        cat.en.toLowerCase(),
+        1000,
+    ]) : [];
     function HitComponent({ hit }: { hit: any }) {
         const job = hit as any;
         return (
@@ -156,22 +165,21 @@ export default function SearchModal() {
             <Modal
                 opened={opened}
                 onClose={close}
-                title={<Text>
-                    Search for{" "}
-                    {categories.length > 0 ? (
-                        <TypeAnimation
-                            cursor={false}
-                            sequence={categories.flatMap((cat) => [
-                                cat.en.toLowerCase(),
-                                1000,
-                            ])}
-                            speed={30}
-                            repeat={Infinity}
-                        />
-                    ) : (
-                        "jobs"
-                    )}
-                </Text>}
+                title={
+                    <Text>
+                        Search for{" "}
+                        {categories.length > 0 ? (
+                            <TypeAnimation
+                                cursor={false}
+                                sequence={result}
+                                speed={30}
+                                repeat={Infinity}
+                            />
+                        ) : (
+                            "jobs"
+                        )}
+                    </Text>
+                }
                 overlayProps={{
                     backgroundOpacity: 0.55,
                     blur: 3,
@@ -191,7 +199,8 @@ export default function SearchModal() {
                         classNames={{
                             root: "w-full mb-4",
                             form: "w-full",
-                            input: "w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500",
+                            input:
+                                "w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500",
                         }}
                         submitIconComponent={({ classNames }) => (
                             <div className={classNames.submitIcon}>
