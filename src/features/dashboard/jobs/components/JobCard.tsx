@@ -39,7 +39,7 @@ export default function JobCard({ job }: Props) {
   useEffect(() => {
     const checkSavedStatus = async () => {
       if (!isAuthenticated || !authUser?.uid) {
-        console.log("User not authenticated, skipping save status check");
+        // console.log("User not authenticated, skipping save status check");
         return;
       }
 

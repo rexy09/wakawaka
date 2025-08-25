@@ -44,7 +44,6 @@
     "dayjs": "^1.11.13",
     "embla-carousel-react": "^7.1.0",
     "firebase": "^11.4.0",
-    "gsap": "^3.13.0",
     "keycloak-js": "^26.1.0",
     "lowlight": "^3.3.0",
     "lucide-react": "^0.474.0",

@@ -29,10 +29,9 @@ export const router = createBrowserRouter(
           <PublicLayout />
         }
         errorElement={<ServerError />}
-
       >
         <Route index path="/" element={<DashboardPage />} />
-        </Route>
+      </Route>
       <Route
         element={
           <DashboardLayout />
@@ -41,7 +40,6 @@ export const router = createBrowserRouter(
       >
         <Route index path="/jobs" element={<JobsPage />} />
         <Route index path="/jobs/:id" element={<JobDetailsPage />} />
-    
       </Route>
       <Route
         element={
@@ -58,15 +56,16 @@ export const router = createBrowserRouter(
         <Route index path="/profile" element={<ProfilePage />} />
         <Route index path="/delete/account/request" element={<AccountDeletionRequestPage />} />
       </Route>
-
-     
       <Route element={<AuthLayout />}>
         <Route path="/signin" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        {/* <Route path="/login/phone" element={<LoginWithPhonePage />} />
-         */}
+        {/* <Route path="/login/phone" element={<LoginWithPhonePage />} /> */}
       </Route>
       <Route path="*" element={<NotFound />} />
     </>
-  )
+  ), {
+    future: {
+      v7_relativeSplatPath: true,
+    },
+  }
 );
