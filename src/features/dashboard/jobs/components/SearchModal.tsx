@@ -61,10 +61,14 @@ export default function SearchModal() {
                 console.error("Error fetching jobs categories:", error);
             });
     }, []);
-    const result = Array.isArray(categories) ? categories.flatMap((cat) => [
-        cat.en.toLowerCase(),
-        1000,
-    ]) : [];
+    const result = Array.isArray(categories)
+        ? categories.reduce<(string | number)[]>((acc, cat) => {
+            if (cat && typeof cat.en === "string") {
+                acc.push(cat.en.toLowerCase(), 1000);
+            }
+            return acc;
+        }, [])
+        : [];
     function HitComponent({ hit }: { hit: any }) {
         const job = hit as any;
         return (
@@ -242,10 +246,7 @@ export default function SearchModal() {
                     {categories.length > 0 ? (
                         <TypeAnimation
                             // cursor={false}
-                            sequence={categories.flatMap((cat) => [
-                                cat.en.toLowerCase(),
-                                1000,
-                            ])}
+                            sequence={result}
                             speed={30}
                             repeat={Infinity}
                         />
