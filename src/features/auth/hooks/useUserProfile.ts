@@ -47,7 +47,7 @@ export const useUserProfile = () => {
   };
 };
 
-/**
+/*
  * Hook to get specific user profile fields
  * Usage: const { phoneNumber, country, currency } = useUserProfileFields(['phoneNumber', 'country', 'currency']);
  */

@@ -14,6 +14,7 @@ import {
   query,
   startAfter,
   Timestamp,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
@@ -37,7 +38,7 @@ import useDbService from "../../services/DbService";
 
 export const useJobServices = () => {
   const authUser = useAuthUser<IUser>();
-  const { hiredJobsRef, jobPostsRef } = useDbService();
+  const { hiredJobsRef, jobPostsRef, savedJobsRef } = useDbService();
 
   const getJobs = async (
     p: JobFilterParameters,
@@ -47,7 +48,10 @@ export const useJobServices = () => {
   ) => {
     const pageLimit: number = 6;
     const jobPostsCollection = collection(db, "jobPosts");
-    const totalQueryConstraints = [where("isActive", "==", true)];
+    const totalQueryConstraints = [
+      where("isActive", "==", true),
+      where("isProduction", "==", Env.isProduction),
+    ];
 
     if (p.category !== undefined && p.category !== null && p.category !== "") {
       totalQueryConstraints.push(where("category", "==", p.category));
@@ -73,6 +77,7 @@ export const useJobServices = () => {
     const dataQueryConstraints = [
       orderBy("datePosted", "desc"),
       where("isActive", "==", true),
+      where("isProduction", "==", Env.isProduction),
     ];
     if (p.category !== undefined && p.category !== null && p.category !== "") {
       dataQueryConstraints.push(where("category", "==", p.category));
@@ -141,6 +146,7 @@ export const useJobServices = () => {
       orderBy("datePosted", "desc"),
       where("isActive", "==", true),
       where("category", "==", category),
+      where("isProduction", "==", Env.isProduction),
       limit(pageLimit)
     );
     if (direction === "next" && startAfterDoc) {
@@ -151,8 +157,7 @@ export const useJobServices = () => {
       dataQuery = query(
         dataCollection,
         orderBy("datePosted", "desc"),
-        // where("id", "!=", excludeId),
-
+        where("isProduction", "==", Env.isProduction),
         endBefore(endBeforeDoc),
         limitToLast(pageLimit)
       );
@@ -190,6 +195,7 @@ export const useJobServices = () => {
       dataCollection,
       orderBy("datePosted", "desc"),
       where("isActive", "==", true),
+      where("isProduction", "==", Env.isProduction),
       limit(pageLimit)
     );
     if (direction === "next" && startAfterDoc) {
@@ -200,7 +206,7 @@ export const useJobServices = () => {
       dataQuery = query(
         dataCollection,
         orderBy("datePosted", "desc"),
-
+        where("isProduction", "==", Env.isProduction),
         endBefore(endBeforeDoc),
         limitToLast(pageLimit)
       );
@@ -230,7 +236,7 @@ export const useJobServices = () => {
     let dataQuery = query(
       dataCollection,
       where("id", "==", id),
-      // where("isActive", "==", true),
+      where("isProduction", "==", Env.isProduction),
       limit(1)
     );
     const querySnapshot = await getDocs(dataQuery);
@@ -363,10 +369,14 @@ export const useJobServices = () => {
       throw new Error("User ID is required");
     }
 
-    const savedJobsCollection = collection(db, "savedJobs");
+    const savedJobsCollection = savedJobsRef;
 
     // Get total count
-    const totalQueryConstraints = [where("userId", "==", userId)];
+
+    const totalQueryConstraints = [
+      where("userId", "==", userId),
+      where("isProduction", "==", Env.isProduction),
+    ];
     const totalQuerySnapshot = query(
       savedJobsCollection,
       ...totalQueryConstraints
@@ -377,6 +387,7 @@ export const useJobServices = () => {
     const dataQueryConstraints = [
       orderBy("dateAdded", "desc"),
       where("userId", "==", userId),
+      where("isProduction", "==", Env.isProduction),
     ];
 
     let dataQuery = query(
@@ -392,6 +403,7 @@ export const useJobServices = () => {
         savedJobsCollection,
         orderBy("dateAdded", "desc"),
         where("userId", "==", userId),
+        where("isProduction", "==", Env.isProduction),
         endBefore(endBeforeDoc),
         limitToLast(pageLimit)
       );
@@ -418,7 +430,7 @@ export const useJobServices = () => {
       throw new Error("User is not authenticated");
     }
 
-    const savedJobsCollection = collection(db, "savedJobs");
+    const savedJobsCollection = savedJobsRef;
     const date = new Date().toISOString();
     const savedJobId = `${authUser.uid}_${jobId}`;
 
@@ -426,7 +438,8 @@ export const useJobServices = () => {
     const existingQuery = query(
       savedJobsCollection,
       where("userId", "==", authUser.uid),
-      where("jobId", "==", jobId)
+      where("jobId", "==", jobId),
+      where("isProduction", "==", Env.isProduction)
     );
     const existingDocs = await getDocs(existingQuery);
 
@@ -459,10 +472,11 @@ export const useJobServices = () => {
       throw new Error("User is not authenticated");
     }
 
-    const savedJobsCollection = collection(db, "savedJobs");
+    const savedJobsCollection = savedJobsRef;
     const queryConstraints = [
       where("userId", "==", authUser.uid),
       where("jobId", "==", jobId),
+      where("isProduction", "==", Env.isProduction),
     ];
 
     const querySnapshot = await getDocs(
@@ -489,6 +503,7 @@ export const useJobServices = () => {
     const queryConstraints = [
       where("userId", "==", authUser.uid),
       where("jobId", "==", jobId),
+      where("isProduction", "==", Env.isProduction),
     ];
 
     const querySnapshot = await getDocs(
@@ -508,10 +523,11 @@ export const useJobServices = () => {
     if (!userId) {
       throw new Error("User ID is required");
     }
-    const jobPostsCollection = collection(db, "jobPosts");
+    const jobPostsCollection = jobPostsRef;
     let dataQuery = query(
       jobPostsCollection,
       where("postedByUserId", "==", userId),
+      where("isProduction", "==", Env.isProduction),
       orderBy("datePosted", "desc"),
       limit(pageLimit)
     );
@@ -519,6 +535,7 @@ export const useJobServices = () => {
       dataQuery = query(
         jobPostsCollection,
         where("postedByUserId", "==", userId),
+        where("isProduction", "==", Env.isProduction),
         orderBy("datePosted", "desc"),
         startAfter(startAfterDoc),
         limit(pageLimit)
@@ -527,6 +544,7 @@ export const useJobServices = () => {
       dataQuery = query(
         jobPostsCollection,
         where("postedByUserId", "==", userId),
+        where("isProduction", "==", Env.isProduction),
         orderBy("datePosted", "desc"),
         endBefore(endBeforeDoc),
         limitToLast(pageLimit)
@@ -561,6 +579,7 @@ export const useJobServices = () => {
     let applicationsQuery = query(
       collectionGroup(db, "applications"),
       where("uid", "==", userId),
+      where("isProduction", "==", Env.isProduction),
       orderBy("dateApplied", "desc"),
       limit(pageLimit)
     );
@@ -568,6 +587,7 @@ export const useJobServices = () => {
       applicationsQuery = query(
         collectionGroup(db, "applications"),
         where("uid", "==", userId),
+        where("isProduction", "==", Env.isProduction),
         orderBy("dateApplied", "desc"),
         startAfter(startAfterDoc),
         limit(pageLimit)
@@ -576,6 +596,7 @@ export const useJobServices = () => {
       applicationsQuery = query(
         collectionGroup(db, "applications"),
         where("uid", "==", userId),
+        where("isProduction", "==", Env.isProduction),
         orderBy("dateApplied", "desc"),
         endBefore(endBeforeDoc),
         limitToLast(pageLimit)
@@ -594,13 +615,14 @@ export const useJobServices = () => {
     // 3. Fetch the job posts in parallel and pair with applications
     let jobMap: Record<string, IJobPost> = {};
     if (jobIds.length > 0) {
-      const jobPostsCollection = collection(db, "jobPosts");
+      const jobPostsCollection = jobPostsRef;
       const batchSize = 10;
       for (let i = 0; i < jobIds.length; i += batchSize) {
         const batchIds = jobIds.slice(i, i + batchSize);
         const jobsQuery = query(
           jobPostsCollection,
-          where("id", "in", batchIds)
+          where("id", "in", batchIds),
+          where("isProduction", "==", Env.isProduction)
         );
         const jobsSnapshot = await getDocs(jobsQuery);
         jobsSnapshot.docs.forEach((doc) => {
@@ -627,6 +649,7 @@ export const useJobServices = () => {
     const queryConstraints = [
       where("uid", "==", userId),
       where("jobId", "==", jobId),
+      where("isProduction", "==", Env.isProduction),
     ];
     const querySnapshot = await getDocs(
       query(applicationsCollection, ...queryConstraints)
@@ -643,7 +666,10 @@ export const useJobServices = () => {
   const getJobApplications = async ({ jobId }: { jobId: string }) => {
     const jobRef = doc(db, "jobPosts", jobId);
     const applicationsCollection = collection(jobRef, "applications");
-    const queryConstraints = [where("jobId", "==", jobId)];
+    const queryConstraints = [
+      where("jobId", "==", jobId),
+      where("isProduction", "==", Env.isProduction),
+    ];
     const querySnapshot = await getDocs(
       query(applicationsCollection, ...queryConstraints)
     );
@@ -663,6 +689,7 @@ export const useJobServices = () => {
     const applicationsCollection = collection(jobRef, "bids");
     const queryConstraints = [
       where("jobId", "==", jobId),
+      where("isProduction", "==", Env.isProduction),
       orderBy("dateAdded", "desc"),
     ];
     const querySnapshot = await getDocs(
@@ -683,7 +710,8 @@ export const useJobServices = () => {
     const hiredJobsQuery = query(
       hiredJobsRef,
       where("jobId", "==", jobId),
-      where("postedByUserId", "==", authUser?.uid)
+      where("postedByUserId", "==", authUser?.uid),
+      where("isProduction", "==", Env.isProduction),
     );
     const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
 
@@ -703,6 +731,150 @@ export const useJobServices = () => {
     }
 
     return allApplications;
+  };
+
+  const unemployApplicantFromJob = async (
+    jobId: string,
+    applicantUid: string
+  ) => {
+    const hiredJobsQuery = query(
+      hiredJobsRef,
+      where("jobId", "==", jobId),
+      where("postedByUserId", "==", authUser?.uid),
+      where("isProduction", "==", Env.isProduction),
+    );
+    const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
+
+    if (hiredJobsSnapshot.empty) {
+      throw new Error("Hired job not found");
+    }
+    const hiredJobDoc = hiredJobsSnapshot.docs[0];
+    const applicationsCollection = collection(hiredJobDoc.ref, "applicants");
+    const applicationQuery = query(
+      applicationsCollection,
+      where("applicantUid", "==", applicantUid)
+    );
+    const applicationSnapshot = await getDocs(applicationQuery);
+    if (applicationSnapshot.empty) {
+      throw new Error("Applicant not found");
+    }
+    const applicationDoc = applicationSnapshot.docs[0];
+    await deleteDoc(applicationDoc.ref);
+
+    const applicationJobsQuery = query(jobPostsRef, where("id", "==", jobId));
+    const applicationJobsSnapshot = await getDocs(applicationJobsQuery);
+    if (applicationJobsSnapshot.empty) {
+      throw new Error("Job not found");
+    }
+    const jobDoc = applicationJobsSnapshot.docs[0];
+    const applicationsSubCollection = collection(jobDoc.ref, "applications");
+    const applicantQuery = query(
+      applicationsSubCollection,
+      where("uid", "==", applicantUid)
+    );
+    const applicantSnapshot = await getDocs(applicantQuery);
+    const applicantDoc = applicantSnapshot.docs[0];
+
+    await updateDoc(applicantDoc.ref, { status: "pending" });
+
+    return true;
+  };
+  const employApplicantFromJob = async (
+    jobId: string,
+    applicantUid: string
+  ) => {
+    // First, check if the job exists and belongs to the authenticated user
+    const applicationJobsQuery = query(jobPostsRef, where("id", "==", jobId));
+    const applicationJobsSnapshot = await getDocs(applicationJobsQuery);
+
+    if (applicationJobsSnapshot.empty) {
+      throw new Error("Job not found");
+    }
+
+    const jobDoc = applicationJobsSnapshot.docs[0];
+    const applicationsSubCollection = collection(jobDoc.ref, "applications");
+
+    // Find the specific applicant in the job's applications
+    const applicantQuery = query(
+      applicationsSubCollection,
+      where("uid", "==", applicantUid)
+    );
+    const applicantSnapshot = await getDocs(applicantQuery);
+
+    if (applicantSnapshot.empty) {
+      throw new Error("Applicant not found in job applications");
+    }
+
+    const applicantDoc = applicantSnapshot.docs[0];
+
+    // Update the applicant's status to "hired"
+    await updateDoc(applicantDoc.ref, {
+      status: "accepted",
+    });
+
+    // Create or update entry in hiredJobs collection
+    const hiredJobsQuery = query(
+      hiredJobsRef,
+      where("jobId", "==", jobId),
+      where("postedByUserId", "==", authUser?.uid)
+    );
+    const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
+
+    let hiredJobDocRef;
+    if (hiredJobsSnapshot.empty) {
+      // Create new hired job document if it doesn't exist
+      const newDocRef = await addDoc(hiredJobsRef, {
+        jobTitle: jobDoc.data().title
+          ? jobDoc.data().title
+          : jobDoc.data().category,
+        jobId: jobId,
+        postedByUserId: authUser?.uid,
+        dateHired: new Date(),
+      });
+      hiredJobDocRef = newDocRef;
+    } else {
+      hiredJobDocRef = hiredJobsSnapshot.docs[0].ref;
+    }
+
+    // Add the applicant to the hired job's applicants subcollection
+    const applicantsCollection = collection(hiredJobDocRef, "applicants");
+
+    // Check if applicant is already in hired applicants (to avoid duplicates)
+    const existingApplicantQuery = query(
+      applicantsCollection,
+      where("applicantUid", "==", applicantUid)
+    );
+    const existingApplicantSnapshot = await getDocs(existingApplicantQuery);
+
+    if (!existingApplicantSnapshot.empty) {
+      throw new Error("Applicant is already hired for this job");
+    }
+
+    // Add applicant to hired job's applicants subcollection with proper structure
+    const applicantData = applicantDoc.data();
+    await addDoc(applicantsCollection, {
+      amount: applicantData.amount || null,
+      applicantName: applicantData.applicantName || "",
+      applicantUid: applicantUid,
+      applicationId: applicantDoc.id,
+      approvalNotes: null,
+      approvedAt: null,
+      approvedBy: null,
+      bidId: null,
+      completedAt: null,
+      completedBy: null,
+      completionNotes: null,
+      coverLetter: null,
+      dateHired: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      message: null,
+      rating: null,
+      resumeUrl: null,
+      status: "pending",
+      isProduction: Env.isProduction,
+    });
+
+    return true;
   };
 
   return {
@@ -726,5 +898,7 @@ export const useJobServices = () => {
     getJobApplications,
     getAllHiredJobApplications,
     getJobBids,
+    unemployApplicantFromJob,
+    employApplicantFromJob,
   };
 };

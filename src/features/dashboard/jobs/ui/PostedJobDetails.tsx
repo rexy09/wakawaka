@@ -40,14 +40,21 @@ import {
   IJobBid,
   IJobPost,
 } from "../types";
+import UserAvatar from "../components/UserAvatar";
 
 export default function PostedJobDetails() {
   const navigate = useNavigate();
 
   const authUser = useAuthUser<IUser>();
 
-  const { getJob, getJobBids, getJobApplications, getAllHiredJobApplications } =
-    useJobServices();
+  const {
+    getJob,
+    getJobBids,
+    getJobApplications,
+    getAllHiredJobApplications,
+    unemployApplicantFromJob,
+    employApplicantFromJob
+  } = useJobServices();
   const { id } = useParams();
 
   const [_isLoading, setIsLoading] = useState(false);
@@ -59,6 +66,7 @@ export default function PostedJobDetails() {
     IHiredApplication[]
   >([]);
   const [loadingHired, setLoadingHired] = useState(false);
+  const [loadingUnemployment, setLoadingUnemployment] = useState("");
   const [authModalStatus, openAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState("applicants");
 
@@ -67,33 +75,32 @@ export default function PostedJobDetails() {
     { id: "hired", label: "Hired" },
   ];
 
-  // const handleJobApplication = async () => {
-  //   if (!job) return;
+  
 
-  //   setIsApplying(true);
-
-  //   try {
-  //     await postJobApplication(job.id, coverLetter);
-
-  //     setIsApplying(false);
-  //     setApplicationModalOpen(false);
-  //     setCoverLetter("");
-
-  //     notifications.show({
-  //       color: "green",
-  //       title: "Success",
-  //       message: "Your application has been submitted successfully!",
-  //     });
-  //   } catch (error) {
-  //     setIsApplying(false);
-  //     console.error("Error applying for job:", error);
-  //     notifications.show({
-  //       color: "red",
-  //       title: "Error",
-  //       message: "Failed to apply for the job. Please try again later.",
-  //     });
-  //   }
-  // };
+  const handleUnemployApplicantFromJob = async (applicantUid: string) => {
+    setLoadingUnemployment(applicantUid);
+    unemployApplicantFromJob(job?.id!, applicantUid)
+      .then((_response) => {
+        setLoadingUnemployment("");
+        fetchJobApplications();
+      })
+      .catch((error) => {
+        setLoadingUnemployment("");
+        console.log(error);
+      });
+  };
+  const handleEmployApplicantFromJob = async (applicantUid: string) => {
+    setLoadingUnemployment(applicantUid);
+    employApplicantFromJob(job?.id!, applicantUid)
+      .then((_response) => {
+        setLoadingUnemployment("");
+        fetchJobApplications();
+      })
+      .catch((error) => {
+        setLoadingUnemployment("");
+        console.log(error);
+      });
+  };
 
   const fetchJobApplications = async () => {
     if (!job || !authUser?.uid) return;
@@ -132,6 +139,7 @@ export default function PostedJobDetails() {
         setLoadingApplication(false);
       }
     }
+
     try {
       setLoadingHired(true);
       const application = await getAllHiredJobApplications({ jobId: job.id });
@@ -204,15 +212,20 @@ export default function PostedJobDetails() {
             </Group>
           </div>
         </Group>
-        <Button
-          variant="filled"
-          color="#151F42"
-          size="xs"
-          radius={"xl"}
-          fw={500}
-        >
-          Employ
-        </Button>
+        {application.status != "accepted" && (
+          <Button
+            variant="filled"
+            color="#151F42"
+            size="xs"
+            radius={"xl"}
+            fw={500}
+            disabled={loadingUnemployment === application.uid}
+            loading={loadingUnemployment === application.uid}
+            onClick={() => handleEmployApplicantFromJob(application.uid)}
+          >
+            Employ
+          </Button>
+        )}
       </Group>
     </Paper>
   ));
@@ -261,6 +274,7 @@ export default function PostedJobDetails() {
               size="xs"
               radius={"xl"}
               fw={500}
+
             >
               Employ
             </Button>
@@ -273,20 +287,20 @@ export default function PostedJobDetails() {
     <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={index}>
       <Group wrap="nowrap" align="center" justify="space-between">
         <Group wrap="nowrap" gap={"xs"}>
-          <Avatar w="50px" h="50px" radius={"xl"} src={""} />
+          <UserAvatar userId={applicant.applicantUid} />
           <div>
             <Text size="16px" fw={500} c="#000000">
               {applicant.applicantName}
             </Text>
             <Space h="5px" />
             <Group wrap="nowrap" gap={3}>
-              <Text size="14px" fw={400} c="#596258">
+              <Text size="sm" fw={400} c="#596258">
                 Hired at{" "}
                 {moment(
                   typeof applicant?.dateHired === "string"
                     ? new Date(applicant.dateHired)
                     : applicant?.dateHired.toDate()
-                ).format("D MMM YYYY  hh:mm A")}
+                ).format("D MMM YYYY")}
               </Text>
             </Group>
 
@@ -318,6 +332,11 @@ export default function PostedJobDetails() {
             size="xs"
             radius={"xl"}
             fw={500}
+            disabled={loadingUnemployment === applicant.applicantUid}
+            loading={loadingUnemployment === applicant.applicantUid}
+            onClick={() =>
+              handleUnemployApplicantFromJob(applicant.applicantUid)
+            }
           >
             Unemploy
           </Button>
@@ -654,21 +673,21 @@ export default function PostedJobDetails() {
               <Space h="lg" />
               <Tabs value={activeTab} keepMounted={false}>
                 <Tabs.Panel value="applicants">
-                    {loadingApplication ? (
+                  {loadingApplication ? (
                     <Paper withBorder p={"xs"} radius={"md"}>
                       <Center>
                         <Loader color="violet" size={"sm"} />
                       </Center>
                     </Paper>
-                    ) : applicationsCards.length > 0 ? (
+                  ) : applicationsCards.length > 0 ? (
                     applicationsCards
-                    ) : (
+                  ) : (
                     <Paper withBorder p={"xs"} radius={"md"}>
                       <Text size="sm" c="#7F7D7D" ta={"center"}>
-                      No applications yet.
+                        No applications yet.
                       </Text>
                     </Paper>
-                    )}
+                  )}
                 </Tabs.Panel>
                 <Tabs.Panel value="hired">
                   {loadingHired ? (

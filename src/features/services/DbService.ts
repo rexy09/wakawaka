@@ -6,6 +6,7 @@ export default function useDbService() {
   const usersRef = collection(db, "users");
   const hiredJobsRef = collection(db, "hiredJobs");
   const jobPostsRef= collection(db, "jobPosts");
+  const savedJobsRef = collection(db, "savedJobs");
 
-  return { CACHE_DURATION, usersRef, hiredJobsRef, jobPostsRef };
+  return { CACHE_DURATION, usersRef, hiredJobsRef, jobPostsRef, savedJobsRef };
 }
