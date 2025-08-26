@@ -2,7 +2,8 @@ name: React Production CI
 
 on:
   push:
-    branches: ["production"]
+    # branches: ["production"]
+    branches: ["prod"]
 
 jobs:
   Deploy:
