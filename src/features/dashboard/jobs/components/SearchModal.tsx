@@ -196,7 +196,7 @@ export default function SearchModal() {
                     insights
                 >
                     {/* <Configure filters="isProduction:flase" /> */}
-                    <Configure filters="isProduction:false AND isActive:true" />
+                    <Configure filters={`isProduction:${Env.isProduction} AND isActive:true`} />
                     <SearchBox
                         placeholder="Search"
                         autoFocus
