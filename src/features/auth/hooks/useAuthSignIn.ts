@@ -68,6 +68,9 @@ export const useAuthSignIn = (options: AuthSignInOptions = {}) => {
         role: userData.role,
         isVerified: userData.isVerified,
         userType: userData.userType,
+        country: userData.country || null,
+        currency: userData.currency || null,
+        dateAdded: userData.dateAdded,
         // Merge any additional user data
         ...additionalUserData,
       };

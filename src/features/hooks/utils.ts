@@ -37,10 +37,23 @@ export function useUtilities() {
       match.toUpperCase()
     );
 
+  const getISODateTimeString = () => {
+    const date = new Date();
+    const pad = (num: number) => String(num).padStart(2, "0");
+    const localISODate = `${date.getFullYear()}-${pad(
+      date.getMonth() + 1
+    )}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(
+      date.getMinutes()
+    )}:${pad(date.getSeconds())}`;
+    
+    return localISODate;
+  };
+
   return {
     getFormattedDate,
     isDateRangeValid,
     capitalize,
+    getISODateTimeString,
   };
 }
 
@@ -167,10 +180,10 @@ export function getColorForStateMui(status: string): string {
   switch (status.toLowerCase()) {
     case "pending":
     case "bidding":
-      return "#3D81DB"; 
+      return "#3D81DB";
     case "paid":
     case "delivered":
-      return "#1C8C3F"; 
+      return "#1C8C3F";
     case "accepted":
       return "rgba(33, 150, 243)"; // MUI blue with 50% opacity
     case "started":

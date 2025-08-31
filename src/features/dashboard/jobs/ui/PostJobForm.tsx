@@ -1,14 +1,11 @@
-import { Carousel } from "@mantine/carousel";
 import {
   Button,
-  Center,
-  Flex,
   Grid,
   Group,
-  Image,
   NumberInput,
   Progress,
   Select,
+  SimpleGrid,
   Space,
   Switch,
   Text,
@@ -16,38 +13,45 @@ import {
   TextInput,
   UnstyledButton
 } from "@mantine/core";
-import { Dropzone, MIME_TYPES } from "@mantine/dropzone";
 import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { Libraries, LoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import { IoMdClose } from "react-icons/io";
+import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { IoArrowBack } from "react-icons/io5";
-import { LuImageUp } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { Color } from "../../../../common/theme";
 import Env from "../../../../config/env";
+import { IUser } from "../../../auth/types";
+import { useCountriesAndCurrencies } from "../../profile/data";
 import GooglePlacesAutocomplete from "../components/GooglePlacesAutocomplete";
 import { useJobServices } from "../services";
 import {
+  ICategory,
   ICommitmentType,
-  IJobCategory,
   IJobForm,
   IUrgencyLevels,
+  IWorkLocations,
 } from "../types";
+import { useUtilities } from "../../../hooks/utils";
+
 const libraries: Libraries = ["places", "maps"];
 
 export default function PostJobForm() {
-  const navigate = useNavigate();
-  const { getCatgories, getCommitmentTypes, getUrgencyLevels ,postJob} =
-    useJobServices();
+  const authUser = useAuthUser<IUser>();
 
+  const navigate = useNavigate();
+  const { getTranslatedCatgories, getCommitmentTypes, getUrgencyLevels, postJob, getUserJobPostCount, getWorkLocations } =
+    useJobServices();
+  const { currencies } = useCountriesAndCurrencies();
   const [submitted, setSubmitted] = useState(false);
   const [_isLoading, setIsLoading] = useState(false);
-  const [jobCategories, setJobCategories] = useState<IJobCategory[]>([]);
+  const [jobCategories, setJobCategories] = useState<ICategory[]>([]);
   const [commitmentTypes, setCommitmentTypes] = useState<ICommitmentType[]>([]);
   const [urgencyLevels, setUrgencyLevels] = useState<IUrgencyLevels[]>([]);
-  const [files, setFiles] = useState<File[]>([]);
+  const [workLocations, setWorkLocations] = useState<IWorkLocations[]>([]);
+  const [numberOfPostedJobsByUser, setNumberOfPostedJobsByUser] = useState<number>(1);
+  const { getISODateTimeString } = useUtilities();
 
   const form = useForm<IJobForm>({
     initialValues: {
@@ -63,11 +67,12 @@ export default function PostJobForm() {
       urgency: "Normal",
       budgetType: "Fixed",
       budget: 0,
-      maxBudget: 0,
+      workLocation: "Onsite",
       numberOfPositions: 1,
       biddingType: "",
       hasBidding: false,
       imageUrls: [],
+      currency: currencies.find(c => c.code === authUser?.currency?.code) || undefined,
     },
 
     validate: (values) => {
@@ -90,10 +95,6 @@ export default function PostJobForm() {
       if (active === 2) {
         return {
           budget: values.budget <= 0 ? "Budget required" : null,
-          maxBudget:
-            values.maxBudget <= 0 && values.budgetType == "Range"
-              ? "Max budget required"
-              : null,
           urgency:
             values.urgency.trim().length == 0 ? "Urgency required" : null,
 
@@ -110,28 +111,28 @@ export default function PostJobForm() {
       return {};
     },
   });
-const submit = (published:boolean)=>{
-  setSubmitted(false);
-  postJob(form.values, published).then(() => {
+  const submit = () => {
     setSubmitted(false);
-    navigate('/jobs')
-  })
-    .catch((_error) => {
+    postJob(form.values, numberOfPostedJobsByUser).then(() => {
       setSubmitted(false);
-      notifications.show({
-        color: "red",
-        title: "Error",
-        message: "Something went wrong!",
+      navigate('/jobs')
+    })
+      .catch((_error) => {
+        setSubmitted(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
       });
-    });
-}
+  }
   const fetchData = () => {
     setIsLoading(true);
 
-    getCatgories()
+    getTranslatedCatgories()
       .then((response) => {
         setIsLoading(false);
-        setJobCategories(response);
+        setJobCategories(response.data);
       })
       .catch((_error) => {
         setIsLoading(false);
@@ -167,6 +168,31 @@ const submit = (published:boolean)=>{
           message: "Something went wrong!",
         });
       });
+    getWorkLocations()
+      .then((response) => {
+        setIsLoading(false);
+        setWorkLocations(response);
+      })
+      .catch((_error) => {
+        setIsLoading(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
+      });
+    getUserJobPostCount().then((response) => {
+      setIsLoading(false);
+      setNumberOfPostedJobsByUser(response);
+    })
+      .catch((_error) => {
+        setIsLoading(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
+      });
   };
 
   useEffect(() => {
@@ -190,7 +216,7 @@ const submit = (published:boolean)=>{
     <LoadScript googleMapsApiKey={Env.googleMapsApiKey} libraries={libraries}>
       <form
         onSubmit={form.onSubmit(() => {
-          submit(true);
+          submit();
         })}
       >
         <Space h="xl" />
@@ -201,11 +227,11 @@ const submit = (published:boolean)=>{
               <UnstyledButton onClick={() => navigate(-1)}>
                 <IoArrowBack size={20} />
               </UnstyledButton>
-              <UnstyledButton onClick={() => { submit(false); }}>
+              {/* <UnstyledButton onClick={() => { submit(); }}>
                 <Text fw={600} fz={"16px"}>
                   Save And Exit
                 </Text>
-              </UnstyledButton>
+              </UnstyledButton> */}
             </Group>
             <Space h="md" />
             <Progress
@@ -238,9 +264,12 @@ const submit = (published:boolean)=>{
                 />
                 <Space h="md" />
                 <Select
+                  searchable
                   label="Category*"
                   placeholder="Select your category"
-                  data={jobCategories.map((item) => item.name)}
+                  data={jobCategories.map((item) => {
+                    return { value: item.en, label: item.en };
+                  })}
                   {...form.getInputProps("category")}
                 />
                 <Space h="md" />
@@ -286,7 +315,49 @@ const submit = (published:boolean)=>{
                   Job Information
                 </Text>
                 <Space h="md" />
-                <Flex justify="space-between" align="flex-start">
+                <Grid justify="center">
+                  <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                    <Select
+                      label="Select Currency*"
+                      searchable
+                      placeholder="Select your currency"
+                      value={
+                        form.values.currency
+                          ? form.values.currency.code
+                          : undefined
+                      }
+                      data={currencies.map((item) => {
+                        return { value: item.code, label: `${item.name} (${item.symbol})` };
+                      })}
+                      onChange={(value) => {
+                        const currency = currencies.find(
+                          (currency) => currency.code === value
+                        );
+                        form.setFieldValue("currency", currency || undefined);
+                      }}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                    <NumberInput
+                      label="Budget*"
+                      leftSection={
+                        <Text size="md" fw={500} c="dimmed" mx="sm">
+                          {form.values.currency
+                            ? form.values.currency.symbol
+                            : "TZS"}
+                        </Text>
+                      }
+                      placeholder="e.g 100000"
+                      min={0}
+                      size="md"
+                      radius={"md"}
+                      thousandSeparator=","
+                      {...form.getInputProps("budget")}
+                    />
+                  </Grid.Col>
+                </Grid>
+                <Space h="md" />
+                {/* <Flex justify="space-between" align="flex-start">
                   <Select
                     label="Budget Type*"
                     placeholder="Budget Type"
@@ -318,7 +389,7 @@ const submit = (published:boolean)=>{
                       min={0}
                     />
                   )}
-                </Flex>
+                </Flex> */}
                 <Space h="md" />
                 <Switch
                   {...form.getInputProps("hasBidding")}
@@ -329,21 +400,29 @@ const submit = (published:boolean)=>{
                 {form.values.hasBidding && (
                   <>
                     <Select
-                      label="Bidding Type*"
+                      label="Select Bidding Type*"
                       placeholder="Bidding Type"
-                      data={["Open", "Closed"]}
+                      data={[{ value: "open", label: "Public" }, { value: "closed", label: "Private" }]}
                       {...form.getInputProps("biddingType")}
                     />
                     <Space h="md" />
                   </>
                 )}
-
-                <Select
-                  label="Job Type*"
-                  placeholder="Select your Type"
-                  data={commitmentTypes.map((item) => item.type)}
-                  {...form.getInputProps("commitment")}
-                />
+                <SimpleGrid cols={{ base: 1, md: 2 }} >
+                  <Select
+                    label="Job Type*"
+                    placeholder="Select your Type"
+                    data={commitmentTypes.map((item) => item.type)}
+                    {...form.getInputProps("commitment")}
+                  />
+                  <Select
+                    label="Work Locations*"
+                    placeholder="Select your Location"
+                    value={form.values.workLocation}
+                    data={workLocations.map((item) => item.location)}
+                    {...form.getInputProps("workLocation")}
+                  />
+                </SimpleGrid>
 
                 <Space h="md" />
                 {/* <RichTextInput
@@ -362,7 +441,7 @@ const submit = (published:boolean)=>{
                   maxRows={8}
                 />
 
-                <Space h="md" />
+                {/* <Space h="md" />
 
                 {files.length == 0 ? (
                   <Dropzone
@@ -546,7 +625,7 @@ const submit = (published:boolean)=>{
                       </Group>
                     </Dropzone>
                   </Group>
-                )}
+                )} */}
                 <Space h="md" />
                 <Group>
                   <Button

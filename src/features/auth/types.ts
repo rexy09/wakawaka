@@ -52,4 +52,7 @@ export interface IAuthUser {
   role: string;
   isVerified: boolean | null;
   userType: string;
+  country?: Country;
+  currency?: Currency;
+  dateAdded?: Timestamp | string;
 }

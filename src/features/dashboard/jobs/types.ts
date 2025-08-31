@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase/firestore";
+import { CurrencyData } from "../profile/data";
 
 export interface PaginatedResponse<T> {
   count: number;
@@ -46,7 +47,7 @@ export interface IJobPost {
   postedByUserId: string;
   title: string | null;
   urgency: string;
-  userDateJoined: Timestamp; // or Date if parsed
+  userDateJoined: Timestamp |string; // or Date if parsed
   videoUrl: string | null;
   voiceUrl: string | null;
   workLocation: string;
@@ -64,6 +65,9 @@ export interface ICategory {
 export interface ICommitmentType {
   type: string;
 }
+export interface IWorkLocations {
+  location: string;
+}
 export interface IUrgencyLevels {
   level: string;
 }
@@ -72,7 +76,6 @@ export interface IJobForm {
   biddingType: string;
   budgetType: string;
   budget: number;
-  maxBudget: number;
   category: string;
   commitment: string;
   description: string;
@@ -83,9 +86,11 @@ export interface IJobForm {
     latitude: number;
     longitude: number;
   };
+  currency: CurrencyData | undefined;
   numberOfPositions: number;
   title: string;
   urgency: string;
+  workLocation: string;
 }
 
 export interface IJobApplication {

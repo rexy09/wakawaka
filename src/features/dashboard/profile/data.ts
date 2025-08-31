@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 
-interface CountryData {
+export interface CountryData {
     code: string;
     name: string;
 }
 
-interface CurrencyData {
+export interface CurrencyData {
     code: string;
     name: string;
     symbol: string;

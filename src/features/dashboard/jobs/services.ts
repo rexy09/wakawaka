@@ -20,7 +20,7 @@ import {
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../../../config/firebase";
-import { IUser } from "../../auth/types";
+import { IAuthUser } from "../../auth/types";
 import {
   ICommitmentType,
   IHiredApplication,
@@ -31,14 +31,19 @@ import {
   IJobPost,
   ISavedJob,
   IUrgencyLevels,
+  IWorkLocations,
 } from "./types";
 import { JobFilterParameters } from "./stores";
 import Env from "../../../config/env";
 import useDbService from "../../services/DbService";
+import axios from "axios";
+import { useUtilities } from "../../hooks/utils";
 
 export const useJobServices = () => {
-  const authUser = useAuthUser<IUser>();
+  const authUser = useAuthUser<IAuthUser>();
   const { hiredJobsRef, jobPostsRef, savedJobsRef } = useDbService();
+  const { getISODateTimeString } = useUtilities();
+
 
   const getJobs = async (
     p: JobFilterParameters,
@@ -51,6 +56,7 @@ export const useJobServices = () => {
     const totalQueryConstraints = [
       where("isActive", "==", true),
       where("isProduction", "==", Env.isProduction),
+      orderBy("datePosted", "desc"),
     ];
 
     if (p.category !== undefined && p.category !== null && p.category !== "") {
@@ -75,9 +81,9 @@ export const useJobServices = () => {
     const dataCollection = collection(db, "jobPosts");
 
     const dataQueryConstraints = [
-      orderBy("datePosted", "desc"),
       where("isActive", "==", true),
       where("isProduction", "==", Env.isProduction),
+      orderBy("datePosted", "desc"),
     ];
     if (p.category !== undefined && p.category !== null && p.category !== "") {
       dataQueryConstraints.push(where("category", "==", p.category));
@@ -105,8 +111,8 @@ export const useJobServices = () => {
       // For previous direction, end before the provided document and limit to last
       dataQuery = query(
         dataCollection,
-        orderBy("datePosted", "desc"),
         endBefore(endBeforeDoc),
+        orderBy("datePosted", "desc"),
         limitToLast(pageLimit)
       );
     }
@@ -130,6 +136,21 @@ export const useJobServices = () => {
     };
   };
 
+  const getUserJobPostCount = async () => {
+    const jobPostsCollection = jobPostsRef;
+    const totalQueryConstraints = [
+      where("isProduction", "==", Env.isProduction),
+      where("postedByUserId", "==", authUser?.uid),
+    ];
+
+    const totalQuerySnapshot = query(
+      jobPostsCollection,
+      ...totalQueryConstraints
+    );
+    const count = await getCountFromServer(totalQuerySnapshot);
+    return count.data().count;
+  };
+
   const getRelatedJobs = async (
     category: string,
     excludeId: string,
@@ -143,10 +164,10 @@ export const useJobServices = () => {
 
     let dataQuery = query(
       dataCollection,
-      orderBy("datePosted", "desc"),
       where("isActive", "==", true),
       where("category", "==", category),
       where("isProduction", "==", Env.isProduction),
+      orderBy("datePosted", "desc"),
       limit(pageLimit)
     );
     if (direction === "next" && startAfterDoc) {
@@ -156,9 +177,9 @@ export const useJobServices = () => {
       // For previous direction, end before the provided document and limit to last
       dataQuery = query(
         dataCollection,
-        orderBy("datePosted", "desc"),
         where("isProduction", "==", Env.isProduction),
         endBefore(endBeforeDoc),
+        orderBy("datePosted", "desc"),
         limitToLast(pageLimit)
       );
     }
@@ -266,6 +287,9 @@ export const useJobServices = () => {
     });
     return dataList;
   };
+  const getTranslatedCatgories = async () => {
+    return axios.get(Env.baseURL + "/jobs/categories");
+  };
   const getCommitmentTypes = async () => {
     const dataCollection = collection(db, "commitmentTypes");
 
@@ -280,6 +304,21 @@ export const useJobServices = () => {
     });
     return dataList;
   };
+  const getWorkLocations = async () => {
+    const dataCollection = collection(db, "workLocations");
+
+    let dataQuery = query(dataCollection);
+
+    const documentSnapshots = await getDocs(dataQuery);
+    const dataList = documentSnapshots.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        ...(data as IWorkLocations),
+      };
+    });
+    return dataList;
+  };
+
   const getUrgencyLevels = async () => {
     const dataCollection = collection(db, "urgencyLevels");
 
@@ -295,16 +334,26 @@ export const useJobServices = () => {
     return dataList;
   };
 
-  const postJob = async (d: IJobForm, published: boolean) => {
-    const dataCollection = collection(db, "jobPosts");
+  const postJob = async (d: IJobForm, numberOfPostedJobsByUser: number) => {
+    if (!authUser?.uid) {
+      throw new Error("User is not authenticated");
+    }
+
+    const dataCollection = jobPostsRef;
     const uuid = uuidv4();
     const jobData = {
-      ...d,
       id: uuid,
+      ...d,
+      avatarUrl: authUser?.avatarURL || null,
+      fullName: authUser?.fullName || "",
+      country: authUser?.country || null,
       postedByUserId: authUser?.uid,
-      published: published,
+      numberOfPostedJobsByUser: numberOfPostedJobsByUser,
       isActive: true,
-      datePosted: Timestamp.fromDate(new Date()),
+      isUserVerified: authUser?.isVerified || false,
+      userDateJoined: authUser.dateAdded,
+      isProduction: Env.isProduction,
+      datePosted: getISODateTimeString(),
     };
     const jobpostRef = await addDoc(dataCollection, jobData);
 
@@ -314,7 +363,6 @@ export const useJobServices = () => {
   const postJobApplication = async (jobId: string, coverLetter: string) => {
     const jobRef = doc(db, "jobPosts", jobId);
     const dataCollection = collection(jobRef, "applications");
-    const date = new Date().toISOString();
     if (!authUser?.uid) {
       throw new Error("User is not authenticated");
     }
@@ -328,10 +376,10 @@ export const useJobServices = () => {
       avatarURL: authUser?.avatarURL,
       coverLetter: coverLetter,
       feedback: null,
-      dateApplied: date,
-      lastUpdated: date,
-      dateAdded: Timestamp.fromDate(new Date()),
-      dateUpdated: Timestamp.fromDate(new Date()),
+      dateApplied: getISODateTimeString(),
+      lastUpdated: getISODateTimeString(),
+      dateAdded: getISODateTimeString(),
+      dateUpdated: getISODateTimeString(),
       isProduction: Env.isProduction,
       resumeUrl: null,
       status: "pending",
@@ -711,7 +759,7 @@ export const useJobServices = () => {
       hiredJobsRef,
       where("jobId", "==", jobId),
       where("postedByUserId", "==", authUser?.uid),
-      where("isProduction", "==", Env.isProduction),
+      where("isProduction", "==", Env.isProduction)
     );
     const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
 
@@ -741,7 +789,7 @@ export const useJobServices = () => {
       hiredJobsRef,
       where("jobId", "==", jobId),
       where("postedByUserId", "==", authUser?.uid),
-      where("isProduction", "==", Env.isProduction),
+      where("isProduction", "==", Env.isProduction)
     );
     const hiredJobsSnapshot = await getDocs(hiredJobsQuery);
 
@@ -882,6 +930,7 @@ export const useJobServices = () => {
     getJob,
     getRelatedJobs,
     getCatgories,
+    getTranslatedCatgories,
     getCommitmentTypes,
     getUrgencyLevels,
     postJob,
@@ -900,5 +949,7 @@ export const useJobServices = () => {
     getJobBids,
     unemployApplicantFromJob,
     employApplicantFromJob,
+    getUserJobPostCount,
+    getWorkLocations,
   };
 };
