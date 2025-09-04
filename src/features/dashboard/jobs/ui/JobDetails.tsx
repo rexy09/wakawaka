@@ -316,8 +316,8 @@ export default function JobDetails() {
                     </Text>
                     <div
                       className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${job.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
                         }`}
                     >
                       {job.isActive ? "Active" : "Closed"}
@@ -383,12 +383,12 @@ export default function JobDetails() {
                     Location
                   </Text>
                   <Group wrap="nowrap" justify="space-between" align="center">
-                  <Group wrap="nowrap" gap={3} mt={"xs"}>
-                    <IoLocationOutline />
-                    <Text size="14px" fw={400} c="#596258">
-                      {job.location.address}
-                    </Text>
-                  </Group>
+                    <Group wrap="nowrap" gap={3} mt={"xs"}>
+                      <IoLocationOutline />
+                      <Text size="14px" fw={400} c="#596258">
+                        {job.location.address}
+                      </Text>
+                    </Group>
                     <Button
                       variant="light"
                       color="violet"
@@ -396,10 +396,10 @@ export default function JobDetails() {
                       radius="md"
                       onClick={() => openGoogleMaps()}
                       leftSection={
-                          <FaMapMarkedAlt />
+                        <FaMapMarkedAlt />
                       }
                     >
-                        Open Map
+                      Open Map
                     </Button>
                   </Group>
                 </div>
@@ -495,11 +495,11 @@ export default function JobDetails() {
                         <IoTimeOutline size={14} color="#596258" />
                         <Text size="14px" fw={400} c="#596258">
                           Joined{" "}
-                          {/* {moment(
+                          {job.userDateJoined ? moment(
                             typeof job.userDateJoined === "string"
                               ? new Date(job.userDateJoined)
                               : job.userDateJoined.toDate()
-                          ).format("MMMM YYYY")} */}
+                          ).format("MMMM YYYY") : "NA"}
                         </Text>
                       </Group>
                       <Group wrap="nowrap" gap={3} mt={4}>

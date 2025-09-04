@@ -612,11 +612,11 @@ export default function PostedJobDetails() {
                         <IoTimeOutline size={14} color="#596258" />
                         <Text size="14px" fw={400} c="#596258">
                           Joined{" "}
-                          {moment(
+                          {job.userDateJoined?moment(
                             typeof job.userDateJoined === "string"
                               ? new Date(job.userDateJoined)
                               : job.userDateJoined.toDate()
-                          ).format("MMMM YYYY")}
+                          ).format("MMMM YYYY"):"NA"}
                         </Text>
                       </Group>
                       <Group wrap="nowrap" gap={3} mt={4}>

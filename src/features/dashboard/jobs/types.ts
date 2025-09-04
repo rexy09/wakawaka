@@ -47,7 +47,7 @@ export interface IJobPost {
   postedByUserId: string;
   title: string | null;
   urgency: string;
-  userDateJoined: Timestamp |string; // or Date if parsed
+  userDateJoined: Timestamp |string | null; // or Date if parsed
   videoUrl: string | null;
   voiceUrl: string | null;
   workLocation: string;

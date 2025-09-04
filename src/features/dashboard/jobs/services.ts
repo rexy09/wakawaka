@@ -334,16 +334,17 @@ export const useJobServices = () => {
     return dataList;
   };
 
-  const postJob = async (d: IJobForm, numberOfPostedJobsByUser: number) => {
+  const postJob = async (data: IJobForm, numberOfPostedJobsByUser: number) => {
     if (!authUser?.uid) {
       throw new Error("User is not authenticated");
     }
-
+    console.log("Posting job for user:", authUser.dateAdded);
+    
     const dataCollection = jobPostsRef;
     const uuid = uuidv4();
     const jobData = {
       id: uuid,
-      ...d,
+      ...data,
       avatarUrl: authUser?.avatarURL || null,
       fullName: authUser?.fullName || "",
       country: authUser?.country || null,

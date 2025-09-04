@@ -33,7 +33,6 @@ import {
   IUrgencyLevels,
   IWorkLocations,
 } from "../types";
-import { useUtilities } from "../../../hooks/utils";
 
 const libraries: Libraries = ["places", "maps"];
 
@@ -51,7 +50,6 @@ export default function PostJobForm() {
   const [urgencyLevels, setUrgencyLevels] = useState<IUrgencyLevels[]>([]);
   const [workLocations, setWorkLocations] = useState<IWorkLocations[]>([]);
   const [numberOfPostedJobsByUser, setNumberOfPostedJobsByUser] = useState<number>(1);
-  const { getISODateTimeString } = useUtilities();
 
   const form = useForm<IJobForm>({
     initialValues: {
@@ -112,7 +110,7 @@ export default function PostJobForm() {
     },
   });
   const submit = () => {
-    setSubmitted(false);
+    setSubmitted(true);
     postJob(form.values, numberOfPostedJobsByUser).then(() => {
       setSubmitted(false);
       navigate('/jobs')
