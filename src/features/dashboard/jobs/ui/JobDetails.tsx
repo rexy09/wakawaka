@@ -34,6 +34,7 @@ import { JobCardSkeleton, JobDetailsCardSkeleton } from "../components/Loaders";
 import SearchModal from "../components/SearchModal";
 import { useJobServices } from "../services";
 import { IJobPost, PaginatedResponse } from "../types";
+import { timestampToISO } from "../../../hooks/utils";
 
 export default function JobDetails() {
   const isAuthenticated = useIsAuthenticated();
@@ -227,6 +228,8 @@ export default function JobDetails() {
   const openGoogleMaps = () => {
     window.open(`https://maps.google.com?q=${job?.location.latitude},${job?.location.longitude} (${encodeURIComponent(job?.location.address ?? "")})`, '_blank');
   };
+ 
+  
   return (
     <div>
       <AuthModal opened={authModalStatus} onClose={() => {
@@ -498,7 +501,7 @@ export default function JobDetails() {
                           {job.userDateJoined ? moment(
                             typeof job.userDateJoined === "string"
                               ? new Date(job.userDateJoined)
-                              : job.userDateJoined.toDate()
+                              : timestampToISO(job.userDateJoined.seconds ?? 0, job.userDateJoined.nanoseconds ?? 0)
                           ).format("MMMM YYYY") : "NA"}
                         </Text>
                       </Group>

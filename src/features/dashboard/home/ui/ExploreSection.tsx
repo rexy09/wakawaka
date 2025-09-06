@@ -1,4 +1,5 @@
 import {
+  Button,
   Center,
   Paper,
   SimpleGrid, Stack, Text,
@@ -67,14 +68,10 @@ export default function ExploreSection() {
         >
 
           <Stack h={"100%"} justify="center" >
-          <UnstyledButton onClick={() => navigate("jobs")} >
-            <Text c="white" size="23px" fw={700} ta={"center"} >
-              Explore more
-            </Text>
-            <Center ml={10} >
-              <FaArrowRight color="#ffffff" />
-            </Center>
-          </UnstyledButton>
+            <Button size="lg" variant="outline" color="white" rightSection={<FaArrowRight />} onClick={() => navigate("jobs")} mx={"auto"} >
+                Explore More
+            </Button>
+         
           </Stack>
         </Paper>
 

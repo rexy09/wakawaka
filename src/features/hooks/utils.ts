@@ -135,7 +135,26 @@ export function convertSecondsToReadableTime(secondsStr: string): string {
 
   return result.trim();
 }
+export function timestampToISO(seconds: number, nanoseconds: number): string {
+  // Validate inputs
+  if (typeof seconds !== "number" || typeof nanoseconds !== "number") {
+    throw new Error("Seconds and nanoseconds must be numbers");
+  }
 
+  // Convert to milliseconds
+  const milliseconds: number = seconds * 1000 + nanoseconds / 1000000;
+
+  // Create Date object
+  const date: Date = new Date(milliseconds);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid timestamp");
+  }
+
+  // Return ISO 8601 formatted string
+  return date.toISOString();
+}
 export function formatDateTime(
   dateTimeStr: string,
   formatType: "short" | "long" = "short"

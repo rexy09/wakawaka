@@ -41,6 +41,7 @@ import {
   IJobPost,
 } from "../types";
 import UserAvatar from "../components/UserAvatar";
+import { timestampToISO } from "../../../hooks/utils";
 
 export default function PostedJobDetails() {
   const navigate = useNavigate();
@@ -615,7 +616,7 @@ export default function PostedJobDetails() {
                           {job.userDateJoined?moment(
                             typeof job.userDateJoined === "string"
                               ? new Date(job.userDateJoined)
-                              : job.userDateJoined.toDate()
+                              : timestampToISO(job.userDateJoined.seconds ?? 0, job.userDateJoined.nanoseconds ?? 0)
                           ).format("MMMM YYYY"):"NA"}
                         </Text>
                       </Group>
