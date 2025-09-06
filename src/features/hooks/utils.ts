@@ -37,10 +37,23 @@ export function useUtilities() {
       match.toUpperCase()
     );
 
+  const getISODateTimeString = () => {
+    const date = new Date();
+    const pad = (num: number) => String(num).padStart(2, "0");
+    const localISODate = `${date.getFullYear()}-${pad(
+      date.getMonth() + 1
+    )}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(
+      date.getMinutes()
+    )}:${pad(date.getSeconds())}`;
+    
+    return localISODate;
+  };
+
   return {
     getFormattedDate,
     isDateRangeValid,
     capitalize,
+    getISODateTimeString,
   };
 }
 
@@ -122,7 +135,26 @@ export function convertSecondsToReadableTime(secondsStr: string): string {
 
   return result.trim();
 }
+export function timestampToISO(seconds: number, nanoseconds: number): string {
+  // Validate inputs
+  if (typeof seconds !== "number" || typeof nanoseconds !== "number") {
+    throw new Error("Seconds and nanoseconds must be numbers");
+  }
 
+  // Convert to milliseconds
+  const milliseconds: number = seconds * 1000 + nanoseconds / 1000000;
+
+  // Create Date object
+  const date: Date = new Date(milliseconds);
+
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid timestamp");
+  }
+
+  // Return ISO 8601 formatted string
+  return date.toISOString();
+}
 export function formatDateTime(
   dateTimeStr: string,
   formatType: "short" | "long" = "short"
@@ -167,10 +199,10 @@ export function getColorForStateMui(status: string): string {
   switch (status.toLowerCase()) {
     case "pending":
     case "bidding":
-      return "#3D81DB"; 
+      return "#3D81DB";
     case "paid":
     case "delivered":
-      return "#1C8C3F"; 
+      return "#1C8C3F";
     case "accepted":
       return "rgba(33, 150, 243)"; // MUI blue with 50% opacity
     case "started":

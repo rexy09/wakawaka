@@ -41,6 +41,7 @@ import {
   IJobPost,
 } from "../types";
 import UserAvatar from "../components/UserAvatar";
+import { timestampToISO } from "../../../hooks/utils";
 
 export default function PostedJobDetails() {
   const navigate = useNavigate();
@@ -612,11 +613,11 @@ export default function PostedJobDetails() {
                         <IoTimeOutline size={14} color="#596258" />
                         <Text size="14px" fw={400} c="#596258">
                           Joined{" "}
-                          {moment(
+                          {job.userDateJoined?moment(
                             typeof job.userDateJoined === "string"
                               ? new Date(job.userDateJoined)
-                              : job.userDateJoined.toDate()
-                          ).format("MMMM YYYY")}
+                              : timestampToISO(job.userDateJoined.seconds ?? 0, job.userDateJoined.nanoseconds ?? 0)
+                          ).format("MMMM YYYY"):"NA"}
                         </Text>
                       </Group>
                       <Group wrap="nowrap" gap={3} mt={4}>

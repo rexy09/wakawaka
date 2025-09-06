@@ -9,6 +9,7 @@ import {
   Paper,
   Space,
   Text,
+  UnstyledButton,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
@@ -111,8 +112,22 @@ export default function DashboardPage() {
         Browse millions of Jobs for you.
       </Text>
       <Group justify="center" align="center" mt="lg" gap="md">
-        <Image src={apple_button} />
+
+       
+        <UnstyledButton onClick={
+          () => {
+            window.open("https://apps.apple.com/tz/app/daywaka/id6747948446");
+          }
+        }>
+          <Image src={apple_button} />
+        </UnstyledButton>
+        <UnstyledButton onClick={
+          () => {
+            window.open("https://play.google.com/store/apps/details?id=com.appziro.daywaka");
+          }
+        }>
         <Image src={google_button} />
+        </UnstyledButton>
       </Group>
       <Space h={40} />
       <Container size="sm">
@@ -177,8 +192,21 @@ export default function DashboardPage() {
               </Text>
               <Space h={"md"} />
               <Group align="center" mt="lg" gap="md">
+                <UnstyledButton onClick={
+                  () => {
+                    window.open("https://apps.apple.com/tz/app/daywaka/id6747948446");
+                  }
+                }>
                 <Image src={apple_button2} />
+                </UnstyledButton>
+                <UnstyledButton onClick={
+                  () => {
+                    window.open("https://play.google.com/store/apps/details?id=com.appziro.daywaka");
+                  }
+                }>
+
                 <Image src={google_button2} />
+                </UnstyledButton>
               </Group>
             </div>
           </Grid.Col>

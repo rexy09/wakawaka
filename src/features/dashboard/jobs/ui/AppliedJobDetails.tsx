@@ -30,6 +30,7 @@ import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
 import { JobDetailsCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
 import { IJobApplication, IJobPost } from "../types";
+import { timestampToISO } from "../../../hooks/utils";
 
 export default function AppliedJobDetails() {
   const isAuthenticated = useIsAuthenticated();
@@ -133,7 +134,7 @@ export default function AppliedJobDetails() {
       <Space h="md" />
       <Grid justify="center" align="start">
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }}>
-          {!isLoading && job  ? (
+          {!isLoading && job ? (
             <>
               <Group wrap="wrap" justify="space-between" align="start">
                 <Text size="28px" fw={700} c="#141514">
@@ -168,14 +169,14 @@ export default function AppliedJobDetails() {
                           applied.status === "accepted"
                             ? "#044299"
                             : applied.status === "approved"
-                            ? "#6247BA"
-                            : applied.status === "completed"
-                            ? "#43A047"
-                            : applied.status === "pending"
-                            ? "#FF8810"
-                            : applied.status === "rejected"
-                            ? "#E53935"
-                            : "#044299"
+                              ? "#6247BA"
+                              : applied.status === "completed"
+                                ? "#43A047"
+                                : applied.status === "pending"
+                                  ? "#FF8810"
+                                  : applied.status === "rejected"
+                                    ? "#E53935"
+                                    : "#044299"
                         }
                         radius="sm"
                         size="md"
@@ -271,17 +272,15 @@ export default function AppliedJobDetails() {
                       </Text>
                       <Text size="16px" fw={700} c="#151F42">
                         <NumberFormatter
-                          prefix={`${
-                            job.currency ? job.currency.code : "TZS"
-                          } `}
+                          prefix={`${job.currency ? job.currency.code : "TZS"
+                            } `}
                           value={job.budget}
                           thousandSeparator
                         />
                         {job.maxBudget > 0 && (
                           <NumberFormatter
-                            prefix={` - ${
-                              job.currency ? job.currency.code : "TZS"
-                            } `}
+                            prefix={` - ${job.currency ? job.currency.code : "TZS"
+                              } `}
                             value={job.maxBudget}
                             thousandSeparator
                           />
@@ -351,7 +350,8 @@ export default function AppliedJobDetails() {
                           {moment(
                             typeof job.userDateJoined === "string"
                               ? new Date(job.userDateJoined)
-                              : job.userDateJoined.toDate()
+                              : timestampToISO(job?.userDateJoined?.seconds ?? 0, job?.userDateJoined?.nanoseconds ?? 0)
+
                           ).format("MMMM YYYY")}
                         </Text>
                       </Group>

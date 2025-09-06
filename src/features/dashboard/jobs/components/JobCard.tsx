@@ -184,9 +184,7 @@ export default function JobCard({ job }: Props) {
                       typeof job.datePosted === "string"
                         ? new Date(job.datePosted)
                         : job.datePosted.toDate()
-                    )
-                      .startOf("day")
-                      .fromNow()}
+                    ).fromNow()}
                   </Text>
                 </Group>
                 <Space h="xs" />
