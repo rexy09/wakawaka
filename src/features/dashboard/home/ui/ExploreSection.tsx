@@ -1,18 +1,16 @@
 import {
   Button,
-  Center,
   Paper,
-  SimpleGrid, Stack, Text,
-  UnstyledButton
+  SimpleGrid, Stack
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useState } from "react";
 import { FaArrowRight } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import JobCard from "../../jobs/components/JobCard";
 import { JobCardSkeleton } from "../../jobs/components/Loaders";
 import { useJobServices } from "../../jobs/services";
 import { IJobPost, PaginatedResponse } from "../../jobs/types";
-import { useNavigate } from "react-router-dom";
 
 export default function ExploreSection() {
   const { getExploreJobs } = useJobServices();
