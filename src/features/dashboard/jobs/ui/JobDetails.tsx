@@ -11,7 +11,8 @@ import {
   SimpleGrid,
   Space,
   Spoiler,
-  Text
+  Text,
+  UnstyledButton
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
@@ -35,6 +36,8 @@ import SearchModal from "../components/SearchModal";
 import { useJobServices } from "../services";
 import { IJobPost, PaginatedResponse } from "../types";
 import { timestampToISO } from "../../../hooks/utils";
+import apple_button from "../../../../assets/img/apple_button.svg";
+import google_button from "../../../../assets/img/google_button.svg";
 
 export default function JobDetails() {
   const isAuthenticated = useIsAuthenticated();
@@ -529,6 +532,37 @@ export default function JobDetails() {
           ) : (
             <JobDetailsCardSkeleton />
           )}
+
+          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+            <Text c="#1B3227" size="28px" fw={600} ta="center" mb="xs">
+              Want More Jobs Like This?
+            </Text>
+            <Text c="#596258" size="16px" fw={400} ta="center" mb="md">
+              Download our app to browse more of jobs, get real-time notifications, 
+              and never miss your next opportunity!
+            </Text>
+            <Text c="#1B3227" size="14px" fw={500} ta="center">
+              ✨ Real-time job alerts • 📱 Easy mobile apply • 🔔 Instant notifications
+            </Text>
+          </div>
+          <Group justify="center" align="center" mt="lg" gap="md">
+
+
+            <UnstyledButton onClick={
+              () => {
+                window.open("https://apps.apple.com/tz/app/daywaka/id6747948446");
+              }
+            }>
+              <Image src={apple_button} />
+            </UnstyledButton>
+            <UnstyledButton onClick={
+              () => {
+                window.open("https://play.google.com/store/apps/details?id=com.appziro.daywaka");
+              }
+            }>
+              <Image src={google_button} />
+            </UnstyledButton>
+          </Group>
         </Grid.Col>
       </Grid>
 
