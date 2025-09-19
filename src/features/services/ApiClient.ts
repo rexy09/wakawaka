@@ -13,9 +13,6 @@ interface RequestOptions {
 
 export default function useApiClient() {
   const authHeader = useAuthHeader();
-  // const navigate = useNavigate();
-
-  // const signOut = useSignOut();
   // const { notifyError } = userTostify();
   // const { userLogin } = useLoginServices();
   // const signIn = useSignIn();
@@ -161,13 +158,25 @@ export default function useApiClient() {
     params,
     headers,
   }: RequestOptions) {
+    // Generate CSRF token for state-changing requests
+    const csrfToken = method !== 'get' ? generateCSRFToken() : undefined;
+
     return axios({
       method: method,
       url: Env.baseURL + url,
       data: data,
       params: params,
-      headers: { Authorization: authHeader, ...headers },
+      headers: {
+        Authorization: authHeader,
+        'X-Requested-With': 'XMLHttpRequest', // CSRF protection
+        ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+        ...headers
+      },
     });
+  }
+
+  function generateCSRFToken(): string {
+    return crypto.randomUUID();
   }
 
   return { sendRequest };
