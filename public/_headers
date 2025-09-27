@@ -9,9 +9,6 @@
   # XSS Protection
   X-XSS-Protection: 1; mode=block
 
-  # Referrer Policy
-  Referrer-Policy: strict-origin-when-cross-origin
-
   # Permissions Policy
   Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=()
 
