@@ -25,7 +25,7 @@ export const useProfileServices = () => {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log("Fetched user data:", data);
+        // console.log("Fetched user data:", data);
 
         const result = {
           id: docSnap.id,
@@ -85,7 +85,7 @@ export const useProfileServices = () => {
         },
         { merge: true }
       );
-      console.log("User data created successfully:", data);
+      // console.log("User data created successfully:", data);
       return data;
     } catch (error) {
       console.error("Error creating user data:", error);
@@ -104,7 +104,7 @@ export const useProfileServices = () => {
         const token = await getToken(messaging, {
           vapidKey: Env.APP_VAPID_KEY,
         });
-        console.log("FCM Token generated:", token);
+        // console.log("FCM Token generated:", token);
         return token;
       } else {
         console.log("Notification permission denied");
@@ -203,7 +203,7 @@ export const useProfileServices = () => {
         dateUpdated: Timestamp.fromDate(new Date()),
       });
       
-      console.log("Token removed from user successfully");
+      // console.log("Token removed from user successfully");
     } catch (error) {
       console.error("Error removing token from user:", error);
       throw new Error(`Failed to remove token: ${error}`);
