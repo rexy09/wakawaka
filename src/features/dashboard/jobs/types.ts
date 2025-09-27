@@ -162,3 +162,45 @@ export interface IJobBid {
   message: string;
   status: string;
 }
+
+export interface IExecution {
+  status: string;
+  execution_name: string;
+  completedAt: string;
+  createdAt: string;
+  percentage: number;
+  execution_id: string;
+}
+export interface ISmartHireStatus {
+  execution: IExecution | null;
+}
+
+export interface IAIRecruiter {
+  risk_score: number;
+  employability_score: number;
+  short_reason: string;
+}
+
+// Applicant details
+export interface IApplicant {
+  id: string;
+  applicantName: string;
+  avatarURL: string;
+  coverLetter: string | null;
+  resumeUrl: string | null;
+  ai_recruiter: IAIRecruiter;
+  jobId: string;
+  job_id: string;
+  uid: string;
+  sequence_number: number;
+  status: string;
+  dateAdded: string;
+  dateApplied: string;
+  dateUpdated: string;
+  lastUpdated: string;
+  posted_at: string;
+  execution_id: string;
+  feedback: string | null;
+  isProduction: boolean;
+  attachments: string[];
+}

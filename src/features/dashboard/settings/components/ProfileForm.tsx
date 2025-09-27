@@ -13,7 +13,7 @@ import {
 import { isNotEmpty, useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import { Color } from "../../../../common/theme";
 import { IUser } from "../../../auth/types";
 import { useSettingsServices } from "../services";
@@ -27,7 +27,7 @@ interface Props {
 
 export default function ProfileForm({ isLoading, fetchData, user }: Props) {
   const [submitted, setSubmitted] = useState(false);
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser } = useAuth();
 
 
 

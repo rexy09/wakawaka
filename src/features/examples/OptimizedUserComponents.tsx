@@ -1,22 +1,7 @@
-import { Text, Avatar, Group } from "@mantine/core";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IAuthUser } from "../auth/types";
+import { Text } from "@mantine/core";
 import { useUserProfile, useUserProfileFields } from "../auth/hooks/useUserProfile";
 
-// Example 1: Using minimal auth user data (no additional fetch needed)
-export const UserHeader = () => {
-  const authUser = useAuthUser<IAuthUser>();
-  
-  return (
-    <Group>
-      <Avatar src={authUser?.avatarURL} alt={authUser?.fullName} />
-      <div>
-        <Text fw={500}>{authUser?.fullName}</Text>
-        <Text size="sm" c="dimmed">{authUser?.email}</Text>
-      </div>
-    </Group>
-  );
-};
+
 
 // Example 2: Using specific profile fields when needed
 export const UserContactInfo = () => {

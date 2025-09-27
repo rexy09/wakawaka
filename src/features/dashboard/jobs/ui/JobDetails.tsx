@@ -17,8 +17,6 @@ import {
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { FaMoneyBills } from "react-icons/fa6";
 import { FiBookmark } from "react-icons/fi";
@@ -26,22 +24,21 @@ import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
 import { MdBusinessCenter, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
+import apple_button from "../../../../assets/img/apple_button.svg";
+import google_button from "../../../../assets/img/google_button.svg";
 import AuthModal from "../../../auth/components/AuthModal";
-import { IUser } from "../../../auth/types";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import AppleSigninButton from "../../../auth/ui/AppleSigninButton";
 import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
+import { timestampToISO } from "../../../hooks/utils";
 import JobCard from "../components/JobCard";
 import { JobCardSkeleton, JobDetailsCardSkeleton } from "../components/Loaders";
 import SearchModal from "../components/SearchModal";
 import { useJobServices } from "../services";
 import { IJobPost, PaginatedResponse } from "../types";
-import { timestampToISO } from "../../../hooks/utils";
-import apple_button from "../../../../assets/img/apple_button.svg";
-import google_button from "../../../../assets/img/google_button.svg";
 
 export default function JobDetails() {
-  const isAuthenticated = useIsAuthenticated();
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser, isAuthenticated } = useAuth();
 
   const {
     getJob,

@@ -14,23 +14,17 @@ import { useEffect, useState } from "react";
 import { CountrySelector, usePhoneInput } from "react-international-phone";
 import { Color, FontFamily } from "../../../common/theme";
 import useAuthServices from "../services";
-import { IPhoneLoginForm, IUser } from "../types";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
-import { useNavigate } from "react-router-dom";
+import { IPhoneLoginForm } from "../types";
 import OtpTimerButton from "./OtpTimerButton";
 export default function LoginWithPhoneForm() {
   const {
     submitted,
     setSubmitted,
     userLoginWithPhone,
-    lginWithPhoneVerifyOTP,
   } = useAuthServices();
   const [otp, setOTP] = useState<boolean>(false);
   const [otpTimer, setOTPTimer] = useState<number>(0);
-  const signIn = useSignIn();
-  const navigate = useNavigate();
 
-  const { getCargoUserDetails } = useAuthServices();
 
   const form = useForm<IPhoneLoginForm>({
     initialValues: { phone: "", phoneCountry: "", token: "" },
@@ -89,58 +83,7 @@ export default function LoginWithPhoneForm() {
   const verifyOTP = () => {
     setSubmitted(true);
 
-    lginWithPhoneVerifyOTP(form.values)
-      .then((response) => {
-        const access_token = response.data.access_token;
-        getCargoUserDetails(access_token)
-          .then(function (response) {
-            setSubmitted(false);
-            const responseData = response.data as IUser;
-            if (
-              signIn({
-                auth: {
-                  token: access_token,
-                  type: "Bearer",
-                },
-                userState: responseData,
-              })
-            ) {
-              navigate("/");
-            } else {
-              navigate("/login");
-            }
-          })
-          .catch(function (_error) {
-            setSubmitted(false);
-            notifications.show({
-              color: "red",
-              title: "Error",
-              message: "Something went wrong!",
-            });
-            navigate("/login");
-          });
-
-        setSubmitted(false);
-      })
-      .catch((error) => {
-        setSubmitted(false);
-        if (
-          error.response.data.error &&
-          typeof error?.response?.data?.error === "string"
-        ) {
-          notifications.show({
-            color: "red",
-            title: "Error",
-            message: error.response.data.error,
-          });
-        } else {
-          notifications.show({
-            color: "red",
-            title: "Error",
-            message: "Something went wrong!",
-          });
-        }
-      });
+   
   };
   useEffect(() => {}, []);
 

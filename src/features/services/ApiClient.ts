@@ -1,6 +1,5 @@
 import axios from "axios";
-import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
-
+import { useAuth } from "../auth/context/FirebaseAuthContext";
 import Env from "../../config/env";
 
 interface RequestOptions {
@@ -12,7 +11,7 @@ interface RequestOptions {
 }
 
 export default function useApiClient() {
-  const authHeader = useAuthHeader();
+  const { getIdToken } = useAuth();
   // const { notifyError } = userTostify();
   // const { userLogin } = useLoginServices();
   // const signIn = useSignIn();
@@ -161,13 +160,17 @@ export default function useApiClient() {
     // Generate CSRF token for state-changing requests
     const csrfToken = method !== 'get' ? generateCSRFToken() : undefined;
 
+    // Get Firebase ID token
+    const token = await getIdToken();
+    const authHeader = token ? `Bearer ${token}` : undefined;
+
     return axios({
       method: method,
       url: Env.baseURL + url,
       data: data,
       params: params,
       headers: {
-        Authorization: authHeader,
+        ...(authHeader && { Authorization: authHeader }),
         'X-Requested-With': 'XMLHttpRequest', // CSRF protection
         ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
         ...headers

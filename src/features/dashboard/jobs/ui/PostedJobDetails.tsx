@@ -10,6 +10,7 @@ import {
   Group,
   Image,
   Loader,
+  Modal,
   NumberFormatter,
   Paper,
   ScrollArea,
@@ -24,21 +25,22 @@ import {
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { FaMoneyBills } from "react-icons/fa6";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
+import { FaMoneyBills, FaWandMagicSparkles } from "react-icons/fa6";
 import { IoArrowBack, IoLocationOutline, IoTimeOutline } from "react-icons/io5";
 import { MdBusinessCenter, MdOutlineCall, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useNavigate, useParams } from "react-router-dom";
 import AuthModal from "../../../auth/components/AuthModal";
-import { IUser } from "../../../auth/types";
 import { JobDetailsCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
 import {
+  IApplicant,
   IHiredApplication,
   IJobApplication,
   IJobBid,
   IJobPost,
+  ISmartHireStatus,
 } from "../types";
 import UserAvatar from "../components/UserAvatar";
 import { timestampToISO } from "../../../hooks/utils";
@@ -46,7 +48,7 @@ import { timestampToISO } from "../../../hooks/utils";
 export default function PostedJobDetails() {
   const navigate = useNavigate();
 
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser } = useAuth();
 
   const {
     getJob,
@@ -54,7 +56,10 @@ export default function PostedJobDetails() {
     getJobApplications,
     getAllHiredJobApplications,
     unemployApplicantFromJob,
-    employApplicantFromJob
+    employApplicantFromJob,
+    smartHireTrigger,
+    smartHireStatus,
+    getSmartHireResults,
   } = useJobServices();
   const { id } = useParams();
 
@@ -62,21 +67,24 @@ export default function PostedJobDetails() {
   const [job, setJob] = useState<IJobPost>();
   const [loadingApplication, setLoadingApplication] = useState(false);
   const [applications, setApplications] = useState<IJobApplication[]>([]);
+  const [smartHire, setSmartHire] = useState<ISmartHireStatus>();
+  const [smartHireResults, setSmartHireResults] = useState<IApplicant[]>([]);
   const [bids, setBids] = useState<IJobBid[]>([]);
   const [hiredApplications, setHiredApplications] = useState<
     IHiredApplication[]
   >([]);
   const [loadingHired, setLoadingHired] = useState(false);
   const [loadingUnemployment, setLoadingUnemployment] = useState("");
+  const [loadingSmartHire, setLoadingSmartHire] = useState(false);
   const [authModalStatus, openAuthModal] = useState(false);
   const [activeTab, setActiveTab] = useState("applicants");
+  const [modalApplicant, setModalApplicant] = useState<IApplicant | null>(null);
 
   const tabs = [
     { id: "applicants", label: "Applicants" },
+    { id: "smartHired", label: "Smart Hire" },
     { id: "hired", label: "Hired" },
   ];
-
-  
 
   const handleUnemployApplicantFromJob = async (applicantUid: string) => {
     setLoadingUnemployment(applicantUid);
@@ -101,6 +109,43 @@ export default function PostedJobDetails() {
         setLoadingUnemployment("");
         console.log(error);
       });
+  };
+
+  const handleSmartHireTrigger = async () => {
+    if (!authUser) {
+      openAuthModal(true);
+      return;
+    }
+
+    if (!job?.id) {
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message: "Job ID is missing!",
+      });
+      return;
+    }
+
+    setLoadingSmartHire(true);
+    try {
+      const response = await smartHireTrigger(job.id);
+      console.log(response);
+      notifications.show({
+        color: "green",
+        title: "Success",
+        message: "Smart hire process has been triggered successfully.",
+      });
+    } catch (error) {
+      console.log(error);
+      notifications.show({
+        color: "red",
+        title: "Error",
+        message:
+          "Failed to trigger smart hire process. Please try again later.",
+      });
+    } finally {
+      setLoadingSmartHire(false);
+    }
   };
 
   const fetchJobApplications = async () => {
@@ -175,8 +220,53 @@ export default function PostedJobDetails() {
           message: "Something went wrong!",
         });
       });
+    smartHireStatus(id!)
+      .then((response) => {
+        setIsLoading(false);
+        setSmartHire(response.data);
+      })
+      .catch((_error) => {
+        setIsLoading(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
+      });
+  };
+  const fetchSmartHireResults = () => {
+    if (!smartHire?.execution?.execution_id) {
+      return;
+    }
+
+    setLoadingSmartHire(true);
+
+    getSmartHireResults(id!, smartHire.execution.execution_id)
+      .then((response) => {
+        setLoadingSmartHire(false);
+        // Parse ai_recruiter JSON string to object for each applicant
+        const parsedResults = response.map((applicant: IApplicant) => ({
+          ...applicant,
+          ai_recruiter:
+            typeof applicant.ai_recruiter === "string"
+              ? JSON.parse(applicant.ai_recruiter)
+              : applicant.ai_recruiter,
+        }));
+        setSmartHireResults(parsedResults);
+      })
+      .catch((_error) => {
+        setLoadingSmartHire(false);
+        notifications.show({
+          color: "red",
+          title: "Error",
+          message: "Something went wrong!",
+        });
+      });
   };
 
+  useEffect(() => {
+    fetchSmartHireResults();
+  }, [smartHire]);
   useEffect(() => {
     fetchData();
   }, [id]);
@@ -188,6 +278,14 @@ export default function PostedJobDetails() {
   }, [job, authUser?.uid]);
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
+  };
+
+  const openModal = (applicant: IApplicant) => {
+    setModalApplicant(applicant);
+  };
+
+  const closeModal = () => {
+    setModalApplicant(null);
   };
 
   const applicationsCards = applications.map((application) => (
@@ -275,7 +373,6 @@ export default function PostedJobDetails() {
               size="xs"
               radius={"xl"}
               fw={500}
-
             >
               Employ
             </Button>
@@ -345,51 +442,7 @@ export default function PostedJobDetails() {
       </Group>
     </Paper>
   ));
-  // const hiredCards = hiredApplications.map((application, index) => (
-  //   <Paper withBorder p={"xs"} radius={"md"} mb={"sm"} key={index}>
-  //     <Group wrap="nowrap" align="center" justify="space-between">
-  //       <Group wrap="nowrap" gap={"xs"}>
-  //         <Avatar
-  //           w="50px"
-  //           h="50px"
-  //           radius={"xl"}
-  //           // src={job?.avatarUrl}
-  //         />
-  //         <div>
-  //           <Text size="16px" fw={500} c="#000000">
-  //             {application?.applicantName}
-  //           </Text>
-  //           <Space h="5px" />
-  //           <Group wrap="nowrap" gap={3}>
-  //             {/* <IoTimeOutline size={14} color="#596258" /> */}
-  //             <Text size="14px" fw={400} c="#596258">
-  //               Hired at{" "}
-  //               {moment(
-  //                 typeof application?.dateHired === "string"
-  //                   ? new Date(application?.dateHired)
-  //                   : application?.dateHired.toDate()
-  //               ).format("MMMM YYYY")}
-  //             </Text>
-  //           </Group>
-  //         </div>
-  //       </Group>
-  //       <Group wrap="nowrap" gap={8}>
-  //         <ActionIcon color="#43A047" radius={"xl"} size={"lg"}>
-  //           <MdOutlineCall color="white" />
-  //         </ActionIcon>
-  //         <Button
-  //           variant="filled"
-  //           color="#E53935"
-  //           size="xs"
-  //           radius={"xl"}
-  //           fw={500}
-  //         >
-  //           Unemploy
-  //         </Button>
-  //       </Group>
-  //     </Group>
-  //   </Paper>
-  // ));
+
   return (
     <div>
       <AuthModal
@@ -414,27 +467,6 @@ export default function PostedJobDetails() {
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 2, md: 1 }}>
           {job ? (
             <>
-              {/* <Group wrap="wrap" justify="space-between" align="start">
-                <Text size="28px" fw={700} c="#141514">
-                  Job Details
-                </Text>
-                <Group>
-                  {applied?.status == "accepted" && (
-                    <Button
-                      variant="filled"
-                      color="#151F42"
-                      size="xs"
-                      radius={"md"}
-                      fw={500}
-                      // onClick={() => setApplicationModalOpen(true)}
-                      loading={checkingApplication}
-                    >
-                      Complete Job
-                    </Button>
-                  )}
-                </Group>
-              </Group> */}
-              {/* <Space h="md" /> */}
               <Card p={"md"} radius={"md"}>
                 <div>
                   <Group justify="space-between" wrap="nowrap" align="start">
@@ -602,22 +634,27 @@ export default function PostedJobDetails() {
                       w="50px"
                       h="50px"
                       radius={"xl"}
-                      src={job.avatarUrl}
+                      src={authUser?.avatarURL}
                     />
                     <div style={{ flex: 1 }}>
                       <Text size="16px" fw={500} c="#000000">
-                        {job.fullName}
+                        {authUser?.fullName}
                       </Text>
                       <Space h="xs" />
                       <Group wrap="nowrap" gap={3}>
                         <IoTimeOutline size={14} color="#596258" />
                         <Text size="14px" fw={400} c="#596258">
                           Joined{" "}
-                          {job.userDateJoined?moment(
-                            typeof job.userDateJoined === "string"
-                              ? new Date(job.userDateJoined)
-                              : timestampToISO(job.userDateJoined.seconds ?? 0, job.userDateJoined.nanoseconds ?? 0)
-                          ).format("MMMM YYYY"):"NA"}
+                          {job.userDateJoined
+                            ? moment(
+                                typeof job.userDateJoined === "string"
+                                  ? new Date(job.userDateJoined)
+                                  : timestampToISO(
+                                      job.userDateJoined.seconds ?? 0,
+                                      job.userDateJoined.nanoseconds ?? 0
+                                    )
+                              ).format("MMMM YYYY")
+                            : "NA"}
                         </Text>
                       </Group>
                       <Group wrap="nowrap" gap={3} mt={4}>
@@ -688,6 +725,188 @@ export default function PostedJobDetails() {
                         No applications yet.
                       </Text>
                     </Paper>
+                  )}
+                </Tabs.Panel>
+                <Tabs.Panel value="smartHired">
+                  {smartHire?.execution == null && (
+                    <Center>
+                      <Button
+                        variant="filled"
+                        color="#151F42"
+                        leftSection={<FaWandMagicSparkles />}
+                        size="md"
+                        fw={500}
+                        w={"90%"}
+                        loading={loadingSmartHire}
+                        disabled={loadingSmartHire}
+                        onClick={handleSmartHireTrigger}
+                      >
+                        {loadingSmartHire ? "Processing..." : "Analyze with AI"}
+                      </Button>
+                    </Center>
+                  )}
+
+                  {smartHire?.execution != null && (
+                    <>
+                      <Group
+                        justify="space-between"
+                        align="center"
+                        mb={"md"}
+                        mt={"-md"}
+                      >
+                        <Text size="16px" fw={600} c="#141514">
+                          Smart Hire Results
+                        </Text>
+                        <Badge
+                          color={
+                            smartHire.execution.status === "completed"
+                              ? "#43A047"
+                              : smartHire.execution.status === "failed"
+                              ? "#E53935"
+                              : "#FF9800"
+                          }
+                          radius="sm"
+                          size="lg"
+                        >
+                          <Text
+                            size="xs"
+                            fw={500}
+                            c="#FFFFFF"
+                            tt={"capitalize"}
+                          >
+                            {smartHire.execution.status}
+                          </Text>
+                        </Badge>
+                      </Group>
+                      {smartHire.execution.status === "completed" && (
+                        <>
+                          {loadingSmartHire || smartHireResults.length === 0 ? (
+                            <Paper withBorder p={"xs"} radius={"md"}>
+                              <Text size="sm" c="#7F7D7D" ta={"center"}>
+                                No results found.
+                              </Text>
+                            </Paper>
+                          ) : (
+                            <ScrollArea
+                              style={{ height: "calc(100vh - 50vh)" }}
+                              scrollbars="y"
+                            >
+                              {smartHireResults.map((applicant) => {
+                                // Remove isExpanded logic for modal approach
+
+                                return (
+                                  <Paper
+                                    withBorder
+                                    p={"md"}
+                                    radius={"md"}
+                                    mb={"md"}
+                                    key={applicant.uid}
+                                  >
+                                      <Group
+                                        justify="space-between"
+                                        align="start"
+                                      >
+                                        <Group gap="sm">
+                                          <Avatar
+                                            size="lg"
+                                            radius="xl"
+                                            src={applicant.avatarURL}
+                                          />
+                                          <div>
+                                            <Text
+                                              size="lg"
+                                              fw={600}
+                                              c="#000000"
+                                            >
+                                              {applicant.applicantName}
+                                            </Text>
+                                            {applicant.ai_recruiter && (
+                                                <Group
+                                                  justify="space-between"
+                                                  align="center"
+                                                >
+                                                  <Group gap="xs">
+                                                    <Badge
+                                                      size="sm"
+                                                      radius="md"
+                                                      variant="filled"
+                                                      color={
+                                                        applicant.ai_recruiter
+                                                          .risk_score >= 75
+                                                          ? "green"
+                                                          : applicant
+                                                              .ai_recruiter
+                                                              .risk_score >= 50
+                                                          ? "yellow"
+                                                          : "red"
+                                                      }
+                                                    >
+                                                      Risk:{" "}
+                                                      {
+                                                        applicant.ai_recruiter
+                                                          .risk_score
+                                                      }
+                                                      %
+                                                    </Badge>
+                                                    <Badge
+                                                      size="sm"
+                                                      radius="md"
+                                                      variant="outline"
+                                                      color="blue"
+                                                    >
+                                                      Hire:{" "}
+                                                      {
+                                                        applicant.ai_recruiter
+                                                          .employability_score
+                                                      }
+                                                      %
+                                                    </Badge>
+                                                  </Group>
+
+                                                  <Button
+                                                  
+                                                  size="compact-xs"
+                                                    variant="light"
+                                                    color="blue"
+                                                    onClick={() =>
+                                                      openModal(applicant)
+                                                    }
+                                                  >
+                                                    View Details
+                                                  </Button>
+                                                </Group>
+                                            )}
+                                          </div>
+                                        </Group>
+                                      </Group>
+
+                                  </Paper>
+                                );
+                              })}
+                            </ScrollArea>
+                          )}
+                        </>
+                      )}
+                      {smartHire.execution.status === "in_progress" && (
+                        <Paper withBorder p={"xs"} radius={"md"}>
+                          <Center>
+                            <Loader color="violet" size={"sm"} />
+                          </Center>
+                          <Text size="sm" c="#7F7D7D" ta={"center"} mt={"sm"}>
+                            AI is analyzing the applications. Please check back
+                            later.
+                          </Text>
+                        </Paper>
+                      )}
+                      {smartHire.execution.status === "failed" && (
+                        <Paper withBorder p={"xs"} radius={"md"}>
+                          <Text size="sm" c="#E53935" ta={"center"}>
+                            Failed to analyze applications. Please try again
+                            later.
+                          </Text>
+                        </Paper>
+                      )}
+                    </>
                   )}
                 </Tabs.Panel>
                 <Tabs.Panel value="hired">
@@ -775,6 +994,163 @@ export default function PostedJobDetails() {
           )}
         </Grid.Col>
       </Grid>
+
+      {/* AI Analysis Modal */}
+      <Modal
+        opened={modalApplicant !== null}
+        onClose={closeModal}
+        title={
+          <Group gap="sm">
+            <Avatar size="sm" radius="xl" src={modalApplicant?.avatarURL} />
+            <Text size="lg" fw={600}>
+              {modalApplicant?.applicantName} - AI Analysis
+            </Text>
+          </Group>
+        }
+        size="lg"
+        radius="md"
+      >
+        {modalApplicant?.ai_recruiter && (
+          <Stack gap="lg">
+            {/* Score Summary */}
+            <Group gap="md" justify="center">
+              <div style={{ textAlign: "center" }}>
+                <Text size="xs" c="#596258" mb="xs">
+                  Risk Assessment
+                </Text>
+                <Group gap="xs" justify="center">
+                  <Text
+                    size="xl"
+                    fw={700}
+                    c={
+                      modalApplicant.ai_recruiter.risk_score >= 75
+                        ? "#43A047"
+                        : modalApplicant.ai_recruiter.risk_score >= 50
+                        ? "#F9A825"
+                        : "#E53935"
+                    }
+                  >
+                    {modalApplicant.ai_recruiter.risk_score}%
+                  </Text>
+                  <Badge
+                    variant="light"
+                    color={
+                      modalApplicant.ai_recruiter.risk_score >= 75
+                        ? "green"
+                        : modalApplicant.ai_recruiter.risk_score >= 50
+                        ? "yellow"
+                        : "red"
+                    }
+                    size="lg"
+                  >
+                    {modalApplicant.ai_recruiter.risk_score >= 75
+                      ? "Low Risk"
+                      : modalApplicant.ai_recruiter.risk_score >= 50
+                      ? "Medium Risk"
+                      : "High Risk"}
+                  </Badge>
+                </Group>
+              </div>
+
+              <div style={{ textAlign: "center" }}>
+                <Text size="xs" c="#596258" mb="xs">
+                  Employability Score
+                </Text>
+                <Group gap="xs" justify="center">
+                  <Text size="xl" fw={700} c="#2563eb">
+                    {modalApplicant.ai_recruiter.employability_score}%
+                  </Text>
+                  <Badge variant="light" color="blue" size="lg">
+                    {modalApplicant.ai_recruiter.employability_score >= 75
+                      ? "Excellent"
+                      : modalApplicant.ai_recruiter.employability_score >= 50
+                      ? "Good"
+                      : "Fair"}
+                  </Badge>
+                </Group>
+              </div>
+            </Group>
+
+            <Divider />
+
+            {/* AI Reasoning */}
+            <div>
+              <Text size="md" fw={600} mb="sm" c="#151F42">
+                AI Reasoning
+              </Text>
+              <Paper
+                p="md"
+                radius="md"
+                style={{
+                  backgroundColor: "#f8f9fa",
+                  border: "1px solid #e9ecef",
+                }}
+              >
+                <Text size="sm" style={{ lineHeight: 1.6 }}>
+                  {modalApplicant.ai_recruiter.short_reason}
+                </Text>
+              </Paper>
+            </div>
+
+            <Divider />
+
+            {/* AI Recommendation */}
+            <Group justify="space-between" align="center">
+              <div>
+                <Text size="sm" c="#596258" mb="xs">
+                  AI Recommendation
+                </Text>
+                <Text
+                  size="md"
+                  fw={600}
+                  c={
+                    modalApplicant.ai_recruiter.risk_score >= 75
+                      ? "#43A047"
+                      : modalApplicant.ai_recruiter.risk_score >= 50
+                      ? "#F9A825"
+                      : "#E53935"
+                  }
+                >
+                  {modalApplicant.ai_recruiter.risk_score >= 75
+                    ? "✅ Strongly Recommended"
+                    : modalApplicant.ai_recruiter.risk_score >= 50
+                    ? "⚠️ Consider with Caution"
+                    : "❌ Not Recommended"}
+                </Text>
+              </div>
+
+              <Button
+                size="md"
+                variant={
+                  modalApplicant.ai_recruiter.risk_score >= 75
+                    ? "filled"
+                    : "outline"
+                }
+                color={
+                  modalApplicant.ai_recruiter.risk_score >= 75
+                    ? "green"
+                    : modalApplicant.ai_recruiter.risk_score >= 50
+                    ? "yellow"
+                    : "red"
+                }
+                onClick={() => {
+                  if (modalApplicant.ai_recruiter.risk_score >= 50) {
+                    handleEmployApplicantFromJob(modalApplicant.uid);
+                    closeModal();
+                  }
+                }}
+                disabled={modalApplicant.ai_recruiter.risk_score < 50}
+              >
+                {modalApplicant.ai_recruiter.risk_score >= 75
+                  ? "Hire Now"
+                  : modalApplicant.ai_recruiter.risk_score >= 50
+                  ? "Consider Hiring"
+                  : "Not Recommended"}
+              </Button>
+            </Group>
+          </Stack>
+        )}
+      </Modal>
     </div>
   );
 }

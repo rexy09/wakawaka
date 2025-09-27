@@ -1,14 +1,13 @@
-import { doc, updateDoc, Timestamp, getDoc } from "firebase/firestore";
+import { Timestamp, doc, getDoc, updateDoc } from "firebase/firestore";
 import { getToken } from "firebase/messaging";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import Env from "../../config/env";
 import { messaging } from "../../config/firebase";
-import { IAuthUser } from "../auth/types";
+import { useAuth } from "../auth/context/FirebaseAuthContext";
 import useDbService from "../services/DbService";
 
 export const useNotificationService = () => {
   const { usersRef } = useDbService();
-  const authUser = useAuthUser<IAuthUser>();
+  const { user: authUser } = useAuth();
 
   const getFCMToken = async (): Promise<string | null> => {
     try {

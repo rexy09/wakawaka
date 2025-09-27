@@ -1,11 +1,10 @@
 import { Button, Flex, Modal, Space, Text } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import useSignOut from "react-auth-kit/hooks/useSignOut";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../../../../features/auth/context/FirebaseAuthContext";
 import { useNotificationStore } from "../../../../../features/dashboard/notifications/stores";
 import { Icons } from "../../../../icons";
 import { Color } from "../../../../theme";
-import { getAuth, signOut as firebaseSignOut } from "firebase/auth";
 
 type Props = {
   menuButton?: boolean;
@@ -14,8 +13,7 @@ type Props = {
 export default function SignOutModal({ menuButton }: Props) {
   const [opened, { open, close }] = useDisclosure(false);
 
-  const signOut = useSignOut();
-  const auth = getAuth();
+  const { signOutUser } = useAuth();
   const navigate = useNavigate();
   const notificationStore = useNotificationStore();
 
@@ -40,15 +38,16 @@ export default function SignOutModal({ menuButton }: Props) {
         >
           <Button
             color={"red"}
-            onClick={() => {
+            onClick={async () => {
               close();
-              signOut();
-              firebaseSignOut(auth).then(() => {
-              }).catch((_error) => {
-              });
-              localStorage.clear();
-              notificationStore.reset();
-              navigate("/");
+              try {
+                await signOutUser();
+                localStorage.clear();
+                notificationStore.reset();
+                navigate("/");
+              } catch (error) {
+                console.error("Error signing out:", error);
+              }
             }}
             variant="subtle"
           >

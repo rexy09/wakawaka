@@ -1,15 +1,15 @@
 import { Button, Image } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { FacebookAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
 import facebook from "../../../assets/icons/facebook.png";
+import { useAuthSignIn } from "../hooks/useAuthSignIn";
 
 
 export default function FacebookSigninButton() {
   const provider = new FacebookAuthProvider();
   const auth = getAuth();
-  const signIn = useSignIn();
+  const { handleAuthSignIn } = useAuthSignIn();
 
   const navigate = useNavigate();
 
@@ -31,24 +31,8 @@ export default function FacebookSigninButton() {
               const user = result.user;
               if (token && user) {
                 const accessToken = await user.getIdToken();
-                if (
-                  signIn({
-                    auth: {
-                      token: accessToken,
-                      type: "Bearer",
-                    },
-                    userState: {
-                      uid: user.uid,
-                      email: user.email,
-                      name: user.displayName,
-                      photoUrl: user.photoURL,
-                    },
-                  })
-                ) {
-                  navigate("/");
-                } else {
-                  navigate("/login");
-                }
+                await handleAuthSignIn(accessToken, user);
+                navigate("/jobs");
               }
             })
             .catch((error) => {

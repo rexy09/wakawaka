@@ -17,12 +17,11 @@ import { useForm } from "@mantine/form";
 import { notifications } from "@mantine/notifications";
 import { Libraries, LoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { IoArrowBack } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { Color } from "../../../../common/theme";
 import Env from "../../../../config/env";
-import { IUser } from "../../../auth/types";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import { useCountriesAndCurrencies } from "../../profile/data";
 import GooglePlacesAutocomplete from "../components/GooglePlacesAutocomplete";
 import { useJobServices } from "../services";
@@ -37,7 +36,7 @@ import {
 const libraries: Libraries = ["places", "maps"];
 
 export default function PostJobForm() {
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser } = useAuth();
 
   const navigate = useNavigate();
   const { getTranslatedCatgories, getCommitmentTypes, getUrgencyLevels, postJob, getUserJobPostCount, getWorkLocations } =

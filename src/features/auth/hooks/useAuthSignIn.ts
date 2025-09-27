@@ -1,7 +1,7 @@
 import { notifications } from "@mantine/notifications";
 import { User } from "firebase/auth";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/FirebaseAuthContext";
 import { useProfileServices } from "../../dashboard/profile/services";
 import { IAuthUser } from "../types";
 import { useNotificationService } from "../../notifications/useNotificationService";
@@ -16,17 +16,17 @@ interface AuthSignInOptions {
 export const useAuthSignIn = (options: AuthSignInOptions = {}) => {
   const {
     successRedirect = "/jobs",
-    errorRedirect = "/login",
+    // errorRedirect = "/login",
     completeProfileRedirect = "/complete_profile",
   } = options;
 
   const navigate = useNavigate();
-  const signIn = useSignIn();
+  const { signIn } = useAuth();
   const { getUserData } = useProfileServices();
   const { requestAndUpdateNotificationToken } = useNotificationService();
 
   const handleAuthSignIn = async (
-    accessToken: string,
+    _accessToken: string,
     firebaseUser: User,
     additionalUserData?: Partial<IAuthUser>
   ) => {
@@ -34,26 +34,23 @@ export const useAuthSignIn = (options: AuthSignInOptions = {}) => {
       const userData = await getUserData(firebaseUser.uid);
 
       if (!userData) {
-        if (
-          signIn({
-            auth: {
-              token: accessToken,
-              type: "Bearer",
-            },
-            userState: {
-              id: firebaseUser.uid,
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              fullName: firebaseUser.displayName,
-              avatarURL: firebaseUser.photoURL,
-            },
-          })
-        ) {
-          requestAndUpdateNotificationToken();
-          navigate(completeProfileRedirect);
-        } else {
-          navigate("/login");
-        }
+        const tempUserData: IAuthUser = {
+          id: firebaseUser.uid,
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          fullName: firebaseUser.displayName || "",
+          avatarURL: firebaseUser.photoURL || null,
+          role: null,
+          isVerified: false,
+          userType: null,
+          country: null,
+          currency: null,
+          dateAdded: new Date().toISOString(),
+        };
+
+        signIn(tempUserData, firebaseUser);
+        requestAndUpdateNotificationToken();
+        navigate(completeProfileRedirect);
 
         return { success: false, reason: "profile_incomplete" };
       }
@@ -75,22 +72,10 @@ export const useAuthSignIn = (options: AuthSignInOptions = {}) => {
         ...additionalUserData,
       };
 
-      // Attempt to sign in
-      const signInSuccess = signIn({
-        auth: {
-          token: accessToken,
-          type: "Bearer",
-        },
-        userState,
-      });
-
-      if (signInSuccess) {
-        navigate(successRedirect);
-        return { success: true, userData: userState };
-      } else {
-        navigate(errorRedirect);
-        return { success: false, reason: "signin_failed" };
-      }
+      // Sign in with Firebase auth context
+      signIn(userState, firebaseUser);
+      navigate(successRedirect);
+      return { success: true, userData: userState };
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";

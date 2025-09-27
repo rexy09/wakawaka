@@ -1,15 +1,14 @@
 import { doc, getDoc, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { getToken } from "firebase/messaging";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import Env from "../../../config/env";
 import { messaging } from "../../../config/firebase";
-import { IAuthUser } from "../../auth/types";
+import { useAuth } from "../../auth/context/FirebaseAuthContext";
 import useDbService from "../../services/DbService";
 import { IUserData, ProfileForm } from "./types";
 
 export const useProfileServices = () => {
   const { usersRef, CACHE_DURATION } = useDbService();
-    const authUser = useAuthUser<IAuthUser>();
+    const { user: authUser } = useAuth();
 
   // Add caching for frequently accessed user data
   const userCache = new Map<string, { data: any; timestamp: number }>();

@@ -12,7 +12,7 @@ import AuthLayout from "../common/layouts/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
 import SignupPage from "../pages/auth/SignupPage";
 import PostJobPage from "../pages/dashboard/PostJobPage";
-import RequireAuth from "@auth-kit/react-router/RequireAuth";
+import { RequireAuth } from "../features/auth/components/RequireAuth";
 import PublicLayout from "../common/layouts/PublicLayout";
 import AccountDeletionRequestPage from "../pages/auth/AccountDeletionRequestPage";
 import CompleteProfilePage from "../pages/dashboard/CompleteProfilePage";

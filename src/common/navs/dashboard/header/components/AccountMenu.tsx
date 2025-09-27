@@ -1,10 +1,9 @@
 import { Avatar, Flex, Group, Menu, Space, Text } from "@mantine/core";
 
-import { useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
+import { useState, memo } from "react";
 import { CiUser } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-import { IAuthUser } from "../../../../../features/auth/types";
+import { useAuth } from "../../../../../features/auth/context/FirebaseAuthContext";
 import { Color } from "../../../../theme";
 import SignOutModal from "./SignOutModal";
 type Props = {
@@ -12,7 +11,7 @@ type Props = {
 };
 function AccountMenu({ }: Props) {
   const navigate = useNavigate();
-  const authUser = useAuthUser<IAuthUser>();
+  const { user: authUser } = useAuth();
 
   const [userMenuOpened, setUserMenuOpened] = useState(false);
 
@@ -88,4 +87,4 @@ function AccountMenu({ }: Props) {
   );
 }
 
-export default AccountMenu;
+export default memo(AccountMenu);

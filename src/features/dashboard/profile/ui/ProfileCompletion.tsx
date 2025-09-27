@@ -17,8 +17,7 @@ import { notifications } from "@mantine/notifications";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { getAuth } from "firebase/auth";
 import { useState, useEffect } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import {
     CountrySelector,
     usePhoneInput
@@ -33,8 +32,7 @@ import { ProfileForm } from "../types";
 
 export default function ProfileCompletion() {
     const navigate = useNavigate();
-    const authUser = useAuthUser<IAuthUser>();
-    const signIn = useSignIn();
+    const { user: authUser, signIn: updateAuthUser } = useAuth();
     const { countries, getCurrencyForCountry } = useCountriesAndCurrencies();
 
     const { createUserData, initializeNotificationToken } = useProfileServices();
@@ -142,18 +140,12 @@ export default function ProfileCompletion() {
             const token = await currentUser?.getIdToken(true);
 
             if (token) {
-                signIn({
-                    auth: {
-                        token: token,
-                        type: "Bearer",
-                    },
-                    userState: {
-                        ...authUser,
-                        fullName: userData.fullName,
-                        avatarURL: finalAvatarURL,
-                        userType: userData.userType,
-                    },
-                });
+                updateAuthUser({
+                    ...authUser!,
+                    fullName: userData.fullName,
+                    avatarURL: finalAvatarURL,
+                    userType: userData.userType,
+                } as IAuthUser, currentUser!);
             }
 
             notifications.show({

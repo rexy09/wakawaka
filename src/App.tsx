@@ -14,13 +14,12 @@ import { notifications, Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
 import '@mantine/tiptap/styles.css';
 import { onMessage } from "firebase/messaging";
-import AuthProvider from "react-auth-kit/AuthProvider";
-import createStore from "react-auth-kit/createStore";
 import { RouterProvider } from "react-router-dom";
 import "./App.css";
 import { Icons } from "./common/icons";
 import { Color, FontFamily } from "./common/theme";
 import { messaging } from "./config/firebase";
+import { AuthProvider } from "./features/auth/context/FirebaseAuthContext";
 import { useNotificationStore } from "./features/dashboard/notifications/stores";
 import { router } from "./routes/Router";
 import { register } from "./serviceWorker";
@@ -29,7 +28,7 @@ import '@mantine/carousel/styles.css';
 register();
 
 const theme = createTheme({
-  fontFamily: FontFamily.Satoshi,
+  fontFamily: FontFamily.Inter,
   // primaryColor: "blue",
   cursorType: "pointer",
   components: {
@@ -95,19 +94,12 @@ function App() {
       notificationStore.inc();
     }
   });
-  const store = createStore({
-    authName: "_auth",
-    authType: "cookie",
-    cookieDomain: window.location.hostname,
-    cookieSecure: window.location.protocol === "https:",
-    // refresh: refresh
-  });
 
   return (
     <>
       <MantineProvider theme={theme}>
         <Notifications />
-        <AuthProvider store={store}>
+        <AuthProvider>
           <RouterProvider router={router} />
         </AuthProvider>
       </MantineProvider>

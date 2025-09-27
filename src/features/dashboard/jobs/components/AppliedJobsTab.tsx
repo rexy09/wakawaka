@@ -6,16 +6,15 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUser } from "../../../auth/types";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import { useJobServices } from "../services";
 import { IJobApplicationWithPost, } from "../types";
-import { JobCardSkeleton } from "./Loaders";
 import AppliedJobCard from "./AppliedJobCard";
+import { JobCardSkeleton } from "./Loaders";
 
 export default function AppliedJobsTab() {
   const { getAppliedJobs } = useJobServices();
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [jobApplicationPairs, setJobApplicationPairs] = useState<IJobApplicationWithPost[]>([]);
   const [lastDoc, setLastDoc] = useState<any | null>(null);
