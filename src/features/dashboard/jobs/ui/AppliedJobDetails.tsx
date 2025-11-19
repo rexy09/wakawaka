@@ -193,9 +193,7 @@ export default function AppliedJobDetails() {
                         typeof job.datePosted === "string"
                           ? new Date(job.datePosted)
                           : job.datePosted.toDate()
-                      )
-                        .startOf("day")
-                        .fromNow()}
+                      ).fromNow()}
                     </Text>
                   </Group>
                 </div>
@@ -392,11 +390,11 @@ export default function AppliedJobDetails() {
           <strong>{job?.title ? job.title : (typeof job?.category === 'string' ? job.category : job?.category?.en || '')}</strong>
         </Text>
         <Space h="md" />
-       
+
         {isAuthenticated ? (
           <Group justify="center">
-            
-            
+
+
             <Button
               onClick={handleJobApplication}
               loading={isApplying}

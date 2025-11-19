@@ -183,9 +183,7 @@ export default function AppliedJobCard({ job, application }: Props) {
                       typeof job.datePosted === "string"
                         ? new Date(job.datePosted)
                         : job.datePosted.toDate()
-                    )
-                      .startOf("day")
-                      .fromNow()}
+                    ).fromNow()}
                   </Text>
                 </Group>
                 <Space h="xs" />
@@ -264,18 +262,18 @@ export default function AppliedJobCard({ job, application }: Props) {
                     : application.status === "approved"
                       ? "#6247BA"
                       : application.status === "completed"
-                    ? "#43A047"
-                    : application.status === "pending"
-                    ? "#FF8810"
-                    : application.status === "rejected"
+                        ? "#43A047"
+                        : application.status === "pending"
+                          ? "#FF8810"
+                          : application.status === "rejected"
                             ? "#E53935"
-                    : "#044299"
+                            : "#044299"
                 }
                 radius="sm"
                 size="md"
               >
                 <Text size="xs" fw={500} c="#FFFFFF" tt={"capitalize"}>
-                  {application.status === "rejected"?"Closed":application.status}
+                  {application.status === "rejected" ? "Closed" : application.status}
                 </Text>
               </Badge>
             </Group>

@@ -31,7 +31,7 @@ export default function PostedJobCard({ job }: Props) {
   // const [checkingStatus, setCheckingStatus] = useState(false);
   const [authModalStatus, openAuthModal] = useState(false);
 
-  
+
 
 
 
@@ -50,7 +50,7 @@ export default function PostedJobCard({ job }: Props) {
           <Card
             p={"md"}
             radius={"12px"}
-            
+
           >
             <Group wrap="nowrap" align="start">
               <div className="w-[100%]">
@@ -78,7 +78,7 @@ export default function PostedJobCard({ job }: Props) {
 
                     <Menu.Dropdown>
                       <Menu.Item onClick={() => {
-                        navigate("/jobs/" + job.id +"/posted");
+                        navigate("/jobs/" + job.id + "/posted");
                       }}>View Job</Menu.Item>
                       <Menu.Item>View Applications</Menu.Item>
                       <Menu.Item>View Bids</Menu.Item>
@@ -95,9 +95,7 @@ export default function PostedJobCard({ job }: Props) {
                       typeof job.datePosted === "string"
                         ? new Date(job.datePosted)
                         : job.datePosted.toDate()
-                    )
-                      .startOf("day")
-                      .fromNow()}
+                    ).fromNow()}
                   </Text>
                 </Group>
                 <Space h="xs" />
