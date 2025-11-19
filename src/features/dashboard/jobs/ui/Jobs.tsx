@@ -9,7 +9,9 @@ import {
   Text
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
+import axios from "axios";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Env from "../../../../config/env";
 import { useUtilities } from "../../../hooks/utils";
 import JobCard from "../components/JobCard";
 import { JobCardSkeleton } from "../components/Loaders";
@@ -17,15 +19,15 @@ import SearchModal from "../components/SearchModal";
 import { useJobServices } from "../services";
 import { useJobParameters } from "../stores";
 import {
+  ICategory,
   ICommitmentType,
-  IJobCategory,
   IJobPost,
-  IUrgencyLevels,
+  IUrgencyLevels
 } from "../types";
 
 export default function Jobs() {
   const parameters = useJobParameters();
-  const { getJobs, getCatgories, getCommitmentTypes, getUrgencyLevels } =
+  const { getJobs, getCommitmentTypes, getUrgencyLevels } =
     useJobServices();
   const { getFormattedDate } = useUtilities();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +35,8 @@ export default function Jobs() {
   const [lastDoc, setLastDoc] = useState<any | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
-  const [jobCategories, setJobCategories] = useState<IJobCategory[]>([]);
+  const [_categories, setCategories] = useState<ICategory[]>([]);
+
   const [commitmentTypes, setCommitmentTypes] = useState<ICommitmentType[]>([]);
   const [urgencyLevels, setUrgencyLevels] = useState<IUrgencyLevels[]>([]);
   const observer = useRef<IntersectionObserver | null>(null);
@@ -115,21 +118,32 @@ export default function Jobs() {
       });
   };
   useEffect(() => {
+
     parameters.updateText("startDate", getFormattedDate(startDate));
     parameters.updateText("endDate", getFormattedDate(endDate));
     fetchData();
     fetchFilterData();
   }, []);
 
+  useEffect(() => {
+    axios
+      .get(Env.baseURL + "/jobs/categories")
+      .then((response) => {
+        setCategories(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching jobs categories:", error);
+      });
+  }, []);
+
   const fetchFilterData = async () => {
     try {
-      const [categories, commitmentTypes, urgencyLevels] = await Promise.all([
-        getCatgories(),
+      const [commitmentTypes, urgencyLevels] = await Promise.all([
+
         getCommitmentTypes(),
         getUrgencyLevels(),
       ]);
 
-      setJobCategories(categories);
       setCommitmentTypes(commitmentTypes);
       setUrgencyLevels(urgencyLevels);
     } catch (error) {
@@ -145,12 +159,11 @@ export default function Jobs() {
   };
 
   const handleResetFilters = () => {
-    // Reset all parameters
-    parameters.updateText("search", "");
-    parameters.updateText("location", "");
-    parameters.updateText("category", "");
-    parameters.updateText("urgency", "");
-    parameters.updateText("commitment", "");
+
+    parameters.reset();
+    setJobs([]);
+    setLastDoc(null);
+    setHasMore(true);
     fetchData();
   };
 
@@ -186,19 +199,19 @@ export default function Jobs() {
               </Text>
             </Group>
             <Space h="lg" />
-            <Select
+            {/* <Select
               label="Category"
               placeholder="Select your category"
-              data={jobCategories.map((item) => item.name)}
-              value={parameters.category}
+              data={categories.map((item) => item.en)}
+              value={parameters.category.en}
               searchable
               clearable
               onChange={(value) => {
-                parameters.updateText("category", value ?? "");
+                parameters.updateText("category", categories.find(cat => cat.en === value) ?? { en: "", fr: "", pt: "", es: "", sw: "" });
                 fetchData();
               }}
             />
-            <Space h="md" />
+            <Space h="md" /> */}
             <Select
               label="Urgency"
               placeholder="Select your urgency"

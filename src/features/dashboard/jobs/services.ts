@@ -59,8 +59,8 @@ export const useJobServices = () => {
       orderBy("datePosted", "desc"),
     ];
 
-    if (p.category !== undefined && p.category !== null && p.category !== "") {
-      totalQueryConstraints.push(where("category", "==", p.category));
+    if (p.category !== undefined && p.category !== null) {
+      totalQueryConstraints.push(where("category", "array-contains", p.category));
     }
     if (p.urgency !== undefined && p.urgency !== null && p.urgency !== "") {
       totalQueryConstraints.push(where("urgency", "==", p.urgency));
@@ -85,9 +85,9 @@ export const useJobServices = () => {
       where("isProduction", "==", Env.isProduction),
       orderBy("datePosted", "desc"),
     ];
-    if (p.category !== undefined && p.category !== null && p.category !== "") {
-      dataQueryConstraints.push(where("category", "==", p.category));
-    }
+    // if (p.category !== undefined && p.category !== null) {
+    //   dataQueryConstraints.push(where("category", "array-contains", p.category));
+    // }
     if (p.urgency !== undefined && p.urgency !== null && p.urgency !== "") {
       dataQueryConstraints.push(where("urgency", "==", p.urgency));
     }
@@ -152,7 +152,9 @@ export const useJobServices = () => {
   };
 
   const getRelatedJobs = async (
-    category: string,
+    category:
+      | string
+      | { sw: string; pt: string; en: string; fr: string; es: string },
     excludeId: string,
     direction: "next" | "prev" | string | undefined,
     startAfterDoc?: DocumentSnapshot,
@@ -162,10 +164,15 @@ export const useJobServices = () => {
 
     const dataCollection = jobPostsRef;
 
+    // Convert category to array for 'in' operator
+    const categoryArray = typeof category === 'string'
+      ? [category]
+      : Object.keys(category);
+
     let dataQuery = query(
       dataCollection,
       where("isActive", "==", true),
-      where("category", "==", category),
+      where("category", "in", categoryArray),
       where("isProduction", "==", Env.isProduction),
       orderBy("datePosted", "desc"),
       limit(pageLimit)

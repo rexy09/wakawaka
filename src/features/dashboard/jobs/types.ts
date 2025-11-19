@@ -16,7 +16,7 @@ export interface IJobPost {
   avatarUrl: string;
   biddingType: string | null;
   budget: number;
-  category: string;
+  category: string | { sw: string; pt: string; en: string; fr: string; es: string };
   commitment: string;
   country: {
     code: string;
@@ -47,7 +47,7 @@ export interface IJobPost {
   postedByUserId: string;
   title: string | null;
   urgency: string;
-  userDateJoined: Timestamp |string | null; // or Date if parsed
+  userDateJoined: Timestamp | string | null; // or Date if parsed
   videoUrl: string | null;
   voiceUrl: string | null;
   workLocation: string;

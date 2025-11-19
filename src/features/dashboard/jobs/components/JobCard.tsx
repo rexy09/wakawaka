@@ -172,7 +172,7 @@ export default function JobCard({ job }: Props) {
                   lineClamp={1}
                   style={{ lineHeight: 1.2 }}
                 >
-                  {job.title ? job.title : job.category}
+                  {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category.en)}
                 </Text>
                 <Group wrap="nowrap" gap={2} mt={2}>
                   <IoTimeOutline size={10} />
@@ -195,7 +195,7 @@ export default function JobCard({ job }: Props) {
                 lineClamp={1}
                 style={{ lineHeight: 1.2 }}
               >
-                {job.category}
+                {typeof job.category === 'string' ? job.category : job.category.en}
               </Text>
               <Group wrap="nowrap" gap={3}>
                 {Icons.location2}

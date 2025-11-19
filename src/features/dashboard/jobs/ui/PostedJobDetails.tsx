@@ -471,7 +471,7 @@ export default function PostedJobDetails() {
                 <div>
                   <Group justify="space-between" wrap="nowrap" align="start">
                     <Text size="18px" fw={600} c="#141514">
-                      {job.title ? job.title : job.category}
+                      {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category?.en || '')}
                     </Text>
                     {job && (
                       <Badge

@@ -158,7 +158,7 @@ export default function AppliedJobDetails() {
                 <div>
                   <Group justify="space-between" wrap="nowrap" align="start">
                     <Text size="18px" fw={600} c="#141514">
-                      {job.title ? job.title : job.category}
+                      {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category?.en || '')}
                     </Text>
                     {applied && (
                       <Badge
@@ -389,30 +389,14 @@ export default function AppliedJobDetails() {
       >
         <Text size="md" c="">
           You are about to apply for:{" "}
-          <strong>{job?.title ? job.title : job?.category}</strong>
+          <strong>{job?.title ? job.title : (typeof job?.category === 'string' ? job.category : job?.category?.en || '')}</strong>
         </Text>
         <Space h="md" />
-        {/* <Textarea
-            label="Cover Letter (Optional)"
-            placeholder="Write a brief cover letter explaining why you're interested in this position..."
-            value={coverLetter}
-            onChange={(event) => setCoverLetter(event.currentTarget.value)}
-            minRows={6}
-            mb="lg"
-          /> */}
+       
         {isAuthenticated ? (
           <Group justify="center">
-            {/* <Button 
-              variant="outline" 
-              onClick={() => {
-                setApplicationModalOpen(false);
-                setCoverLetter("");
-              }}
-              disabled={isApplying}
-              color="gray"
-            >
-              Cancel
-            </Button> */}
+            
+            
             <Button
               onClick={handleJobApplication}
               loading={isApplying}
