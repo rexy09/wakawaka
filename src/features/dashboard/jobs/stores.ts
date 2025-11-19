@@ -1,18 +1,26 @@
 import { create } from "zustand";
+import { ICategory } from "./types";
 export interface JobFilterParameters {
   startDate: string;
   endDate: string;
   search: string;
   location: string;
-  category: string;
+  category: ICategory;
   urgency: string;
   commitment: string;
 }
 
 export interface Actions {
   updateText(
-    type: "startDate" | "endDate" | "search" | "location" | "category" | "urgency" | "commitment",
-    val: string
+    type:
+      | "startDate"
+      | "endDate"
+      | "search"
+      | "location"
+      | "category"
+      | "urgency"
+      | "commitment",
+    val: string | ICategory
   ): void;
   // updateArray(type: "jobTypes", val: string[]): void;
   reset: () => void;
@@ -24,7 +32,7 @@ const initialState: JobFilterParameters = {
   endDate: "",
   search: "",
   location: "",
-  category: "",
+  category: { en: "", fr: "", pt: "", es: "", sw: "" },
   urgency: "",
   commitment: "",
 };

@@ -17,7 +17,7 @@ export default function MyJobs() {
   const tabs = [
     { id: "applied", label: "Applied" },
     { id: "saved", label: "Saved" },
-    { id: "posted", label: "Posted" },
+    { id: "posted", label: "Hired" },
   ];
 
   // Initialize tab from URL params on component mount

@@ -57,6 +57,7 @@ export default function DashboardLayout() {
       <AppShell.Header h={'100px'} withBorder={false}>
         <Header />
       </AppShell.Header>
+      
       <AppShell.Main>
         <Container size="xl">
           <Box

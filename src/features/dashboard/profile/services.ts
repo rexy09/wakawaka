@@ -1,15 +1,14 @@
 import { doc, getDoc, setDoc, Timestamp, updateDoc } from "firebase/firestore";
 import { getToken } from "firebase/messaging";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import Env from "../../../config/env";
 import { messaging } from "../../../config/firebase";
-import { IAuthUser } from "../../auth/types";
+import { useAuth } from "../../auth/context/FirebaseAuthContext";
 import useDbService from "../../services/DbService";
 import { IUserData, ProfileForm } from "./types";
 
 export const useProfileServices = () => {
   const { usersRef, CACHE_DURATION } = useDbService();
-    const authUser = useAuthUser<IAuthUser>();
+    const { user: authUser } = useAuth();
 
   // Add caching for frequently accessed user data
   const userCache = new Map<string, { data: any; timestamp: number }>();
@@ -26,7 +25,7 @@ export const useProfileServices = () => {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log("Fetched user data:", data);
+        // console.log("Fetched user data:", data);
 
         const result = {
           id: docSnap.id,
@@ -86,7 +85,7 @@ export const useProfileServices = () => {
         },
         { merge: true }
       );
-      console.log("User data created successfully:", data);
+      // console.log("User data created successfully:", data);
       return data;
     } catch (error) {
       console.error("Error creating user data:", error);
@@ -105,7 +104,7 @@ export const useProfileServices = () => {
         const token = await getToken(messaging, {
           vapidKey: Env.APP_VAPID_KEY,
         });
-        console.log("FCM Token generated:", token);
+        // console.log("FCM Token generated:", token);
         return token;
       } else {
         console.log("Notification permission denied");
@@ -204,7 +203,7 @@ export const useProfileServices = () => {
         dateUpdated: Timestamp.fromDate(new Date()),
       });
       
-      console.log("Token removed from user successfully");
+      // console.log("Token removed from user successfully");
     } catch (error) {
       console.error("Error removing token from user:", error);
       throw new Error(`Failed to remove token: ${error}`);

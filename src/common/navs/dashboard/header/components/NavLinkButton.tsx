@@ -9,7 +9,7 @@ type Props = {
   to: string;
   iconKey?: string;
 
-  setOpened: React.Dispatch<React.SetStateAction<boolean>>;
+  setOpened?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export default function NavLinkButton(props: Props) {
@@ -17,7 +17,6 @@ export default function NavLinkButton(props: Props) {
   
   return (
     <NavLink
-      onClick={() => props.setOpened(true)}
       target={props.target}
       to={props.to}
       children={({ isActive }) => {

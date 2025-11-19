@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { getAuth, setPersistence, browserLocalPersistence } from "firebase/auth";
 import { getMessaging } from "firebase/messaging";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -16,12 +17,15 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase Auth with persistence
+export const auth = getAuth(app);
+
+// Set auth persistence to LOCAL (persists until explicit sign out)
+setPersistence(auth, browserLocalPersistence);
+
 // Messaging service
 export const messaging = getMessaging(app);
-
-// Initialize Firebase
-// const app = initializeApp(firebaseConfig);
-
 
 // Initialize Cloud Firestore and get a reference to the service
 export const db = getFirestore(app);

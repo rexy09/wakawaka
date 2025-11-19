@@ -17,8 +17,6 @@ import {
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { FaMoneyBills } from "react-icons/fa6";
 import { FiBookmark } from "react-icons/fi";
@@ -26,22 +24,21 @@ import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
 import { MdBusinessCenter, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
+import apple_button from "../../../../assets/img/apple_button.svg";
+import google_button from "../../../../assets/img/google_button.svg";
 import AuthModal from "../../../auth/components/AuthModal";
-import { IUser } from "../../../auth/types";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import AppleSigninButton from "../../../auth/ui/AppleSigninButton";
 import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
+import { timestampToISO } from "../../../hooks/utils";
 import JobCard from "../components/JobCard";
 import { JobCardSkeleton, JobDetailsCardSkeleton } from "../components/Loaders";
 import SearchModal from "../components/SearchModal";
 import { useJobServices } from "../services";
 import { IJobPost, PaginatedResponse } from "../types";
-import { timestampToISO } from "../../../hooks/utils";
-import apple_button from "../../../../assets/img/apple_button.svg";
-import google_button from "../../../../assets/img/google_button.svg";
 
 export default function JobDetails() {
-  const isAuthenticated = useIsAuthenticated();
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser, isAuthenticated } = useAuth();
 
   const {
     getJob,
@@ -192,14 +189,19 @@ export default function JobDetails() {
       });
   };
   const fetchRelatedJobs = (next?: string) => {
+    if (!job?.category) return;
+    
     setLoadingJobs(true);
 
-    getRelatedJobs(job?.category!, id!, next, jobs?.lastDoc, jobs?.firstDoc)
+    // const categoryValue = typeof job?.category === 'string' ? job.category : job?.category?.en || '';
+    getRelatedJobs(job.category, id!, next, jobs?.lastDoc, jobs?.firstDoc)
       .then((response) => {
         setLoadingJobs(false);
         setJobs(response);
       })
       .catch((_error) => {
+        console.log(_error);
+        
         setLoadingJobs(false);
         notifications.show({
           color: "red",
@@ -257,7 +259,22 @@ export default function JobDetails() {
               Related Jobs
             </Text>
           </Group>
-          <SimpleGrid cols={1}>{isLoading ? skeletons : cards}</SimpleGrid>
+          <SimpleGrid cols={1}>
+            {isLoading ? (
+              skeletons
+            ) : jobs?.data && jobs.data.length > 0 ? (
+              cards
+            ) : (
+              <Paper p="xl" ta="center">
+                <Text size="lg" fw={500} c="dimmed" mb="xs">
+                  No related jobs found
+                </Text>
+                <Text size="sm" c="dimmed">
+                  No related jobs available for this job post
+                </Text>
+              </Paper>
+            )}
+          </SimpleGrid>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6, lg: 8 }} order={{ base: 1, md: 2 }}>
           {job ? (
@@ -318,7 +335,7 @@ export default function JobDetails() {
                 <div>
                   <Group justify="space-between" wrap="nowrap" align="start">
                     <Text size="18px" fw={600} c="#141514">
-                      {job.title ? job.title : job.category}
+                      {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category?.en || '')}
                     </Text>
                     <div
                       className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${job.isActive
@@ -370,15 +387,15 @@ export default function JobDetails() {
                 <Space h="xs" />
 
                 <Spoiler maxHeight={146} showLabel="Show more" hideLabel="Hide">
-                  <Text size="md" fw={400} c="#7F7D7D">
-                    {job.description}
-                  </Text>
-
-                  {/* <TypographyStylesProvider>
-                  <div
-                    dangerouslySetInnerHTML={{ __html: job.description }}
-                  />
-                </TypographyStylesProvider> */}
+                    <pre
+                      style={{
+                        whiteSpace: "pre-wrap",
+                        margin: 0,
+                        fontFamily: "inherit",
+                      }}
+                    >
+                      {job.description}
+                    </pre>
                 </Spoiler>
               </Card>
               <Space h="md" />
@@ -577,30 +594,12 @@ export default function JobDetails() {
       >
         <Text size="md" c="">
           You are about to apply for:{" "}
-          <strong>{job?.title ? job.title : job?.category}</strong>
+          <strong>{job?.title ? job.title : (typeof job?.category === 'string' ? job.category : job?.category?.en || '')}</strong>
         </Text>
         <Space h="md" />
-        {/* <Textarea
-            label="Cover Letter (Optional)"
-            placeholder="Write a brief cover letter explaining why you're interested in this position..."
-            value={coverLetter}
-            onChange={(event) => setCoverLetter(event.currentTarget.value)}
-            minRows={6}
-            mb="lg"
-          /> */}
+        
         {isAuthenticated ? (
           <Group justify="center">
-            {/* <Button 
-              variant="outline" 
-              onClick={() => {
-                setApplicationModalOpen(false);
-                setCoverLetter("");
-              }}
-              disabled={isApplying}
-              color="gray"
-            >
-              Cancel
-            </Button> */}
             <Button
               onClick={handleJobApplication}
               loading={isApplying}

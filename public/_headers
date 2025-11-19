@@ -1,0 +1,16 @@
+/*
+  # Prevent clickjacking attacks
+  X-Frame-Options: DENY
+
+
+  # Prevent MIME type sniffing
+  X-Content-Type-Options: nosniff
+
+  # XSS Protection
+  X-XSS-Protection: 1; mode=block
+
+  # Permissions Policy
+  Permissions-Policy: camera=(), microphone=(), geolocation=(self), payment=()
+
+  # HSTS (if using HTTPS)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains

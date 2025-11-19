@@ -6,15 +6,14 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useCallback, useEffect, useRef, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUser } from "../../../auth/types";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import { useJobServices } from "../services";
 import { IJobPost } from "../types";
 import JobCard from "./JobCard";
 import { JobCardSkeleton } from "./Loaders";
 
 export default function SavedJobsTab() {
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser } = useAuth();
   const { getSavedJobs } = useJobServices();
   const [isLoading, setIsLoading] = useState(false);
   const [jobs, setJobs] = useState<IJobPost[]>([]);

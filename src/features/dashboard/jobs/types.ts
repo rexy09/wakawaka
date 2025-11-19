@@ -16,7 +16,7 @@ export interface IJobPost {
   avatarUrl: string;
   biddingType: string | null;
   budget: number;
-  category: string;
+  category: string | { sw: string; pt: string; en: string; fr: string; es: string };
   commitment: string;
   country: {
     code: string;
@@ -47,7 +47,7 @@ export interface IJobPost {
   postedByUserId: string;
   title: string | null;
   urgency: string;
-  userDateJoined: Timestamp |string | null; // or Date if parsed
+  userDateJoined: Timestamp | string | null; // or Date if parsed
   videoUrl: string | null;
   voiceUrl: string | null;
   workLocation: string;
@@ -161,4 +161,46 @@ export interface IJobBid {
   lastUpdated: string;
   message: string;
   status: string;
+}
+
+export interface IExecution {
+  status: string;
+  execution_name: string;
+  completedAt: string;
+  createdAt: string;
+  percentage: number;
+  execution_id: string;
+}
+export interface ISmartHireStatus {
+  execution: IExecution | null;
+}
+
+export interface IAIRecruiter {
+  risk_score: number;
+  employability_score: number;
+  short_reason: string;
+}
+
+// Applicant details
+export interface IApplicant {
+  id: string;
+  applicantName: string;
+  avatarURL: string;
+  coverLetter: string | null;
+  resumeUrl: string | null;
+  ai_recruiter: IAIRecruiter;
+  jobId: string;
+  job_id: string;
+  uid: string;
+  sequence_number: number;
+  status: string;
+  dateAdded: string;
+  dateApplied: string;
+  dateUpdated: string;
+  lastUpdated: string;
+  posted_at: string;
+  execution_id: string;
+  feedback: string | null;
+  isProduction: boolean;
+  attachments: string[];
 }

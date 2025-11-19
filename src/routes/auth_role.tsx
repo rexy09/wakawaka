@@ -1,24 +1,26 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../features/auth/context/FirebaseAuthContext";
 
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { IUser } from "../features/auth/types";
 interface Props {
   allowedRights: string[];
 }
+
 const AuthRights = ({ allowedRights }: Props) => {
-  const authUser = useAuthUser<IUser>();
-
-
+  const { user, isAuthenticated } = useAuth();
   const location = useLocation();
-  
-  const itemsExist = [authUser?.email].some((right: any) =>
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  const itemsExist = [user.email].some((right: any) =>
     allowedRights.includes(right)
   );
 
   return itemsExist ? (
     <Outlet />
   ) : (
-    <Navigate to="/login" state={{ from: location }}  />
+    <Navigate to="/login" state={{ from: location }} replace />
   );
 };
 

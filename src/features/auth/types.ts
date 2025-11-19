@@ -49,10 +49,10 @@ export interface IAuthUser {
   email: string;
   fullName: string;
   avatarURL?: string | null;
-  role: string;
+  role: string | null;
   isVerified: boolean | null;
-  userType: string;
-  country?: Country;
-  currency?: Currency;
+  userType: string | null;
+  country?: Country | null;
+  currency?: Currency | null;
   dateAdded?: Timestamp | string;
 }

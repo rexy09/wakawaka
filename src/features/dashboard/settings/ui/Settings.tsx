@@ -1,8 +1,6 @@
 import { Space, Tabs, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useEffect, useState } from "react";
-import useAuthHeader from "react-auth-kit/hooks/useAuthHeader";
-import useSignIn from "react-auth-kit/hooks/useSignIn";
 import { FaRegUser } from "react-icons/fa";
 import { IUser } from "../../../auth/types";
 import ProfileForm from "../components/ProfileForm";
@@ -15,31 +13,15 @@ export default function Settings() {
   const { getUser } = useSettingsServices();
   const [user, setUser] = useState<IUser>();
   const [isLoading, setIsLoading] = useState(false);
-  const signIn = useSignIn();
-  const authHeader = useAuthHeader();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const updateSystemUser = (userState: IUser) => {
-    if (
-      authHeader &&
-      signIn({
-        auth: {
-          token: authHeader.split(" ")[1],
-          type: "Bearer",
-        },
-        userState: userState,
-      })
-    ) {
-      return;
-    }
-  };
+
   const fetchData = () => {
     setIsLoading(true);
     getUser()
       .then((response) => {
         setIsLoading(false);
         setUser(response.data);
-        updateSystemUser(response.data);
       })
       .catch((_error) => {
         setIsLoading(false);

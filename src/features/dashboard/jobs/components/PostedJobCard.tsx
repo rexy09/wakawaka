@@ -67,7 +67,7 @@ export default function PostedJobCard({ job }: Props) {
                     lineClamp={1}
                     style={{ lineHeight: 1.2 }}
                   >
-                    {job.title ? job.title : job.category}
+                    {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category?.en || '')}
                   </Text>
                   <Menu shadow="md" width={150}>
                     <Menu.Target>
@@ -111,7 +111,7 @@ export default function PostedJobCard({ job }: Props) {
                 lineClamp={1}
                 style={{ lineHeight: 1.2 }}
               >
-                {job.category}
+                {typeof job.category === 'string' ? job.category : job.category?.en || ''}
               </Text>
               <Group wrap="nowrap" gap={3}>
                 {Icons.location2}

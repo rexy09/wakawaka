@@ -16,25 +16,22 @@ import {
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FaMoneyBills } from "react-icons/fa6";
 import { IoLocationOutline, IoTimeOutline } from "react-icons/io5";
 import { MdBusinessCenter, MdVerified } from "react-icons/md";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useParams } from "react-router-dom";
 import AuthModal from "../../../auth/components/AuthModal";
-import { IUser } from "../../../auth/types";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
 import AppleSigninButton from "../../../auth/ui/AppleSigninButton";
 import GoogleSigninButton from "../../../auth/ui/GoogleSigninButton";
+import { timestampToISO } from "../../../hooks/utils";
 import { JobDetailsCardSkeleton } from "../components/Loaders";
 import { useJobServices } from "../services";
 import { IJobApplication, IJobPost } from "../types";
-import { timestampToISO } from "../../../hooks/utils";
 
 export default function AppliedJobDetails() {
-  const isAuthenticated = useIsAuthenticated();
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser, isAuthenticated } = useAuth();
 
   const { getJob, postJobApplication, getAppliedJob } = useJobServices();
   const { id } = useParams();
@@ -161,7 +158,7 @@ export default function AppliedJobDetails() {
                 <div>
                   <Group justify="space-between" wrap="nowrap" align="start">
                     <Text size="18px" fw={600} c="#141514">
-                      {job.title ? job.title : job.category}
+                      {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category?.en || '')}
                     </Text>
                     {applied && (
                       <Badge
@@ -392,30 +389,14 @@ export default function AppliedJobDetails() {
       >
         <Text size="md" c="">
           You are about to apply for:{" "}
-          <strong>{job?.title ? job.title : job?.category}</strong>
+          <strong>{job?.title ? job.title : (typeof job?.category === 'string' ? job.category : job?.category?.en || '')}</strong>
         </Text>
         <Space h="md" />
-        {/* <Textarea
-            label="Cover Letter (Optional)"
-            placeholder="Write a brief cover letter explaining why you're interested in this position..."
-            value={coverLetter}
-            onChange={(event) => setCoverLetter(event.currentTarget.value)}
-            minRows={6}
-            mb="lg"
-          /> */}
+       
         {isAuthenticated ? (
           <Group justify="center">
-            {/* <Button 
-              variant="outline" 
-              onClick={() => {
-                setApplicationModalOpen(false);
-                setCoverLetter("");
-              }}
-              disabled={isApplying}
-              color="gray"
-            >
-              Cancel
-            </Button> */}
+            
+            
             <Button
               onClick={handleJobApplication}
               loading={isApplying}

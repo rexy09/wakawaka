@@ -10,24 +10,21 @@ import {
 import { notifications } from "@mantine/notifications";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import useIsAuthenticated from "react-auth-kit/hooks/useIsAuthenticated";
 import { FiBookmark } from "react-icons/fi";
 import { IoTimeOutline } from "react-icons/io5";
 import { TbUser, TbUsers } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { Icons } from "../../../../common/icons";
-import { IUser } from "../../../auth/types";
-import { IJobPost } from "../types";
-import { useJobServices } from "../services";
 import AuthModal from "../../../auth/components/AuthModal";
+import { useAuth } from "../../../auth/context/FirebaseAuthContext";
+import { useJobServices } from "../services";
+import { IJobPost } from "../types";
 interface Props {
   job: IJobPost;
 }
 export default function JobCard({ job }: Props) {
   const navigate = useNavigate();
-  const isAuthenticated = useIsAuthenticated();
-  const authUser = useAuthUser<IUser>();
+  const { user: authUser, isAuthenticated } = useAuth();
   const { isJobSaved, saveJob, unsaveJob } = useJobServices();
 
   const [isSaved, setIsSaved] = useState(false);
@@ -175,7 +172,7 @@ export default function JobCard({ job }: Props) {
                   lineClamp={1}
                   style={{ lineHeight: 1.2 }}
                 >
-                  {job.title ? job.title : job.category}
+                  {job.title ? job.title : (typeof job.category === 'string' ? job.category : job.category.en)}
                 </Text>
                 <Group wrap="nowrap" gap={2} mt={2}>
                   <IoTimeOutline size={10} />
@@ -198,7 +195,7 @@ export default function JobCard({ job }: Props) {
                 lineClamp={1}
                 style={{ lineHeight: 1.2 }}
               >
-                {job.category}
+                {typeof job.category === 'string' ? job.category : job.category.en}
               </Text>
               <Group wrap="nowrap" gap={3}>
                 {Icons.location2}

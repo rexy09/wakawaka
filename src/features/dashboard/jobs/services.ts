@@ -17,11 +17,11 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "../../../config/firebase";
-import { IAuthUser } from "../../auth/types";
+import { useAuth } from "../../auth/context/FirebaseAuthContext";
 import {
+  IApplicant,
   ICommitmentType,
   IHiredApplication,
   IJobApplication,
@@ -40,7 +40,7 @@ import axios from "axios";
 import { useUtilities } from "../../hooks/utils";
 
 export const useJobServices = () => {
-  const authUser = useAuthUser<IAuthUser>();
+  const { user: authUser } = useAuth();
   const { hiredJobsRef, jobPostsRef, savedJobsRef } = useDbService();
   const { getISODateTimeString } = useUtilities();
 
@@ -59,8 +59,8 @@ export const useJobServices = () => {
       orderBy("datePosted", "desc"),
     ];
 
-    if (p.category !== undefined && p.category !== null && p.category !== "") {
-      totalQueryConstraints.push(where("category", "==", p.category));
+    if (p.category !== undefined && p.category !== null) {
+      totalQueryConstraints.push(where("category", "array-contains", p.category));
     }
     if (p.urgency !== undefined && p.urgency !== null && p.urgency !== "") {
       totalQueryConstraints.push(where("urgency", "==", p.urgency));
@@ -85,9 +85,9 @@ export const useJobServices = () => {
       where("isProduction", "==", Env.isProduction),
       orderBy("datePosted", "desc"),
     ];
-    if (p.category !== undefined && p.category !== null && p.category !== "") {
-      dataQueryConstraints.push(where("category", "==", p.category));
-    }
+    // if (p.category !== undefined && p.category !== null) {
+    //   dataQueryConstraints.push(where("category", "array-contains", p.category));
+    // }
     if (p.urgency !== undefined && p.urgency !== null && p.urgency !== "") {
       dataQueryConstraints.push(where("urgency", "==", p.urgency));
     }
@@ -152,7 +152,9 @@ export const useJobServices = () => {
   };
 
   const getRelatedJobs = async (
-    category: string,
+    category:
+      | string
+      | { sw: string; pt: string; en: string; fr: string; es: string },
     excludeId: string,
     direction: "next" | "prev" | string | undefined,
     startAfterDoc?: DocumentSnapshot,
@@ -162,10 +164,15 @@ export const useJobServices = () => {
 
     const dataCollection = jobPostsRef;
 
+    // Convert category to array for 'in' operator
+    const categoryArray = typeof category === 'string'
+      ? [category]
+      : Object.keys(category);
+
     let dataQuery = query(
       dataCollection,
       where("isActive", "==", true),
-      where("category", "==", category),
+      where("category", "in", categoryArray),
       where("isProduction", "==", Env.isProduction),
       orderBy("datePosted", "desc"),
       limit(pageLimit)
@@ -926,6 +933,37 @@ export const useJobServices = () => {
     return true;
   };
 
+  const smartHireTrigger = async (jobId: string) => {
+    return axios.post(Env.aiBaseURL + "/trigger", { job_id: jobId });
+  };
+  const smartHireStatus = async (jobId: string) => {
+    return axios.get(Env.aiBaseURL + "/job/current-execution", {
+      params: { job_id: jobId },
+    });
+  };
+
+  const getSmartHireResults = async (jobId: string, executionId:string) => {
+    const jobQuery = query(jobPostsRef, where("id", "==", jobId));
+    const jobSnapshot = await getDocs(jobQuery);
+
+    if (jobSnapshot.empty) {
+      throw new Error("Job not found");
+    }
+
+    const jobDoc = jobSnapshot.docs[0];
+    const applicationsCollection = collection(
+      jobDoc.ref,
+      `application_${executionId}`
+    );
+    const applicationsSnapshot = await getDocs(applicationsCollection);
+    const applications = applicationsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as IApplicant[];
+
+    return applications;
+  };
+
   return {
     getJobs,
     getJob,
@@ -952,5 +990,8 @@ export const useJobServices = () => {
     employApplicantFromJob,
     getUserJobPostCount,
     getWorkLocations,
+    smartHireTrigger,
+    smartHireStatus,
+    getSmartHireResults,
   };
 };

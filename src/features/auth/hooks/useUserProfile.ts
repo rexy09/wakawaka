@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
-import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { useProfileServices } from "../../dashboard/profile/services";
-import { IAuthUser, IUser } from "../types";
+import { useAuth } from "../context/FirebaseAuthContext";
+import { IUser } from "../types";
 
 /**
  * Custom hook to fetch additional user profile data
  * Only fetches when needed, reducing auth state size
  */
 export const useUserProfile = () => {
-  const authUser = useAuthUser<IAuthUser>();
+  const { user: authUser } = useAuth();
   const { getUserData } = useProfileServices();
   const [profile, setProfile] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(false);
