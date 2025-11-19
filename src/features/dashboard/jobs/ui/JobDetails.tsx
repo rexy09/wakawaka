@@ -190,7 +190,7 @@ export default function JobDetails() {
   };
   const fetchRelatedJobs = (next?: string) => {
     if (!job?.category) return;
-    
+
     setLoadingJobs(true);
 
     // const categoryValue = typeof job?.category === 'string' ? job.category : job?.category?.en || '';
@@ -201,7 +201,7 @@ export default function JobDetails() {
       })
       .catch((_error) => {
         console.log(_error);
-        
+
         setLoadingJobs(false);
         notifications.show({
           color: "red",
@@ -353,9 +353,7 @@ export default function JobDetails() {
                         typeof job.datePosted === "string"
                           ? new Date(job.datePosted)
                           : job.datePosted.toDate()
-                      )
-                        .startOf("day")
-                        .fromNow()}
+                      ).fromNow()}
                     </Text>
                   </Group>
                 </div>
@@ -387,15 +385,15 @@ export default function JobDetails() {
                 <Space h="xs" />
 
                 <Spoiler maxHeight={146} showLabel="Show more" hideLabel="Hide">
-                    <pre
-                      style={{
-                        whiteSpace: "pre-wrap",
-                        margin: 0,
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      {job.description}
-                    </pre>
+                  <pre
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      margin: 0,
+                      fontFamily: "inherit",
+                    }}
+                  >
+                    {job.description}
+                  </pre>
                 </Spoiler>
               </Card>
               <Space h="md" />
@@ -549,7 +547,7 @@ export default function JobDetails() {
           ) : (
             <JobDetailsCardSkeleton />
           )}
-          {!isAuthenticated&& <>
+          {!isAuthenticated && <>
             <div style={{ textAlign: 'center', marginTop: '24px' }}>
               <Text c="#1B3227" size="28px" fw={600} ta="center" mb="xs">
                 Want More Jobs Like This?
@@ -597,7 +595,7 @@ export default function JobDetails() {
           <strong>{job?.title ? job.title : (typeof job?.category === 'string' ? job.category : job?.category?.en || '')}</strong>
         </Text>
         <Space h="md" />
-        
+
         {isAuthenticated ? (
           <Group justify="center">
             <Button

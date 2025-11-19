@@ -492,9 +492,7 @@ export default function PostedJobDetails() {
                         typeof job.datePosted === "string"
                           ? new Date(job.datePosted)
                           : job.datePosted.toDate()
-                      )
-                        .startOf("day")
-                        .fromNow()}
+                      ).fromNow()}
                     </Text>
                   </Group>
                 </div>
@@ -568,17 +566,15 @@ export default function PostedJobDetails() {
                       </Text>
                       <Text size="16px" fw={700} c="#151F42">
                         <NumberFormatter
-                          prefix={`${
-                            job.currency ? job.currency.code : "TZS"
-                          } `}
+                          prefix={`${job.currency ? job.currency.code : "TZS"
+                            } `}
                           value={job.budget}
                           thousandSeparator
                         />
                         {job.maxBudget > 0 && (
                           <NumberFormatter
-                            prefix={` - ${
-                              job.currency ? job.currency.code : "TZS"
-                            } `}
+                            prefix={` - ${job.currency ? job.currency.code : "TZS"
+                              } `}
                             value={job.maxBudget}
                             thousandSeparator
                           />
@@ -647,13 +643,13 @@ export default function PostedJobDetails() {
                           Joined{" "}
                           {job.userDateJoined
                             ? moment(
-                                typeof job.userDateJoined === "string"
-                                  ? new Date(job.userDateJoined)
-                                  : timestampToISO(
-                                      job.userDateJoined.seconds ?? 0,
-                                      job.userDateJoined.nanoseconds ?? 0
-                                    )
-                              ).format("MMMM YYYY")
+                              typeof job.userDateJoined === "string"
+                                ? new Date(job.userDateJoined)
+                                : timestampToISO(
+                                  job.userDateJoined.seconds ?? 0,
+                                  job.userDateJoined.nanoseconds ?? 0
+                                )
+                            ).format("MMMM YYYY")
                             : "NA"}
                         </Text>
                       </Group>
@@ -697,11 +693,10 @@ export default function PostedJobDetails() {
                     <button
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
-                      className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                        activeTab === tab.id
+                      className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${activeTab === tab.id
                           ? "bg-[#151F42] text-white shadow-sm"
                           : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {tab.label}
                     </button>
@@ -762,8 +757,8 @@ export default function PostedJobDetails() {
                             smartHire.execution.status === "completed"
                               ? "#43A047"
                               : smartHire.execution.status === "failed"
-                              ? "#E53935"
-                              : "#FF9800"
+                                ? "#E53935"
+                                : "#FF9800"
                           }
                           radius="sm"
                           size="lg"
@@ -802,83 +797,83 @@ export default function PostedJobDetails() {
                                     mb={"md"}
                                     key={applicant.uid}
                                   >
-                                      <Group
-                                        justify="space-between"
-                                        align="start"
-                                      >
-                                        <Group gap="sm">
-                                          <Avatar
+                                    <Group
+                                      justify="space-between"
+                                      align="start"
+                                    >
+                                      <Group gap="sm">
+                                        <Avatar
+                                          size="lg"
+                                          radius="xl"
+                                          src={applicant.avatarURL}
+                                        />
+                                        <div>
+                                          <Text
                                             size="lg"
-                                            radius="xl"
-                                            src={applicant.avatarURL}
-                                          />
-                                          <div>
-                                            <Text
-                                              size="lg"
-                                              fw={600}
-                                              c="#000000"
+                                            fw={600}
+                                            c="#000000"
+                                          >
+                                            {applicant.applicantName}
+                                          </Text>
+                                          {applicant.ai_recruiter && (
+                                            <Group
+                                              justify="space-between"
+                                              align="center"
                                             >
-                                              {applicant.applicantName}
-                                            </Text>
-                                            {applicant.ai_recruiter && (
-                                                <Group
-                                                  justify="space-between"
-                                                  align="center"
+                                              <Group gap="xs">
+                                                <Badge
+                                                  size="sm"
+                                                  radius="md"
+                                                  variant="filled"
+                                                  color={
+                                                    applicant.ai_recruiter
+                                                      .risk_score >= 75
+                                                      ? "green"
+                                                      : applicant
+                                                        .ai_recruiter
+                                                        .risk_score >= 50
+                                                        ? "yellow"
+                                                        : "red"
+                                                  }
                                                 >
-                                                  <Group gap="xs">
-                                                    <Badge
-                                                      size="sm"
-                                                      radius="md"
-                                                      variant="filled"
-                                                      color={
-                                                        applicant.ai_recruiter
-                                                          .risk_score >= 75
-                                                          ? "green"
-                                                          : applicant
-                                                              .ai_recruiter
-                                                              .risk_score >= 50
-                                                          ? "yellow"
-                                                          : "red"
-                                                      }
-                                                    >
-                                                      Risk:{" "}
-                                                      {
-                                                        applicant.ai_recruiter
-                                                          .risk_score
-                                                      }
-                                                      %
-                                                    </Badge>
-                                                    <Badge
-                                                      size="sm"
-                                                      radius="md"
-                                                      variant="outline"
-                                                      color="blue"
-                                                    >
-                                                      Hire:{" "}
-                                                      {
-                                                        applicant.ai_recruiter
-                                                          .employability_score
-                                                      }
-                                                      %
-                                                    </Badge>
-                                                  </Group>
+                                                  Risk:{" "}
+                                                  {
+                                                    applicant.ai_recruiter
+                                                      .risk_score
+                                                  }
+                                                  %
+                                                </Badge>
+                                                <Badge
+                                                  size="sm"
+                                                  radius="md"
+                                                  variant="outline"
+                                                  color="blue"
+                                                >
+                                                  Hire:{" "}
+                                                  {
+                                                    applicant.ai_recruiter
+                                                      .employability_score
+                                                  }
+                                                  %
+                                                </Badge>
+                                              </Group>
 
-                                                  <Button
-                                                  
-                                                  size="compact-xs"
-                                                    variant="light"
-                                                    color="blue"
-                                                    onClick={() =>
-                                                      openModal(applicant)
-                                                    }
-                                                  >
-                                                    View Details
-                                                  </Button>
-                                                </Group>
-                                            )}
-                                          </div>
-                                        </Group>
+                                              <Button
+
+                                                size="compact-xs"
+                                                variant="light"
+                                                color="blue"
+                                                onClick={() =>
+                                                  openModal(applicant)
+                                                }
+                                              >
+                                                View Details
+                                              </Button>
+                                            </Group>
+                                          )}
+                                        </div>
                                       </Group>
+                                    </Group>
 
                                   </Paper>
                                 );
@@ -943,11 +938,10 @@ export default function PostedJobDetails() {
                     <button
                       key={tab.id}
                       onClick={() => handleTabChange(tab.id)}
-                      className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                        activeTab === tab.id
+                      className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${activeTab === tab.id
                           ? "bg-[#151F42] text-white shadow-sm"
                           : "text-gray-600 hover:text-gray-800 hover:bg-gray-200"
-                      }`}
+                        }`}
                     >
                       {tab.label}
                     </button>
@@ -1026,8 +1020,8 @@ export default function PostedJobDetails() {
                       modalApplicant.ai_recruiter.risk_score >= 75
                         ? "#43A047"
                         : modalApplicant.ai_recruiter.risk_score >= 50
-                        ? "#F9A825"
-                        : "#E53935"
+                          ? "#F9A825"
+                          : "#E53935"
                     }
                   >
                     {modalApplicant.ai_recruiter.risk_score}%
@@ -1038,16 +1032,16 @@ export default function PostedJobDetails() {
                       modalApplicant.ai_recruiter.risk_score >= 75
                         ? "green"
                         : modalApplicant.ai_recruiter.risk_score >= 50
-                        ? "yellow"
-                        : "red"
+                          ? "yellow"
+                          : "red"
                     }
                     size="lg"
                   >
                     {modalApplicant.ai_recruiter.risk_score >= 75
                       ? "Low Risk"
                       : modalApplicant.ai_recruiter.risk_score >= 50
-                      ? "Medium Risk"
-                      : "High Risk"}
+                        ? "Medium Risk"
+                        : "High Risk"}
                   </Badge>
                 </Group>
               </div>
@@ -1064,8 +1058,8 @@ export default function PostedJobDetails() {
                     {modalApplicant.ai_recruiter.employability_score >= 75
                       ? "Excellent"
                       : modalApplicant.ai_recruiter.employability_score >= 50
-                      ? "Good"
-                      : "Fair"}
+                        ? "Good"
+                        : "Fair"}
                   </Badge>
                 </Group>
               </div>
@@ -1107,15 +1101,15 @@ export default function PostedJobDetails() {
                     modalApplicant.ai_recruiter.risk_score >= 75
                       ? "#43A047"
                       : modalApplicant.ai_recruiter.risk_score >= 50
-                      ? "#F9A825"
-                      : "#E53935"
+                        ? "#F9A825"
+                        : "#E53935"
                   }
                 >
                   {modalApplicant.ai_recruiter.risk_score >= 75
                     ? "✅ Strongly Recommended"
                     : modalApplicant.ai_recruiter.risk_score >= 50
-                    ? "⚠️ Consider with Caution"
-                    : "❌ Not Recommended"}
+                      ? "⚠️ Consider with Caution"
+                      : "❌ Not Recommended"}
                 </Text>
               </div>
 
@@ -1130,8 +1124,8 @@ export default function PostedJobDetails() {
                   modalApplicant.ai_recruiter.risk_score >= 75
                     ? "green"
                     : modalApplicant.ai_recruiter.risk_score >= 50
-                    ? "yellow"
-                    : "red"
+                      ? "yellow"
+                      : "red"
                 }
                 onClick={() => {
                   if (modalApplicant.ai_recruiter.risk_score >= 50) {
@@ -1144,8 +1138,8 @@ export default function PostedJobDetails() {
                 {modalApplicant.ai_recruiter.risk_score >= 75
                   ? "Hire Now"
                   : modalApplicant.ai_recruiter.risk_score >= 50
-                  ? "Consider Hiring"
-                  : "Not Recommended"}
+                    ? "Consider Hiring"
+                    : "Not Recommended"}
               </Button>
             </Group>
           </Stack>
