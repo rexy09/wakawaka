@@ -73,7 +73,7 @@ export const useProfileServices = () => {
           fcmTokens: notificationToken ? [notificationToken] : [],
           deviceUniqueId: null,
           isProduction: Env.isProduction,
-          isVerified: true,
+          isVerified: false,
           isOnline: true,
           isDeleted: false,
           lastSeen: Timestamp.fromDate(new Date()),
