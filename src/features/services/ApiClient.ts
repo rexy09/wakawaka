@@ -11,144 +11,25 @@ interface RequestOptions {
 }
 
 export default function useApiClient() {
-  const { getIdToken } = useAuth();
-  // const { notifyError } = userTostify();
-  // const { userLogin } = useLoginServices();
-  // const signIn = useSignIn();
-  // const app = initializeApp(firebaseConfig);
-  // const auth = getAuth(app);
+  const { getIdToken, signOutUser } = useAuth();
 
-  // const errorHandlerSwitch = (message: string) => {
-  //   switch (message) {
-  //     case "author_id : Required property, author_id : Expected string":
-  //       return true;
-  //     case "author_id : Required property":
-  //       return true;
-  //     default:
-  //       return false;
-  //   }
-  // };
-
-  // Add a request interceptor
-  /*  axios.interceptors.request.use(
-    async function (config) {
-      // Do something before request is sent
-
-      if (
-        config.params &&
-        typeof config.params === "object" &&
-        config.params.hasOwnProperty("author_id")
-      ) {
-        if (config.params.author_id === undefined) {
-         
-          try {
-            const user = auth.currentUser;
-            // console.log(user);
-            const token = await user?.getIdToken(true);
-            const response = await userLogin(user?.email!, token!);
-            const apiData = response.data as ApiResponse;
-            const data = apiData.data as IUserData;
-            if (
-              signIn({
-                auth: {
-                  token: token!,
-                  type: "Bearer",
-                },
-                refresh: token,
-                userState: data,
-              })
-            ) {
-              config.params.author_id = data.id;
-              config.headers.Authorization = "Bearer " + token;
-              return config;
-            } else {
-              signOut();
-              navigate("/login", { replace: true });
-            }
-          } catch (error) {
-            // console.error("Error fetching new token:", error);
-          }
-        }
-      }
-
-      return config;
-    },
-    function (error) {
-      // Do something with request error
-      return Promise.reject(error);
-    }
-  );
- */
   axios.interceptors.response.use(
     (response) => response,
     async (error) => {
-      // console.log(error.response.data);
-      // const data = error.response.data;
       const status = error.response ? error.response.status : null;
-      // console.log("Error Status: ", status);
 
-      if (status === 400) {
-        // Handle unauthorized access
-        // if (errorHandlerSwitch(data.message as string)) {
-        //   // notifyError("Unauthorized");
-        //   // signOut();
-        //   // navigate("/login", { replace: true });
-        // }
-      } else if (status === 401) {
-        // Handle unauthorized access
-        // notifyError("Unauthorized");
-        // signOut();
-        // navigate("/login", { replace: true });
-        
-      //  if (
-      //    error.response.data.type &&
-      //    typeof error?.response?.data?.type === "string" &&
-      //    error.response.data.type == "keycloak"
-      //  ) {
-      //    return;
-      //  }
-      //   navigate("/auth/callback");
-      } else if (status === 403) {
-        // Handle unauthorized access
-      } else if (status === 404) {
-        // Handle not found errors
-      } else {
-        // Handle other errors
-        // notifyError("Error something went wrong!");
+      if (status === 401) {
+        try {
+          await signOutUser();
+        } catch {
+          // Sign-out failed; continue with rejection
+        }
+        window.location.href = "/signin";
       }
 
       return Promise.reject(error);
     }
   );
-
-  /*  const refreshUserSession = async () => {
-   
-    try {
-      const user = auth.currentUser;
-      // console.log(user);
-      const token = await user?.getIdToken(true);
-      const response = await userLogin(user?.email!, token!);
-      const apiData = response.data as ApiResponse;
-      const data = apiData.data as IUserData;
-      if (
-        signIn({
-          auth: {
-            token: token!,
-            type: "Bearer",
-          },
-          refresh: token,
-          userState: data,
-        })
-      ) {
-        // console.log("Refresh successfuly");
-      } else {
-        signOut();
-        navigate("/login", { replace: true });
-      }
-    } catch (error) {
-      // console.error("Error fetching new token:", error);
-    }
-  }; */
 
   async function sendRequest({
     method,
@@ -157,9 +38,6 @@ export default function useApiClient() {
     params,
     headers,
   }: RequestOptions) {
-    // Generate CSRF token for state-changing requests
-    const csrfToken = method !== 'get' ? generateCSRFToken() : undefined;
-
     // Get Firebase ID token
     const token = await getIdToken();
     const authHeader = token ? `Bearer ${token}` : undefined;
@@ -171,15 +49,10 @@ export default function useApiClient() {
       params: params,
       headers: {
         ...(authHeader && { Authorization: authHeader }),
-        'X-Requested-With': 'XMLHttpRequest', // CSRF protection
-        ...(csrfToken && { 'X-CSRF-Token': csrfToken }),
+        'X-Requested-With': 'XMLHttpRequest',
         ...headers
       },
     });
-  }
-
-  function generateCSRFToken(): string {
-    return crypto.randomUUID();
   }
 
   return { sendRequest };
