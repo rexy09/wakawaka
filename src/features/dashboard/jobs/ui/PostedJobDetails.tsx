@@ -528,11 +528,6 @@ export default function PostedJobDetails() {
                     {job.description}
                   </Text>
 
-                  {/* <TypographyStylesProvider>
-                  <div
-                    dangerouslySetInnerHTML={{ __html: job.description }}
-                  />
-                </TypographyStylesProvider> */}
                 </Spoiler>
               </Card>
               <Space h="md" />
