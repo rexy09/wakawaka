@@ -42,7 +42,7 @@ export default function SignOutModal({ menuButton }: Props) {
               close();
               try {
                 await signOutUser();
-                localStorage.clear();
+                sessionStorage.clear();
                 notificationStore.reset();
                 navigate("/");
               } catch (error) {
