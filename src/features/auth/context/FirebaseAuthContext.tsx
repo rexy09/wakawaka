@@ -37,6 +37,17 @@ interface AuthProviderProps {
   children: React.ReactNode;
 }
 
+function isValidAuthUser(data: unknown): data is IAuthUser {
+  if (typeof data !== 'object' || data === null) return false;
+  const obj = data as Record<string, unknown>;
+  return (
+    typeof obj.id === 'string' &&
+    typeof obj.uid === 'string' &&
+    typeof obj.email === 'string' &&
+    typeof obj.fullName === 'string'
+  );
+}
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
   const [user, setUser] = useState<IAuthUser | null>(null);
@@ -46,20 +57,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setFirebaseUser(firebaseUser);
 
-      // If Firebase user is null, clear app user data
       if (!firebaseUser) {
         setUser(null);
-        localStorage.removeItem('user_data');
+        sessionStorage.removeItem('user_data');
       } else {
-        // Try to restore user data from localStorage
-        const savedUserData = localStorage.getItem('user_data');
+        const savedUserData = sessionStorage.getItem('user_data');
         if (savedUserData) {
           try {
             const userData = JSON.parse(savedUserData);
-            setUser(userData);
-          } catch (error) {
-            console.error('Error parsing saved user data:', error);
-            localStorage.removeItem('user_data');
+            if (isValidAuthUser(userData)) {
+              setUser(userData);
+            } else {
+              sessionStorage.removeItem('user_data');
+            }
+          } catch {
+            sessionStorage.removeItem('user_data');
           }
         }
       }
@@ -74,30 +86,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(userData);
     setFirebaseUser(firebaseUserObj);
 
-    // Persist user data to localStorage
-    localStorage.setItem('user_data', JSON.stringify(userData));
+    sessionStorage.setItem('user_data', JSON.stringify(userData));
   };
 
   const signOutUser = async () => {
-    try {
-      await signOut(auth);
-      setUser(null);
-      setFirebaseUser(null);
-      localStorage.removeItem('user_data');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      throw error;
-    }
+    await signOut(auth);
+    setUser(null);
+    setFirebaseUser(null);
+    sessionStorage.removeItem('user_data');
   };
 
   const getIdToken = async (forceRefresh: boolean = false): Promise<string | null> => {
     if (firebaseUser) {
-      try {
-        return await firebaseUser.getIdToken(forceRefresh);
-      } catch (error) {
-        console.error('Error getting ID token:', error);
-        throw error;
-      }
+      return await firebaseUser.getIdToken(forceRefresh);
     }
     return null;
   };
@@ -110,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      localStorage.setItem('user_data', JSON.stringify(updatedUser));
+      sessionStorage.setItem('user_data', JSON.stringify(updatedUser));
     }
   };
 
