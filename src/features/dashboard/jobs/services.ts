@@ -40,7 +40,7 @@ import axios from "axios";
 import { useUtilities } from "../../hooks/utils";
 
 export const useJobServices = () => {
-  const { user: authUser } = useAuth();
+  const { user: authUser, getIdToken } = useAuth();
   const { hiredJobsRef, jobPostsRef, savedJobsRef } = useDbService();
   const { getISODateTimeString } = useUtilities();
 
@@ -720,6 +720,12 @@ export const useJobServices = () => {
     return application;
   };
   const getJobApplications = async ({ jobId }: { jobId: string }) => {
+    // Verify the current user owns this job before exposing applicant data
+    const job = await getJob(jobId);
+    if (!job || job.postedByUserId !== authUser?.uid) {
+      throw new Error("Unauthorized: you do not own this job");
+    }
+
     const jobRef = doc(db, "jobPosts", jobId);
     const applicationsCollection = collection(jobRef, "applications");
     const queryConstraints = [
@@ -933,16 +939,39 @@ export const useJobServices = () => {
     return true;
   };
 
-  const smartHireTrigger = async (jobId: string) => {
-    return axios.post(Env.aiBaseURL + "/trigger", { job_id: jobId });
+  const getAuthHeaders = async () => {
+    const token = await getIdToken();
+    if (!token) throw new Error("User is not authenticated");
+    return { Authorization: `Bearer ${token}` };
   };
+
+  const verifyJobOwnership = async (jobId: string) => {
+    const job = await getJob(jobId);
+    if (!job) throw new Error("Job not found");
+    if (job.postedByUserId !== authUser?.uid) {
+      throw new Error("Unauthorized: you do not own this job");
+    }
+    return job;
+  };
+
+  const smartHireTrigger = async (jobId: string) => {
+    await verifyJobOwnership(jobId);
+    const headers = await getAuthHeaders();
+    return axios.post(Env.aiBaseURL + "/trigger", { job_id: jobId }, { headers });
+  };
+
   const smartHireStatus = async (jobId: string) => {
+    await verifyJobOwnership(jobId);
+    const headers = await getAuthHeaders();
     return axios.get(Env.aiBaseURL + "/job/current-execution", {
       params: { job_id: jobId },
+      headers,
     });
   };
 
-  const getSmartHireResults = async (jobId: string, executionId:string) => {
+  const getSmartHireResults = async (jobId: string, executionId: string) => {
+    await verifyJobOwnership(jobId);
+
     const jobQuery = query(jobPostsRef, where("id", "==", jobId));
     const jobSnapshot = await getDocs(jobQuery);
 
